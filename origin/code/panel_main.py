@@ -21,7 +21,8 @@ early_stop_tolerance = 10
 max_step = 100000   
 
 device_idx = 0
-experiment_home = './experiment/ag_news'
+# experiment_home = './experiment/ag_news'
+experiment_home = './experiment/test'
 dataset = 'ag_news'   # 'ag_news', 'yahoo', 'imdb', 'empatheticdialogues', 'threecrises', 'goemotions'
 
 # JointMatch
@@ -48,9 +49,9 @@ bs = 4
 ul_ratio = 10
 lr = 2e-5
 weight_u_loss = 1
-psl_threshold_h = 0.98  # 0.98, 0.99
-adaptive_threshold = True
-num_nets = 2
+psl_threshold_h = 0.98  # 0.98, 0.99 #타우:수도라벨 threshold
+adaptive_threshold = True #동적threshold, adaptive local threshold
+num_nets = 2 #모델 수
 cross_labeling  = True
 weight_disagreement = True
 disagree_weight = 0.9

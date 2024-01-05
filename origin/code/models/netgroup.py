@@ -18,21 +18,25 @@ class NetGroup(nn.Module):
     def __init__(self, net_arch, num_nets, n_classes, device, lr, lr_linear=1e-3):
         super(NetGroup, self).__init__()
         # parameters
-        self.net_arch = net_arch
-        self.num_nets = num_nets
-        self.n_classes = n_classes
-        self.device = device
-        self.lr = lr
+        self.net_arch = net_arch #신경망 아키텍처
+        self.num_nets = num_nets #신경망 개수
+        self.n_classes = n_classes #클래스 개수
+        self.device = device #디바이스
+        self.lr = lr #lr
 
         # initialize the group of networks
-        self.nets = {}
-        for i in range(num_nets):
-            self.nets[i] = self.init_net(net_arch)
+        # 신경망 그룹 초기화
+        self.nets = {} #신경망 그룹 저장 딕셔너리
+        ##{0: BERTForSequenceClass...}
+        ##{1: BERTForSequenceClass...}
+        for i in range(num_nets): 
+            self.nets[i] = self.init_net(net_arch) #초기화
 
         # initialize optimizers for the group of networks
-        self.optimizers = {}
+        #신경망 그룹을 위한 옵티마이저 초기화
+        self.optimizers = {} #옵티마이저 저장 딕셔너리
         for i in range(num_nets):
-            self.optimizers[i] = self.init_optimizer(self.nets[i], lr, lr_linear)
+            self.optimizers[i] = self.init_optimizer(self.nets[i], lr, lr_linear)#초기화
 
     # initialize one network
     def init_net(self, net_arch):
@@ -56,15 +60,16 @@ class NetGroup(nn.Module):
     
     # EMA initialization
     def init_ema(self, ema_momentum):
-        self.emas = {}
-        for i in range(self.num_nets):
-            self.emas[i] = EMA(self.nets[i], ema_momentum)
-            self.emas[i].register()
+        self.emas = {} # 지수이동평균(EMA) 객체 저장 딕셔너리
+        for i in range(self.num_nets):#신경망 개수만큼 반복
+            self.emas[i] = EMA(self.nets[i], ema_momentum)# 각 신경망에 대한 EMA 초기화
+            self.emas[i].register() # 원본 모델의 파라미터를 EMA에 등록
 
     # switch to eval mode with EMA
+    
     def eval_ema(self):
-        for i in range(self.num_nets):
-            self.emas[i].apply_shadow()
+        for i in range(self.num_nets):#
+            self.emas[i].apply_shadow() #각 신경망에 대해 모델 파라미터를 EMA 값으로 설정하고, 백업에 현재 파라미터 저장
 
     # switch to train mode with EMA
     def train_ema(self):
@@ -74,7 +79,7 @@ class NetGroup(nn.Module):
     # switch to train mode
     def train(self):
         for i in range(self.num_nets):
-            self.nets[i].train()
+            self.nets[i].train() #각 신경망 그룹을 train 시킨다.
 
     # switch to eval mode
     def eval(self):

@@ -124,6 +124,7 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
     print('Check n_smaples_per_class in the labeled training set: ', train_l_df['label'].value_counts().to_dict())
     print('Check n_smaples_per_class in the unlabeled training set: ', train_u_df['label'].value_counts().to_dict())
 
+    ##load_mode == 'semi'때는 SEMIDataset class 실행 -> synonym_aug와back_translation데이터 가져옴
     if load_mode == 'semi':
         if 'yahoo' in data_path:
             bt_df = pd.read_csv(os.path.join(data_path, 'bt_train.csv'))
@@ -135,14 +136,17 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
             train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['synonym_aug'].to_list(), train_u_df['back_translation'], labels=train_u_df['label'].to_list())
         train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator(tokenizer))
     
+    ##load_mode == 'sup_baseline'는 sup_baseline class실행->content와 label만
     elif load_mode == 'sup_baseline':
         train_dataset_l = SEMINoAugDataset(train_l_df['content'].to_list(), train_l_df['label'].to_list())
         train_loader_u = None
-        
+    
+    ##shuffle=True로 데이터를 섞고 배치를 형성 : 각 epoch마다 모델이 다양한 데이터를 보게되어 모델의 학습이 더 효과적(train)
     train_loader_l = DataLoader(dataset=train_dataset_l, batch_size=bs, shuffle=True, collate_fn=MyCollator(tokenizer))
 
     dev_dataset = SEMINoAugDataset(dev_df['content'].to_list(), labels=dev_df['label'].to_list())
     test_dataset = SEMINoAugDataset(test_df['content'].to_list(), labels=test_df['label'].to_list())
+    ##shuffle=False로 하면 일관된 평가가 가능 : 주로 valid,test단계에서사용
     dev_loader = DataLoader(dataset=dev_dataset, batch_size=2*bs, shuffle=False, collate_fn=MyCollator(tokenizer))
     test_loader = DataLoader(dataset=test_dataset, batch_size=2*bs, shuffle=False, collate_fn=MyCollator(tokenizer))
 

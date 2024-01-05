@@ -12,9 +12,10 @@ class TextClassifier(nn.Module):
         self.linear = nn.Sequential(nn.Linear(768, 128),
                                     nn.Tanh(),
                                     nn.Linear(128, num_labels))
-        
+    
+    #순전파(forward pass) 정의: 모델이 입력에 대해 예측을 만들어내는 단계
     def forward(self, inputs):
-        outputs = self.bert(**inputs)
-        pooled_output = torch.mean(outputs.last_hidden_state, dim=1)
-        predict = self.linear(pooled_output)
-        return predict
+        outputs = self.bert(**inputs) #input으로 받은 text데이터를 bert모델에 주입
+        pooled_output = torch.mean(outputs.last_hidden_state, dim=1)#출력을 평균하여last_hidden_state를 얻은 후, 
+        predict = self.linear(pooled_output) #이를 선형 레이어를 통해 예측값을 반환
+        return predict 
