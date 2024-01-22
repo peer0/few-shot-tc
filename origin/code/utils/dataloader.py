@@ -102,9 +102,15 @@ def train_split(labels, n_labeled_per_class, unlabeled_per_class=None):
 def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     
+    
     train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
     dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
     test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
+    
+    #ihc
+    # train_df = pd.read_csv(os.path.join(data_path,'train.tsv'), sep='\t')
+    # dev_df = pd.read_csv(os.path.join(data_path,'valid.tsv'), sep='\t')
+    # test_df = pd.read_csv(os.path.join(data_path,'test.tsv'), sep='\t')
     
     labels = list(train_df["label"])
     num_class = len(set(labels))
