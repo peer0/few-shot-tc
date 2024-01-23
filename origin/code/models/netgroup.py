@@ -9,9 +9,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 from copy import deepcopy
 from torch.optim import AdamW
-from transformers import AutoConfig, AutoModelForSequenceClassification, AutoTokenizer
+from transformers import AutoConfig, AutoModelForSequenceClassification
 from utils.ema import EMA
 from models.model import TextClassifier
+
 
 
 class NetGroup(nn.Module):
@@ -44,6 +45,8 @@ class NetGroup(nn.Module):
             net = AutoModelForSequenceClassification.from_pretrained('bert-base-uncased', num_labels = self.n_classes)
         elif net_arch == 'bert-base-uncased-2':
             net = TextClassifier(num_labels = self.n_classes)
+        elif net_arch == 'microsoft/codebert-base':
+            net =  AutoModelForSequenceClassification.from_pretrained('microsoft/codebert-base', num_labels = self.n_classes)
         net.to(self.device)
         return net
 
@@ -56,6 +59,9 @@ class NetGroup(nn.Module):
             optimizer_net = AdamW([{"params": net.bert.parameters(), "lr": lr},
                                    {"params": net.linear.parameters(), "lr": lr_linear}])
             print('net_arch: ', self.net_arch, 'lr: ', lr, 'lr_linear: ', lr_linear)  
+        elif self.net_arch == 'microsoft/codebert-base':
+            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
+            print('net_arch: ', self.net_arch, 'lr: ', lr)
         return optimizer_net
     
     # EMA initialization
@@ -95,6 +101,11 @@ class NetGroup(nn.Module):
         elif self.net_arch == 'bert-base-uncased-2':
             x.to(self.device)
             outs = net(x)
+        elif self.net_arch == 'microsoft/codebert-base':
+            input_ids = x['input_ids'].to(self.device)
+            attention_mask = x['attention_mask'].to(self.device)
+            # outs = net(input_ids, attention_mask=attention_mask, return_dict=True).last_hidden_state
+            outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
         return outs
     
     # forward the group of networks from the same batch input
@@ -118,6 +129,7 @@ class NetGroup(nn.Module):
 
     # update the group of networks with EMA
     def update_ema(self):
+        #netgroup 객체 내의 모든 네트워크들의 EMA가 업데이트 됨
         for i in range(self.num_nets):
             self.emas[i].update()
 
