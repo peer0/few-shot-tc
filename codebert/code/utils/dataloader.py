@@ -72,64 +72,26 @@ class MyCollator(object):
         return {'x': tokenized, 'x_w': tokenized_aug1,'x_s': tokenized_aug2, 'label': labels}
 
 
-# class BalancedBatchSampler(torch.utils.data.sampler.Sampler):
-#     def __init__(self, dataset):
-#         self.dataset = dataset
-#         self.indices = list(range(len(dataset)))
-#         self.num_classes = len(np.unique(dataset.labels))
-#         # Adjust for 1-indexed class labels
-#         self.class_indices = [np.where(np.array(dataset.labels) == i+1)[0] for i in range(self.num_classes)]
-
-#     def __iter__(self):
-#         while True:
-#             # Shuffle class indices
-#             class_order = np.random.permutation(self.num_classes)
-#             for i in class_order:
-#                 yield self.class_indices[i][0]
-#                 self.class_indices[i] = np.roll(self.class_indices[i], -1)  # Move selected index to the end
-
-#     def __len__(self):
-#         return len(self.dataset)
-# class BalancedBatchSampler(torch.utils.data.sampler.Sampler):
-#     def __init__(self, dataset):
-#         self.dataset = dataset
-#         self.indices = list(range(len(dataset)))
-#         self.num_classes = len(np.unique(dataset.labels))
-#         # Adjust for 1-indexed class labels
-#         self.class_indices = [np.where(np.array(dataset.labels) == i+1)[0] for i in range(self.num_classes)]
-#         self.samples_per_class = 1  # Ensure at least one sample per class in each batch
-
-#     def __iter__(self):
-#         while True:
-#             # Shuffle class indices
-#             class_order = np.random.permutation(self.num_classes)
-#             for i in class_order:
-#                 # Select the same number of samples from each class
-#                 for _ in range(self.samples_per_class):
-#                     yield self.class_indices[i][0]
-#                     self.class_indices[i] = np.roll(self.class_indices[i], -1)  # Move selected index to the end
-
-#     def __len__(self):
-#         return len(self.dataset)
-
 class BalancedBatchSampler(torch.utils.data.sampler.Sampler):
-    def __init__(self, dataset):
+    def __init__(self, dataset, batch_size):
         self.dataset = dataset
         self.indices = list(range(len(dataset)))
         self.num_classes = len(np.unique(dataset.labels))
         # Adjust for 1-indexed class labels
         self.class_indices = [np.where(np.array(dataset.labels) == i+1)[0] for i in range(self.num_classes)]
-        self.batch_size = self.num_classes  # Set batch size equal to the number of classes
+        self.batch_size = batch_size  # Set batch size equal to the number of classes
 
     def __iter__(self):
-        while True:
+        # Calculate the number of iterations
+        num_iterations = len(self.dataset) // self.batch_size
+
+        for _ in range(num_iterations):
             # Shuffle class indices
             class_order = np.random.permutation(self.num_classes)
             # Select one sample from each class for each batch
-            for _ in range(len(self.dataset) // self.batch_size):
-                for i in class_order:
-                    yield self.class_indices[i][0]
-                    self.class_indices[i] = np.roll(self.class_indices[i], -1)  # Move selected index to the end
+            for i in class_order:
+                yield self.class_indices[i][0]
+                self.class_indices[i] = np.roll(self.class_indices[i], -1)  # Move selected index to the end
 
     def __len__(self):
         return len(self.dataset)
@@ -206,21 +168,30 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
         else:
             train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['synonym_aug'].to_list(), train_l_df['back_translation'], labels=train_l_df['label'].to_list())
             train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['synonym_aug'].to_list(), train_u_df['back_translation'], labels=train_u_df['label'].to_list())
+        
+        
         train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator(tokenizer))
+        #2024-01-26
+        # sampler = BalancedBatchSampler(train_dataset_u,bs)
+        # train_loader_u = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=sampler,collate_fn=MyCollator(tokenizer))
     
     ##load_mode == 'sup_baseline'는 sup_baseline class실행->content와 label만
     elif load_mode == 'sup_baseline':
         train_dataset_l = SEMINoAugDataset(train_l_df['content'].to_list(), train_l_df['label'].to_list())
         train_loader_u = None
     
-    sampler = BalancedBatchSampler(train_dataset_l)
-    train_loader_l = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=sampler, collate_fn=MyCollator(tokenizer))
-
-    # train_loader_l = DataLoader(dataset=train_dataset_l, batch_size=bs, shuffle=True, collate_fn=MyCollator(tokenizer))
-    
+    ##2024-01-26
+    train_sampler = BalancedBatchSampler(train_dataset_l,bs)
+    train_loader_l = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=train_sampler,collate_fn=MyCollator(tokenizer))
+    # train_loader_l = DataLoader(dataset=train_dataset_l, batch_size=bs, shuffle=True, collate_fn=MyCollator(tokenizer))    
     dev_dataset = SEMINoAugDataset(dev_df['content'].to_list(), labels=dev_df['label'].to_list())
     test_dataset = SEMINoAugDataset(test_df['content'].to_list(), labels=test_df['label'].to_list())
     ##shuffle=False로 하면 일관된 평가가 가능 : 주로 valid,test단계에서사용
+    
+    ##2024-01-26
+    # dev_sampler = BalancedBatchSampler(dev_dataset,bs)
+    # dev_loader = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=dev_sampler,collate_fn=MyCollator(tokenizer))
+
     dev_loader = DataLoader(dataset=dev_dataset, batch_size=2*bs, shuffle=False, collate_fn=MyCollator(tokenizer))
     test_loader = DataLoader(dataset=test_dataset, batch_size=2*bs, shuffle=False, collate_fn=MyCollator(tokenizer))
 

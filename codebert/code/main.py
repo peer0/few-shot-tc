@@ -149,7 +149,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
         # Tracking variables
         preds_all = []
         target_all = []
-        
+
         # Evaluate data for one epoch
         for batch in loader:
             b_labels = batch['label'].to(device)
@@ -167,16 +167,13 @@ def oneRun(log_dir, output_dir_experiment, **params):
             preds_all.append(preds)
             target_all.append(target)
 
-            # unique, counts = torch.unique(b_labels, return_counts=True)
-            # print(f"Batch class counts: {dict(zip(unique.cpu().numpy(), counts.cpu().numpy()))}")
+            #2024-01-25 class별 개수를 구합니다.
             unique, counts = torch.unique(b_labels, return_counts=True)
             class_counts = dict(zip(unique.cpu().numpy(), counts.cpu().numpy()))
-
             # Sort the dictionary by keys (class labels)
             class_counts = {k: v for k, v in sorted(class_counts.items())}
-
             print(f"Batch class counts: {class_counts}")
-
+            
         # Calculate acc and macro-F1
         # print('preds_all', preds_all)
         # print('target_all', target_all)
@@ -189,10 +186,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
         acc = accuracy_score(target_all, preds_all)
         f1 = f1_score(target_all, preds_all, average='macro')
         
-        #2024-01-24
-        loss_fn = nn.CrossEntropyLoss()
-        loss = loss_fn(preds_all, target_all)
-
         # Calculate classwise acc
         accuracy_classwise_ = accuracy_classwise(preds_all, target_all).numpy().round(3)
 
@@ -236,34 +229,43 @@ def oneRun(log_dir, output_dir_experiment, **params):
         for batch_label in train_labeled_loader:
             ## --- Evaluation: Check Performance on Validation set every val_interval batches ---##
             if step % val_interval == 0:   
-                # acc_test, f1_test, acc_test_cw = evaluation(test_loader)
-                # acc_val, f1_val, acc_val_cw = evaluation(dev_loader) #임시로 주석처리
+                print("=======test_loader=======")
+                acc_test, f1_test, acc_test_cw = evaluation(test_loader)
+                print("=======dev_loader=======")
+                acc_val, f1_val, acc_val_cw = evaluation(dev_loader)
+                print("=======train_labeled_loader=======")
                 acc_train, f1_train, acc_train_cw = evaluation(train_labeled_loader)
+                print("=======finish=======")
+                # print('acc_train_cw:',acc_train_cw)
+                # evaluation(train_labeled_loader)
+                # exit()
                 # restore training mode 
                 if ema_mode:
                     netgroup.train_ema()
                 netgroup.train()
 
-                print('>>Epoch %d Step %d acc_val %f f1_val %f acc_train %f f1_train %f psl_cor %d psl_totl %d pslt_global %f' % 
-                        (epoch, step, acc_val, f1_val, acc_train, f1_train, psl_correct_eval, psl_total_eval, pslt_global),
+                print('>>Epoch %d Step %d acc_test %f f1_test %f acc_val %f f1_val %f acc_train %f f1_train %f psl_cor %d psl_totl %d pslt_global %f' % 
+                        (epoch, step, acc_test, f1_test,acc_val, f1_val, acc_train, f1_train, psl_correct_eval, psl_total_eval, pslt_global),
                         'Tim {:}'.format(format_time(time.time() - t0)))
-
                 
                 # Record all statistics from this evaluation.
                 acc_psl = (psl_correct_eval/psl_total_eval) if psl_total_eval > 0 else None
 
                 training_stats.append(
                     {   'step': step, #배치수
+                        'acc_train': acc_train,#train의 acc
+                        'f1_train': f1_train, #train의 f1
+                        'cw_acc_train': acc_train_cw, #train의 class별 acc
                         'acc_val': acc_val,#valid의 acc
                         'f1_val': f1_val, #valid의 f1
-                        'acc_train': acc_train, #train의 acc
-                        'f1_train': f1_train, #train의 f1
-                        'psl_correct': psl_correct_eval, #   
+                        'cw_acc_val': acc_val_cw, #valid의 class별 acc
+                        'acc_test': acc_test,#test의 acc
+                        'f1_test': f1_test, #test의 f1
+                        'cw_acc_test': acc_test_cw, #test의 class별 acc
+                        'psl_correct': psl_correct_eval, # 
                         'psl_total': psl_total_eval,
                         'acc_psl': acc_psl, 
                         'pslt_global': pslt_global,  
-                        'cw_acc_train': acc_train_cw,
-                        'cw_acc_val': acc_val_cw,
                         'cw_avg_prob': cw_avg_prob.tolist(),
                         'local_threshold': local_threshold.tolist(),
                         # 'cw_psl_total': cw_psl_total.tolist(),
@@ -277,6 +279,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     })
 
                 # check classwise psl accuracy and total psl accuracy for the current eval
+                print('acc_train_cw',acc_train_cw)
                 print('cw_psl_eval: ', cw_psl_total_eval.tolist(), cw_psl_correct_eval.tolist())
                 print('psl_acc: ', round((psl_correct_eval/psl_total_eval),3), end=' ') if psl_total_eval > 0 else print('psl_acc: None', end=' ')
                 print('cw_psl_acc: ', (cw_psl_correct_eval/cw_psl_total_eval).tolist())
@@ -439,6 +442,9 @@ def oneRun(log_dir, output_dir_experiment, **params):
     # Save training statistics
     pd.set_option('precision', 4)
     df_stats= pd.DataFrame(training_stats)
+    # df_stats = df_stats.set_index('step')
+    if 'step' not in df_stats.columns:
+        df_stats['step'] = range(1, len(df_stats) + 1)
     df_stats = df_stats.set_index('step')
     training_stats_path = log_dir + 'training_statistics.csv'   
     df_stats.to_csv(training_stats_path)     
