@@ -1,52 +1,14 @@
-# This is a git repository for "few-shot prediction for code time complexity"
+# 실험 결과 확인 방법
 
-## Introduction
-This repository is dedicated to the development and collaboration of the "few-shot prediction for code time complexity" project.
-The project aims to develop methods for predicting the time complexity of code snippets in a few-shot learning setting.
+1. codebert/code/experiment 경로에 있습니다.
+   - code_complex : BERT 결과, bs=8
+   - code_complex_codebert : CodeBERT 결과, bs=8
+   - code_complex_cw : CodeBERT,train data에 대해 배치별 클래스 하나씩 꼭 포함하도록 수정한 결과, bs=7
 
-## Basic Git Instructions
+2. 가장 최근 결과 확인 
+   - codebert/code/experiment/code_complex_cw/log 에 code_complex_python 데이터로 fewshot1,3,5,10한 결과가 있습니다.
+   - 이전 결과(codebert/code/experiment/code_complex_codebert/log 와 비교해보시면 됩니다.
+   - summary.csv파일에서 dataset,n_labeled_per_class 컬럼을 통해 어떤데이터(python,java)를 사용했는지, 몇 shot의 결과인지 확인하실 수 있습니다.
 
-### Cloning the Repository
-To clone the repository, use: git clone [repository URL]
-
-
-### Adding Changes
-To add your changes to the repository, follow these steps:
-1. Add the files you've changed: git add [filename]
-   or add all modified files: git add .
-2. Commit your changes with a meaningful message: git commit -m "Your commit message"
-
-### Pushing Changes
-To push your committed changes to the remote repository: git push origin [branch name]
-
-
-### Pulling Changes
-To update your local repository with changes from the remote: git pull origin [branch name]
-
-
-### Fetching Changes
-To fetch changes without merging them: git fecth origin
-
-
-## Notes
-
-1. **Regular Updates**: Please add, commit, and push your changes whenever you have some results, even if they are not significantly contributing.
-   This helps in keeping track of the project's progress and encourages incremental development.
-
-2. **Open an Issue for Help**: If you encounter any issues with GitHub or face difficulties in debugging the code, do not hesitate to open an issue.
-   Please ask for help whenever you feel exhausted with debugging. Remember, collaboration is key to solving complex problems.
-
-## Collaboration Guidelines
-
-- Keep your commits small and focused on a single aspect of the project.
-- Write clear and descriptive commit messages.
-- Regularly pull the latest changes to avoid merge conflicts.
-- It is ok to make a new branch but please inform the collaborators when you make branches and please DO NOT interrupt others' branches.
-- Review the code of your peers and provide constructive feedback.
-
-## Contact
-For any further queries or discussions, feel free to contact the project maintainers or open a discussion thread in this repository.
-
----
-
-Thank you for contributing to the "few-shot prediction for code time complexity" project!
+3. 논의 사항
+   - 
