@@ -6,6 +6,6 @@
    - code_complex_cw : CodeBERT,train data에 대해 배치별 클래스 하나씩 꼭 포함하도록 수정한 결과, bs=7
 
 2. 가장 최근 결과 확인 
-   - codebert/code/experiment/code_complex_cw/log 에 code_complex_python 데이터로 fewshot1,3,5,10한 결과가 있습니다.
+   - codebert/code/experiment/code_complex_cw/log 에 code_complex_java 데이터로 fewshot1,3,5,10한 결과가 있습니다.
    - 이전 결과(codebert/code/experiment/code_complex_codebert/log 와 비교해보시면 됩니다.
    - summary.csv파일에서 dataset,n_labeled_per_class 컬럼을 통해 어떤데이터(python,java)를 사용했는지, 몇 shot의 결과인지 확인하실 수 있습니다.
