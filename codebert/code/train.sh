@@ -13,7 +13,7 @@ ml unload cuda/11.2 nccl/2.8.4/cuda11.2
 ml load cuda/11.0 nccl/2.8.4/cuda11.0 
 ml list 
  
-cd /home/inistory/workspace/JointMatch/origin/codebert/
+cd /home/inistory/workspace/JointMatch/codebert/code
  
 # 활성화된 환경에서 코드 실행. 
 python -u panel_main.py
