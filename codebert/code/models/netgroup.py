@@ -118,11 +118,12 @@ class NetGroup(nn.Module):
     # update one network
     def update_net(self, net, optimizer, loss):
         # always clear any previously calculated gradients before performing backward pass
-        net.zero_grad()
+        net.zero_grad()# 3.손실에 대한 그래디언트를 계산합니다
         loss.backward(retain_graph=True)
-        optimizer.step()
+        optimizer.step()# 4.그래디언트를 사용하여 모델의 가중치를 업데이트합니다
 
     # update the group of networks
+    
     def update(self, losses):
         for i in range(self.num_nets):
             self.update_net(self.nets[i], self.optimizers[i], losses[i])

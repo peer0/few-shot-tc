@@ -1,8 +1,8 @@
 #main_v2.py
-#1.seed_list 추가 : 0,1만
+#1.seed_list 추가 : 0만
 from main_v2 import multiRun
 # ## code_complex
-n_labeled_per_class = 1
+n_labeled_per_class = 10
 bs = 7  # 4, 8
 ul_ratio = 10
 lr = 1e-5 
@@ -17,11 +17,12 @@ ema_mode = False
 ema_momentum = 0.9
 val_interval = 25 
 early_stop_tolerance = 10
-max_step = 100000   
-seeds_list = [0] 
+max_step = 100000    
+seeds_list = [0] #2024-01-29추가
+labeling_mode = 'soft' #2024-01-30추가
 
 device_idx = 0
-experiment_home = './experiment/test'
+experiment_home = './experiment/cc_complex_cw_loss_soft'
 dataset = 'code_complex/java_extended_data'   # 'ag_news', 'yahoo', 'imdb', 'empatheticdialogues', 'threecrises', 'goemotions'
 
 # JointMatch
@@ -37,7 +38,8 @@ multiRun(device_idx=device_idx, experiment_home=experiment_home, dataset=dataset
         num_nets=num_nets, cross_labeling=cross_labeling, 
         weight_disagreement=weight_disagreement, disagree_weight=disagree_weight,
         ema_mode=ema_mode, ema_momentum=ema_momentum,
-        val_interval=val_interval, early_stop_tolerance=early_stop_tolerance, max_step=max_step,seeds_list=seeds_list)
+        val_interval=val_interval, early_stop_tolerance=early_stop_tolerance, max_step=max_step,
+        seeds_list=seeds_list,labeling_mode=labeling_mode)
 
 
 #for test
