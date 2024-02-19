@@ -1,16 +1,16 @@
 # 실험 결과 확인 방법
 
 1. codebert/code/experiment 경로에 있습니다.
-   - code_complex : BERT 결과, bs=8
-   - code_complex_codebert : CodeBERT 결과, bs=8
-   - code_complex_cw : CodeBERT,train data에 대해 배치별 클래스 하나씩 꼭 포함하도록 수정한 결과, bs=7
-   - cc_complex_cw_loss_soft : 
+   1) code_complex : BERT 결과, bs=8
+   2) code_complex_codebert : CodeBERT 결과, bs=8
+   3) code_complex_cw : CodeBERT,train data에 대해 배치별 클래스 하나씩 꼭 포함하도록 수정한 결과, bs=7
+   4) cc_complex_cw_loss_soft : 
       - train_labeled_loader를 위한 evaluation_batch 추가
       - training_statistics.csv에 loss를 추가
       - confmat.png 수정(축레이블추가,레이블을 기본형태로 변경,confmat.png(norm제거버전)추가)
       - seed0만 실험, bs=7, labeling_mode = 'soft'
-   - 추후 실험
-      - 주석을 제거한 (원본데이터, synonym_aug)
+   5) cc_complex_cw_loss_soft_v2 : 
+      - 4)실험과 동일, 실험결과 중, valid, test loss가 잘 안나오는 에러를 해결
 
 
 2. 확인 방법
