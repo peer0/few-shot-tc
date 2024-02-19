@@ -1,6 +1,6 @@
 #main_v2.py
 #1.seed_list 추가 : 0만
-from main_v2 import multiRun
+from main_v3 import multiRun
 # ## code_complex
 n_labeled_per_class = 10
 bs = 7  # 4, 8
@@ -19,10 +19,10 @@ val_interval = 25
 early_stop_tolerance = 10
 max_step = 100000    
 seeds_list = [0] #2024-01-29추가
-labeling_mode = 'hard' #2024-01-30추가
+labeling_mode = 'soft' #2024-01-30추가
 
 device_idx = 0
-experiment_home = './experiment/cc_complex_cw_loss'
+experiment_home = './experiment/cc_complex_cs_loss_soft_v2'
 dataset = 'code_complex/java_extended_data'   # 'ag_news', 'yahoo', 'imdb', 'empatheticdialogues', 'threecrises', 'goemotions'
 
 # JointMatch

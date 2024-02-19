@@ -137,7 +137,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
     from torchmetrics.classification import MulticlassConfusionMatrix
     # f1 = F1Score(num_classes=n_classes, average='macro')
     # accuracy = Accuracy(num_classes=n_classes, average='micro')
-    accuracy_classwise = Accuracy(num_classes=n_classes, average='none')
+    # accuracy_classwise = Accuracy(num_classes=n_classes, average='none')
+    accuracy_classwise = Accuracy('multiclass', num_classes=n_classes, average='none')
     confusion_matrix = MulticlassConfusionMatrix(num_classes=n_classes)
 
 
@@ -153,16 +154,21 @@ def oneRun(log_dir, output_dir_experiment, **params):
         # Tracking variables
         preds_all = []
         target_all = []
-        outs_all = []
+        loss_fn = nn.CrossEntropyLoss()  # Define the loss function
+        losses = []  # List to store losses for each batch
 
         # Evaluate data for one epoch
         for batch in loader:
             b_labels = batch['label'].to(device)
             # forward pass
             outs = netgroup.forward(batch['x'], b_labels)
-    
+
             # take average probs from all nets
             probs = torch.mean(torch.softmax(torch.stack(outs), dim=2), dim=0)
+
+            # Calculate loss for the current batch and append to losses
+            loss = loss_fn(probs, b_labels)
+            losses.append(loss.item())
 
             # Move preds and labels to CPU
             preds = torch.argmax(probs, dim=1)
@@ -171,7 +177,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
             # For calculating classwise acc
             preds_all.append(preds)
             target_all.append(target)
-            outs_all.append(outs)
 
             #2024-01-25 class별 개수를 구합니다.
             unique, counts = torch.unique(b_labels, return_counts=True)
@@ -179,36 +184,26 @@ def oneRun(log_dir, output_dir_experiment, **params):
             # Sort the dictionary by keys (class labels)
             class_counts = {k: v for k, v in sorted(class_counts.items())}
             print(f"Batch class counts: {class_counts}")
-            
+
         # Calculate acc and macro-F1
         preds_all = torch.cat(preds_all).detach().cpu()
         target_all = torch.cat(target_all).detach().cpu()
-        
-        
+
         acc = accuracy_score(target_all, preds_all)
         f1 = f1_score(target_all, preds_all, average='macro')
-
-        # 2024-01-30 : Calculate loss
-        loss_fn = nn.CrossEntropyLoss()
-        if outs_all:  # Check if outs_all is not empty
-            outs_all = [out for out in outs_all if isinstance(out, torch.Tensor)]
-            if outs_all:  # Check again if outs_all is not empty after filtering
-                outs_all = torch.cat(outs_all)  # Uncomment this line
-                loss = loss_fn(outs_all, target_all.long())  # Calculate cross entropy loss
-            else:
-                loss = torch.tensor(0.0)  # Default loss to 0 if outs_all is empty after filtering
-        else:
-            loss = torch.tensor(0.0)  # Default loss to 0 if outs_all is empty
 
         # Calculate classwise acc
         accuracy_classwise_ = accuracy_classwise(preds_all, target_all).numpy().round(3)
 
+        # Calculate average loss
+        avg_loss = sum(losses) / len(losses)
+
         if final_eval:
             # compute confusion matrix for the final evaluation on the saved model
             confmat_result = confusion_matrix(preds_all, target_all)
-            return acc, f1, loss.item(), list(accuracy_classwise_), confmat_result
+            return acc, f1, avg_loss, list(accuracy_classwise_), confmat_result
         else:
-            return acc, f1, loss.item(), list(accuracy_classwise_)
+            return acc, f1, avg_loss, list(accuracy_classwise_)
 
 
 
@@ -257,8 +252,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
             return acc, f1,loss.item(), list(accuracy_classwise_), confmat_result
         else:
             return acc, f1,loss.item(),list(accuracy_classwise_)
-        
-        
+
     ## Training
     import time
     import torch.nn.functional as F
@@ -293,7 +287,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                 print("=======test_loader=======")
                 acc_test, f1_test, loss_test, acc_test_cw = evaluation(test_loader)
                 print("=======dev_loader=======")
-                acc_val, f1_val, loss_val, acc_val_cw = evaluation(dev_loader)
+                acc_val, f1_val, loss_val, acc_val_cw  = evaluation(dev_loader)
                 print("=======train_labeled_loader=======")
                 acc_train, f1_train, loss_train, acc_train_cw = evaluation_batch(batch_label)
                 print("=======finish=======")
@@ -311,7 +305,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                 acc_psl = (psl_correct_eval/psl_total_eval) if psl_total_eval > 0 else None
 
                 training_stats.append(
-                    {   'step': step, 
+                    {   'step': step, #배치수
                         'acc_train': acc_train,#train의 acc
                         'f1_train': f1_train, #train의 f1
                         'loss_train': loss_train, #train의 loss
@@ -437,7 +431,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
                         if cross_labeling:
                             # cross labeling and masking
                             pseudo_label = pseudo_labels_nets[(i+1)%num_nets]
-                            input(pseudo_labels_nets)
                             u_psl_mask = u_psl_masks_nets[(i+1)%num_nets]
                         else:
                             # vanilla labeling

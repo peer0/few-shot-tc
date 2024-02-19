@@ -1,7 +1,4 @@
-#main_v2.py
-#1.confmat_norm.png의 1)축 레이블 추가 2)레이블을 문자열형태로 변경 3)confmat.png 추가(norm제거버전)
-#2.train_labeled_loader를 위한 evaluation_batch 추가
-#3.step별 loss를 training_static.csv에 추가 
+
 import os
 import random
 import sys
@@ -97,7 +94,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
 
 
-    #### Load Data ####x
+    #### Load Data ####
     from utils.dataloader import get_dataloader
     train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes = get_dataloader(data_path, n_labeled_per_class, bs, load_mode)
     print('n_classes: ', n_classes)
@@ -142,7 +139,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
 
     @torch.no_grad() # no need to track gradients in validation
-    # 전체 데이터에 대한 모델 평가
     def evaluation(loader, final_eval=False):
         """Evaluation"""
         # Put the model in evaluation mode--the dropout layers behave differently during evaluation.
@@ -154,13 +150,14 @@ def oneRun(log_dir, output_dir_experiment, **params):
         preds_all = []
         target_all = []
         outs_all = []
-
+        
         # Evaluate data for one epoch
         for batch in loader:
             b_labels = batch['label'].to(device)
+            
             # forward pass
             outs = netgroup.forward(batch['x'], b_labels)
-    
+
             # take average probs from all nets
             probs = torch.mean(torch.softmax(torch.stack(outs), dim=2), dim=0)
 
@@ -171,34 +168,33 @@ def oneRun(log_dir, output_dir_experiment, **params):
             # For calculating classwise acc
             preds_all.append(preds)
             target_all.append(target)
-            outs_all.append(outs)
+
+            # outs_all.append(outs) #2024-01-25
+        
 
             #2024-01-25 class별 개수를 구합니다.
-            unique, counts = torch.unique(b_labels, return_counts=True)
-            class_counts = dict(zip(unique.cpu().numpy(), counts.cpu().numpy()))
-            # Sort the dictionary by keys (class labels)
-            class_counts = {k: v for k, v in sorted(class_counts.items())}
-            print(f"Batch class counts: {class_counts}")
-            
+            # unique, counts = torch.unique(b_labels, return_counts=True)
+            # class_counts = dict(zip(unique.cpu().numpy(), counts.cpu().numpy()))
+            # # Sort the dictionary by keys (class labels)
+            # class_counts = {k: v for k, v in sorted(class_counts.items())}
+            # print(f"Batch class counts: {class_counts}")
+
         # Calculate acc and macro-F1
         preds_all = torch.cat(preds_all).detach().cpu()
         target_all = torch.cat(target_all).detach().cpu()
-        
-        
-        acc = accuracy_score(target_all, preds_all)
-        f1 = f1_score(target_all, preds_all, average='macro')
 
-        # 2024-01-30 : Calculate loss
+        
+        # 2024-01-25 : Calculate loss
         loss_fn = nn.CrossEntropyLoss()
         if outs_all:  # Check if outs_all is not empty
-            outs_all = [out for out in outs_all if isinstance(out, torch.Tensor)]
-            if outs_all:  # Check again if outs_all is not empty after filtering
-                outs_all = torch.cat(outs_all)  # Uncomment this line
-                loss = loss_fn(outs_all, target_all.long())  # Calculate cross entropy loss
-            else:
-                loss = torch.tensor(0.0)  # Default loss to 0 if outs_all is empty after filtering
+            outs_all = torch.cat(outs_all)  # Uncomment this line
+            loss = loss_fn(outs_all, target_all.long())  # Calculate cross entropy loss
         else:
             loss = torch.tensor(0.0)  # Default loss to 0 if outs_all is empty
+      
+        acc = accuracy_score(target_all, preds_all)
+        f1 = f1_score(target_all, preds_all, average='macro')
+        
 
         # Calculate classwise acc
         accuracy_classwise_ = accuracy_classwise(preds_all, target_all).numpy().round(3)
@@ -212,53 +208,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
 
 
-    #train_labeled_loader: 배치데이터에 대한 모델 평가
-    def evaluation_batch(batch_label, final_eval=False): 
-        """Evaluation"""
-        # Put the model in evaluation mode--the dropout layers behave differently during evaluation.
-        netgroup.eval()
-        if ema_mode: # use ema model for evaluation
-            netgroup.eval_ema()
-
-        # Evaluate data for one epoch
-        b_labels = batch_label['label'].to(device)
-        # forward pass
-        outs = netgroup.forward(batch_label['x'], b_labels)
-
-        # take average probs from all nets
-        probs = torch.mean(torch.softmax(torch.stack(outs), dim=2), dim=0)
-
-        # Move preds and labels to CPU
-        preds = torch.argmax(probs, dim=1)
-        target = b_labels
-
-        #2024-01-25 class별 개수를 구합니다.
-        unique, counts = torch.unique(b_labels, return_counts=True)
-        class_counts = dict(zip(unique.cpu().numpy(), counts.cpu().numpy()))
-        # Sort the dictionary by keys (class labels)
-        class_counts = {k: v for k, v in sorted(class_counts.items())}
-        print(f"Batch class counts: {class_counts}")
-            
-        target, preds = target.cpu(), preds.cpu()
-        
-        # Calculate loss
-        loss_fn = torch.nn.CrossEntropyLoss()
-        loss = loss_fn(probs, target.to(device))
-        
-        acc = accuracy_score(target, preds)
-        f1 = f1_score(target, preds, average='macro')
-        
-        # Calculate classwise acc
-        accuracy_classwise_ = accuracy_classwise(preds, target).numpy().round(3)
-
-        if final_eval:
-            # compute confusion matrix for the final evaluation on the saved model
-            confmat_result = confusion_matrix(preds, target)
-            return acc, f1,loss.item(), list(accuracy_classwise_), confmat_result
-        else:
-            return acc, f1,loss.item(),list(accuracy_classwise_)
-        
-        
     ## Training
     import time
     import torch.nn.functional as F
@@ -268,7 +217,10 @@ def oneRun(log_dir, output_dir_experiment, **params):
     t0 = time.time() # Measure how long the training takes.
     step = 0
     best_acc = 0
+    best_loss = 0 #2024-01-25
     best_model_step = 0
+    best_acc_model_step = 0 #2024-01-25
+    best_loss_model_step = 0 #2024-01-25
     pslt_global = 0
     psl_total_eval = 0
     psl_correct_eval = 0
@@ -279,7 +231,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
     early_stop_flag = False
     cw_avg_prob = (torch.ones(n_classes) / n_classes).to(device)    # estimate learning stauts of each class
     local_threshold = torch.zeros(n_classes, dtype=int)
-
+    early_stop_count = 0
+    
     # Training
     netgroup.train()
     for epoch in range(max_epoch):
@@ -289,40 +242,36 @@ def oneRun(log_dir, output_dir_experiment, **params):
             break
         for batch_label in train_labeled_loader:
             ## --- Evaluation: Check Performance on Validation set every val_interval batches ---##
-            if step % val_interval == 0: #step%25==0일 때만 작동: step이 25의 배수일 때마다 실행 
-                print("=======test_loader=======")
-                acc_test, f1_test, loss_test, acc_test_cw = evaluation(test_loader)
-                print("=======dev_loader=======")
-                acc_val, f1_val, loss_val, acc_val_cw = evaluation(dev_loader)
-                print("=======train_labeled_loader=======")
-                acc_train, f1_train, loss_train, acc_train_cw = evaluation_batch(batch_label)
-                print("=======finish=======")
-
+            if step % val_interval == 0:   
+                # acc_test, f1_test, loss_test, acc_test_cw = evaluation(test_loader) #2024-01-25 : loss_test 추가
+                # acc_val, f1_val, loss_val, acc_val_cw = evaluation(dev_loader) #2024-01-25 : loss_val 추가
+                acc_train, f1_train, loss_train, acc_train_cw = evaluation(train_labeled_loader) #2024-01-25 : loss_train 추가
                 # restore training mode 
                 if ema_mode:
                     netgroup.train_ema()
                 netgroup.train()
 
                 print('>>Epoch %d Step %d acc_train %f f1_train %f loss_train %f acc_val %f f1_val %f loss_val %f acc_test %f f1_test %f loss_test %f psl_cor %d psl_totl %d pslt_global %f' % 
-                        (epoch, step, acc_train, f1_train, loss_train, acc_val, f1_val, loss_val, acc_test, f1_test, loss_test, psl_correct_eval, psl_total_eval, pslt_global),
+                        (epoch, step, acc_train, f1_train, loss_train, acc_val,  f1_val, loss_val, acc_test, f1_test, loss_test, psl_correct_eval, psl_total_eval, pslt_global),
                         'Tim {:}'.format(format_time(time.time() - t0)))
+
                 
                 # Record all statistics from this evaluation.
                 acc_psl = (psl_correct_eval/psl_total_eval) if psl_total_eval > 0 else None
 
                 training_stats.append(
-                    {   'step': step, 
-                        'acc_train': acc_train,#train의 acc
+                    {   'step': step, #step수
+                        'acc_train': acc_train, #train의 acc
                         'f1_train': f1_train, #train의 f1
-                        'loss_train': loss_train, #train의 loss
-                        'cw_acc_train': acc_train_cw, #train의 class별 acc
+                        'loss_train': f1_train, #train의 loss
                         'acc_val': acc_val,#valid의 acc
                         'f1_val': f1_val, #valid의 f1
-                        'loss_val': loss_val, #valid의 loss
-                        'cw_acc_val': acc_val_cw, #valid의 class별 acc
-                        'acc_test': acc_test,#test의 acc
+                        'loss_val': f1_val, #valid의 loss
+                        'acc_test': acc_test, #test의 acc
                         'f1_test': f1_test, #test의 f1
-                        'loss_test': loss_test, #test의 loss
+                        'loss_test': f1_test, #valid의 test                      
+                        'cw_acc_train': acc_train_cw, #train의 class별 acc
+                        'cw_acc_val': acc_val_cw, #valid의 class별 acc
                         'cw_acc_test': acc_test_cw, #test의 class별 acc
                         'psl_correct': psl_correct_eval, 
                         'psl_total': psl_total_eval,
@@ -341,27 +290,47 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     })
 
                 # check classwise psl accuracy and total psl accuracy for the current eval
-                print('acc_train_cw',acc_train_cw)
                 print('cw_psl_eval: ', cw_psl_total_eval.tolist(), cw_psl_correct_eval.tolist())
                 print('psl_acc: ', round((psl_correct_eval/psl_total_eval),3), end=' ') if psl_total_eval > 0 else print('psl_acc: None', end=' ')
                 print('cw_psl_acc: ', (cw_psl_correct_eval/cw_psl_total_eval).tolist())
 
                 # Early stopping & Save best model
                 # - best criterion: acc_val 
+                # if acc_val > best_acc:
+                #     best_acc = acc_val
+                #     best_model_step = step
+                #     early_stop_count = 0
+                #     netgroup.save_model(output_dir_path, 'model', ema_mode=ema_mode)
+                # else:
+                #     early_stop_count+=1
+                #     if early_stop_count >= early_stop_tolerance:
+                #         early_stop_flag = True 
+                #         print('Early stopping trigger at step: ', step)
+                #         print('Best model at step: ', best_model_step)
+                #         break
+                    
+                #2024-01-25 : acc와 loss기준으로 best model을 저장합니다.
+                # 최선의 정확도 모델 업데이트
                 if acc_val > best_acc:
                     best_acc = acc_val
-                    best_model_step = step
+                    best_acc_model_step = step
+                    netgroup.save_model(output_dir_path, 'best_acc_model', ema_mode=ema_mode)
+                
+                # 최선의 손실 모델 업데이트
+                if loss_val < best_loss:
+                    best_loss = loss_val
+                    best_loss_model_step = step
+                    netgroup.save_model(output_dir_path, 'best_loss_model', ema_mode=ema_mode)
                     early_stop_count = 0
-                    netgroup.save_model(output_dir_path, 'model', ema_mode=ema_mode)
-                    
-                    # early_stop_flag = True#fortest
+                
+                # Early stopping
                 else:
-                    early_stop_count+=1
-                    # early_stop_flag = True#fortest
+                    early_stop_count += 1
                     if early_stop_count >= early_stop_tolerance:
                         early_stop_flag = True
                         print('Early stopping trigger at step: ', step)
-                        print('Best model at step: ', best_model_step)
+                        print('Best accuracy model at step: ', best_acc_model_step)
+                        print('Best loss model at step: ', best_loss_model_step)
                         break
 
                 # initialize pseudo labels evaluation
@@ -370,17 +339,15 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
 
             ## --- Training --- ##
-            step += 1  
+            step += 1
             ## Process Labeled Data
             x_lb, y_lb = batch_label['x_w'], batch_label['label']
-            #1.배치 데이터를 모델에 전달하여 예측을 생성합니다(forward pass)
+            # forward pass
             outs_x_lb = netgroup.forward(x_lb, y_lb.to(device))
-            # 2.예측과 실제 레이블을 비교하여 손실을 계산합니다(compute loss for labeled data)
+            # compute loss for labeled data
             sup_loss_nets = [ce_loss(outs_x_lb[i], y_lb.to(device)) for i in range(num_nets)]
-            # 3.손실에 대한 그래디언트를 계산합니다(update netgorup from loss of labeled data)
-            # 4.그래디언트를 사용하여 모델의 가중치를 업데이트합니다
+            # update netgorup from loss of labeled data
             netgroup.update(sup_loss_nets)
-            # print( 'sup_loss_nets: ', [round(sup_loss_nets[i].item(),3) for i in range(num_nets)])#2024-01-29:출력용
             if ema_mode:
                 netgroup.update_ema()
 
@@ -394,8 +361,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     except:
                         data_iter_unl = iter(train_unlabeled_loader)
                         batch_unlabel = next(data_iter_unl)
-                    
-                    
+                        
                     x_ulb_w, x_ulb_s = batch_unlabel['x_w'], batch_unlabel['x_s']
 
                     # forward pass
@@ -437,7 +403,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
                         if cross_labeling:
                             # cross labeling and masking
                             pseudo_label = pseudo_labels_nets[(i+1)%num_nets]
-                            input(pseudo_labels_nets)
                             u_psl_mask = u_psl_masks_nets[(i+1)%num_nets]
                         else:
                             # vanilla labeling
@@ -498,45 +463,38 @@ def oneRun(log_dir, output_dir_experiment, **params):
     print("\nTraining complete!")
     print("Total training took {:} (h:mm:ss)".format(format_time(time.time()-t0)))
 
-
-
-
-    ##### Results Summary and Visualization
-    # Load the saved best models and evaluate on the test set
-    netgroup.load_model(output_dir_path, 'model', ema_mode=ema_mode)
+    # Load best accuracy model and evaluate
+    netgroup.load_model(output_dir_path, 'best_acc_model', ema_mode=ema_mode)
     acc_test, f1_test, loss_test, acc_test_cw, confmat_test = evaluation(test_loader, final_eval=True)
 
-
-    ## Quantatitive Results
-    # Save training statistics
-    pd.set_option('precision', 4)
-    df_stats= pd.DataFrame(training_stats)
-    # df_stats = df_stats.set_index('step')
-    if 'step' not in df_stats.columns:
-        df_stats['step'] = range(1, len(df_stats) + 1)
-    df_stats = df_stats.set_index('step')
-    training_stats_path = log_dir + 'training_statistics.csv'   
-    df_stats.to_csv(training_stats_path)     
-    print('Save training statistics in: ', training_stats_path, end='')
-
-    # Save best record in both the training statisitcs and summary file
+    # Save best accuracy model record
     cur_time = time.strftime("%Y%m%d-%H%M%S")
-    best_data = {'record_time': cur_time,
-                'best_step': best_model_step, 'test_acc':acc_test, 'test_f1': f1_test,     
-                }
-    print('\nBest_step: ', best_model_step, '\nbest_test_acc: ', acc_test, '\nbest_test_f1: ', f1_test)
-
-    best_data.update(params) # record tuned hyper-params
-    best_df = pd.DataFrame([best_data])         
-    best_csv_path = log_dir_multiRun + 'summary.csv'
-    if not os.path.exists(best_csv_path):
-        best_df.to_csv(best_csv_path, mode='a', index=False, header=True)
+    best_acc_data = {'record_time': cur_time,
+                    'best_step': best_acc_model_step, 'test_acc':acc_test, 'test_f1': f1_test,'test_loss': loss_test,
+                    }
+    best_acc_df = pd.DataFrame([best_acc_data])         
+    best_acc_csv_path = log_dir_multiRun + 'best_acc_summary.csv'
+    if not os.path.exists(best_acc_csv_path):
+        best_acc_df.to_csv(best_acc_csv_path, mode='a', index=False, header=True)
     else:
-        best_df.to_csv(best_csv_path, mode='a', index=False, header=False)
-    best_df.to_csv(training_stats_path, mode='a', index=False, header=True)
+        best_acc_df.to_csv(best_acc_csv_path, mode='a', index=False, header=False)
+    print('Save best accuracy model record in: ', best_acc_csv_path, end='')
 
-    print('Save best record in: ', best_csv_path, end='')
-        
+    # Load best loss model and evaluate
+    netgroup.load_model(output_dir_path, 'best_loss_model', ema_mode=ema_mode)
+    acc_test, f1_test, loss_test, acc_test_cw, confmat_test = evaluation(test_loader, final_eval=True)
+
+    # Save best loss model record
+    best_loss_data = {'record_time': cur_time,
+                    'best_step': best_loss_model_step, 'test_acc':acc_test, 'test_f1': f1_test, 'test_loss': loss_test,
+                    }
+    best_loss_df = pd.DataFrame([best_loss_data])         
+    best_loss_csv_path = log_dir_multiRun + 'best_loss_summary.csv'
+    if not os.path.exists(best_loss_csv_path):
+        best_loss_df.to_csv(best_loss_csv_path, mode='a', index=False, header=True)
+    else:
+        best_loss_df.to_csv(best_loss_csv_path, mode='a', index=False, header=False)
+    print('Save best loss model record in: ', best_loss_csv_path, end='')       
 
 
 
@@ -555,6 +513,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
         # Increase the plot size and font size.
         sns.set(font_scale=1.5)
+        # plt.rcParams["figure.figsize"] = (12,6)
 
         # Plot the learning curve.
         for idx, key in enumerate(df_stats.keys().tolist()):
@@ -566,35 +525,17 @@ def oneRun(log_dir, output_dir_experiment, **params):
         plt.legend()
         plt.savefig(log_dir+plot_type+'.png', bbox_inches='tight')
 
-        df_cm = pd.DataFrame(confmat_test, index = [i for i in range(n_classes)],
-                        columns = [i for i in range(n_classes)], dtype=int)
-        label_mapping = {0: 'constant', 1: 'logn', 2: 'linear', 3: 'nlogn', 4: 'quadratic', 5: 'cubic', 6: 'np'}
-        # Apply the mapping to the index and columns of the confusion matrix
-        df_cm.index = df_cm.index.map(label_mapping)
-        df_cm.columns = df_cm.columns.map(label_mapping)
+    # Visualize and save confusion matrix
+    df_cm = pd.DataFrame(confmat_test, index = [i for i in range(n_classes)],
+                    columns = [i for i in range(n_classes)], dtype=int)
+    df_cm_norm = df_cm.div(df_cm.sum(axis=1), axis=0)
+    plt.figure(figsize=(20,14))
+    sns.heatmap(df_cm_norm, annot=True, annot_kws={"size": 10}, fmt='.2f', cmap='Reds')
+    plt.savefig(log_dir+'confmat_norm.png', bbox_inches='tight')
+    # df_cm.to_csv(log_dir+'confmat.csv', index=True, header=True)
 
-        # Normalize the confusion matrix
-        df_cm_norm = df_cm.div(df_cm.sum(axis=1), axis=0)
-
-        # Plot the normalized confusion matrix
-        plt.figure(figsize=(20,14))
-
-        sns.heatmap(df_cm_norm, annot=True, annot_kws={"size": 10}, fmt='.2f', cmap='Reds')
-        plt.xlabel('Predicted')
-        plt.ylabel('True')
-        plt.savefig(log_dir+'confmat_norm.png', bbox_inches='tight')
-
-        # Clear the current figure
-        plt.clf()
-
-        # Plot the confusion matrix without normalization
-        plt.figure(figsize=(20,14))
-        sns.heatmap(df_cm, annot=True, annot_kws={"size": 10}, fmt='d', cmap='Reds')
-        plt.xlabel('Predicted')
-        plt.ylabel('True')
-        plt.savefig(log_dir+'confmat.png', bbox_inches='tight')
-
-        return best_data
+    # return best_data to record multiRun results
+    return best_data
 
 
 ##### multiRun ######
