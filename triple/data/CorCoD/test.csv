@@ -1,0 +1,12640 @@
+src,from,problem,index,complexity
+"
+// Java implementation of iterative Binary Search 
+class
+BinarySearch { 
+
+// Returns index of x if it is present in arr[], 
+
+// else return -1 
+
+int
+binarySearch(
+int
+arr[], 
+int
+x) 
+
+{ 
+
+int
+l = 
+0
+, r = arr.length - 
+1
+; 
+
+while
+(l <= r) { 
+
+int
+m = l + (r - l) / 
+2
+; 
+
+
+// Check if x is present at mid 
+
+if
+(arr[m] == x) 
+
+return
+m; 
+
+
+// If x greater, ignore left half 
+
+if
+(arr[m] < x) 
+
+l = m + 
+1
+; 
+
+
+// If x is smaller, ignore right half 
+
+else
+
+r = m - 
+1
+; 
+
+} 
+
+
+// if we reach here, then element was 
+
+// not present 
+
+return
+-
+1
+; 
+
+} 
+
+
+// Driver method to test above 
+
+public
+static
+void
+main(String args[]) 
+
+{ 
+
+BinarySearch ob = 
+new
+BinarySearch(); 
+
+int
+arr[] = { 
+2
+, 
+3
+, 
+4
+, 
+10
+, 
+40
+}; 
+
+int
+n = arr.length; 
+
+int
+x = 
+10
+; 
+
+int
+result = ob.binarySearch(arr, x); 
+
+if
+(result == -
+1
+) 
+
+System.out.println(
+""Element not present""
+); 
+
+else
+
+System.out.println(
+""Element found at ""
+
++ 
+""index ""
++ result); 
+
+} 
+} ",CorCod,922,922,logn
+"import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+public class Cf1017A {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int n = Integer.parseInt(br.readLine());
+        int result = 1;
+        int thomasSum = 0;
+        StringTokenizer stk;
+        stk = new StringTokenizer(br.readLine());
+        int first = Integer.parseInt(stk.nextToken());
+        int second = Integer.parseInt(stk.nextToken());
+        int third = Integer.parseInt(stk.nextToken());
+        int fourth = Integer.parseInt(stk.nextToken());
+        thomasSum = first + second + third + fourth;
+        int tmp;
+        for (int i = 1; i < n; i++) {
+            stk = new StringTokenizer(br.readLine());
+            first = Integer.parseInt(stk.nextToken());
+            second = Integer.parseInt(stk.nextToken());
+            third = Integer.parseInt(stk.nextToken());
+            fourth = Integer.parseInt(stk.nextToken());
+            tmp = first + second + third + fourth;
+            if (tmp > thomasSum)
+                result++;
+        }
+        System.out.println(result);
+    }
+}",CorCod,371,371,linear
+"import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.StringTokenizer;
+
+public class TrickyAlchemy {
+	public static BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+	public static PrintWriter out = new PrintWriter(new BufferedOutputStream(System.out));
+	public static StringTokenizer st;
+	
+	public static void main(String[] args) throws IOException {
+		long a = nextLong();
+		long b = nextLong();
+		long x = nextLong();
+		long y = nextLong();
+		long z = nextLong();
+		System.out.println(Math.max(2*x+y-a, 0) + Math.max(y+3*z-b, 0));
+	}
+	
+	public static String nextLine() throws IOException {
+		return in.readLine();
+	}
+
+	public static String nextString() throws IOException {
+		while (st == null || !st.hasMoreTokens())
+			st = new StringTokenizer(in.readLine());
+		return st.nextToken();
+	}
+
+	public static int nextInt() throws IOException {
+		return Integer.parseInt(nextString());
+	}
+
+	public static long nextLong() throws IOException {
+		return Long.parseLong(nextString());
+	}
+
+	public static int[] intArray(int n) throws IOException {
+		int[] a = new int[n];
+		for (int i = 0; i < n; i++)
+			a[i] = nextInt();
+		return a;
+	}
+
+	public static int[][] intArray(int n, int m) throws IOException {
+		int[][] a = new int[n][m];
+		for (int i = 0; i < n; i++)
+			for (int j = 0; j < m; j++)
+				a[i][j] = nextInt();
+		return a;
+	}
+
+	public static long[] longArray(int n) throws IOException {
+		long[] a = new long[n];
+		for (int i = 0; i < n; i++)
+			a[i] = nextLong();
+		return a;
+	}
+}",CorCod,838,838,constant
+"
+// Java program to create complete Binary Tree from its Linked List 
+// representation 
+
+// importing necessary classes 
+import
+java.util.*; 
+
+// A linked list node 
+class
+ListNode 
+{ 
+
+int
+data; 
+
+ListNode next; 
+
+ListNode(
+int
+d) 
+
+{ 
+
+data = d; 
+
+next = 
+null
+; 
+
+} 
+} 
+
+// A binary tree node 
+class
+BinaryTreeNode 
+{ 
+
+int
+data; 
+
+BinaryTreeNode left, right = 
+null
+; 
+
+BinaryTreeNode(
+int
+data) 
+
+{ 
+
+this
+.data = data; 
+
+left = right = 
+null
+; 
+
+} 
+} 
+
+class
+BinaryTree 
+{ 
+
+ListNode head; 
+
+BinaryTreeNode root; 
+
+
+// Function to insert a node at the beginning of 
+
+// the Linked List 
+
+void
+push(
+int
+new_data) 
+
+{ 
+
+// allocate node and assign data 
+
+ListNode new_node = 
+new
+ListNode(new_data); 
+
+
+// link the old list off the new node 
+
+new_node.next = head; 
+
+
+// move the head to point to the new node 
+
+head = new_node; 
+
+} 
+
+
+// converts a given linked list representing a 
+
+// complete binary tree into the linked 
+
+// representation of binary tree. 
+
+BinaryTreeNode convertList2Binary(BinaryTreeNode node) 
+
+{ 
+
+// queue to store the parent nodes 
+
+Queue<BinaryTreeNode> q = 
+
+new
+LinkedList<BinaryTreeNode>(); 
+
+
+// Base Case 
+
+if
+(head == 
+null
+) 
+
+{ 
+
+node = 
+null
+; 
+
+return
+null
+; 
+
+} 
+
+
+// 1.) The first node is always the root node, and 
+
+// add it to the queue 
+
+node = 
+new
+BinaryTreeNode(head.data); 
+
+q.add(node); 
+
+
+// advance the pointer to the next node 
+
+head = head.next; 
+
+
+// until the end of linked list is reached, do the 
+
+// following steps 
+
+while
+(head != 
+null
+) 
+
+{ 
+
+// 2.a) take the parent node from the q and 
+
+// remove it from q 
+
+BinaryTreeNode parent = q.peek(); 
+
+BinaryTreeNode pp = q.poll(); 
+
+
+// 2.c) take next two nodes from the linked list. 
+
+// We will add them as children of the current 
+
+// parent node in step 2.b. Push them into the 
+
+// queue so that they will be parents to the 
+
+// future nodes 
+
+BinaryTreeNode leftChild = 
+null
+, rightChild = 
+null
+; 
+
+leftChild = 
+new
+BinaryTreeNode(head.data); 
+
+q.add(leftChild); 
+
+head = head.next; 
+
+if
+(head != 
+null
+) 
+
+{ 
+
+rightChild = 
+new
+BinaryTreeNode(head.data); 
+
+q.add(rightChild); 
+
+head = head.next; 
+
+} 
+
+
+// 2.b) assign the left and right children of 
+
+// parent 
+
+parent.left = leftChild; 
+
+parent.right = rightChild; 
+
+} 
+
+
+return
+node; 
+
+} 
+
+
+// Utility function to traverse the binary tree 
+
+// after conversion 
+
+void
+inorderTraversal(BinaryTreeNode node) 
+
+{ 
+
+if
+(node != 
+null
+) 
+
+{ 
+
+inorderTraversal(node.left); 
+
+System.out.print(node.data + 
+"" ""
+); 
+
+inorderTraversal(node.right); 
+
+} 
+
+} 
+
+
+// Driver program to test above functions 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+BinaryTree tree = 
+new
+BinaryTree(); 
+
+tree.push(
+36
+); 
+/* Last node of Linked List */
+
+tree.push(
+30
+); 
+
+tree.push(
+25
+); 
+
+tree.push(
+15
+); 
+
+tree.push(
+12
+); 
+
+tree.push(
+10
+); 
+/* First node of Linked List */
+
+BinaryTreeNode node = tree.convertList2Binary(tree.root); 
+
+
+System.out.println(
+""Inorder Traversal of the""
++ 
+
+"" constructed Binary Tree is:""
+); 
+
+tree.inorderTraversal(node); 
+
+} 
+} 
+// This code has been contributed by Mayank Jaiswal ",CorCod,36,36,linear
+"
+// Java program for Prim's MST for 
+// adjacency list representation of graph 
+import
+java.util.LinkedList; 
+import
+java.util.TreeSet; 
+import
+java.util.Comparator; 
+
+public
+class
+prims { 
+
+class
+node1 { 
+
+
+// Stores destination vertex in adjacency list 
+
+int
+dest; 
+
+
+// Stores weight of a vertex in the adjacency list 
+
+int
+weight; 
+
+
+// Constructor 
+
+node1(
+int
+a, 
+int
+b) 
+
+{ 
+
+dest = a; 
+
+weight = b; 
+
+} 
+
+} 
+
+static
+class
+Graph { 
+
+
+// Number of vertices in the graph 
+
+int
+V; 
+
+
+// List of adjacent nodes of a given vertex 
+
+LinkedList<node1>[] adj; 
+
+
+// Constructor 
+
+Graph(
+int
+e) 
+
+{ 
+
+V = e; 
+
+adj = 
+new
+LinkedList[V]; 
+
+for
+(
+int
+o = 
+0
+; o < V; o++) 
+
+adj[o] = 
+new
+LinkedList<>(); 
+
+} 
+
+} 
+
+
+// class to represent a node in PriorityQueue 
+
+// Stores a vertex and its corresponding 
+
+// key value 
+
+class
+node { 
+
+int
+vertex; 
+
+int
+key; 
+
+} 
+
+
+// Comparator class created for PriorityQueue 
+
+// returns 1 if node0.key > node1.key 
+
+// returns 0 if node0.key < node1.key and 
+
+// returns -1 otherwise 
+
+class
+comparator 
+implements
+Comparator<node> { 
+
+
+@Override
+
+public
+int
+compare(node node0, node node1) 
+
+{ 
+
+return
+node0.key - node1.key; 
+
+} 
+
+} 
+
+
+// method to add an edge 
+
+// between two vertices 
+
+void
+addEdge(Graph graph, 
+int
+src, 
+int
+dest, 
+int
+weight) 
+
+{ 
+
+
+node1 node0 = 
+new
+node1(dest, weight); 
+
+node1 node = 
+new
+node1(src, weight); 
+
+graph.adj[src].addLast(node0); 
+
+graph.adj[dest].addLast(node); 
+
+} 
+
+
+// method used to find the mst 
+
+void
+prims_mst(Graph graph) 
+
+{ 
+
+
+// Whether a vertex is in PriorityQueue or not 
+
+Boolean[] mstset = 
+new
+Boolean[graph.V]; 
+
+node[] e = 
+new
+node[graph.V]; 
+
+
+// Stores the parents of a vertex 
+
+int
+[] parent = 
+new
+int
+[graph.V]; 
+
+
+for
+(
+int
+o = 
+0
+; o < graph.V; o++) 
+
+e[o] = 
+new
+node(); 
+
+
+for
+(
+int
+o = 
+0
+; o < graph.V; o++) { 
+
+
+// Initialize to false 
+
+mstset[o] = 
+false
+; 
+
+
+// Initialize key values to infinity 
+
+e[o].key = Integer.MAX_VALUE; 
+
+e[o].vertex = o; 
+
+parent[o] = -
+1
+; 
+
+} 
+
+
+// Include the source vertex in mstset 
+
+mstset[
+0
+] = 
+true
+; 
+
+
+// Set key value to 0 
+
+// so that it is extracted first 
+
+// out of PriorityQueue 
+
+e[
+0
+].key = 
+0
+; 
+
+
+// Use TreeSet instead of PriorityQueue as the remove function of the PQ is O(n) in java. 
+
+TreeSet<node> queue = 
+new
+TreeSet<node>(
+new
+comparator()); 
+
+
+for
+(
+int
+o = 
+0
+; o < graph.V; o++) 
+
+queue.add(e[o]); 
+
+
+// Loops until the queue is not empty 
+
+while
+(!queue.isEmpty()) { 
+
+
+// Extracts a node with min key value 
+
+node node0 = queue.pollFirst(); 
+
+
+// Include that node into mstset 
+
+mstset[node0.vertex] = 
+true
+; 
+
+
+// For all adjacent vertex of the extracted vertex V 
+
+for
+(node1 iterator : graph.adj[node0.vertex]) { 
+
+
+// If V is in queue 
+
+if
+(mstset[iterator.dest] == 
+false
+) { 
+
+// If the key value of the adjacent vertex is 
+
+// more than the extracted key 
+
+// update the key value of adjacent vertex 
+
+// to update first remove and add the updated vertex 
+
+if
+(e[iterator.dest].key > iterator.weight) { 
+
+queue.remove(e[iterator.dest]); 
+
+e[iterator.dest].key = iterator.weight; 
+
+queue.add(e[iterator.dest]); 
+
+parent[iterator.dest] = node0.vertex; 
+
+} 
+
+} 
+
+} 
+
+} 
+
+
+// Prints the vertex pair of mst 
+
+for
+(
+int
+o = 
+1
+; o < graph.V; o++) 
+
+System.out.println(parent[o] + 
+"" ""
+
++ 
+""-""
+
++ 
+"" ""
++ o); 
+
+} 
+
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+int
+V = 
+9
+; 
+
+
+Graph graph = 
+new
+Graph(V); 
+
+
+prims e = 
+new
+prims(); 
+
+
+e.addEdge(graph, 
+0
+, 
+1
+, 
+4
+); 
+
+e.addEdge(graph, 
+0
+, 
+7
+, 
+8
+); 
+
+e.addEdge(graph, 
+1
+, 
+2
+, 
+8
+); 
+
+e.addEdge(graph, 
+1
+, 
+7
+, 
+11
+); 
+
+e.addEdge(graph, 
+2
+, 
+3
+, 
+7
+); 
+
+e.addEdge(graph, 
+2
+, 
+8
+, 
+2
+); 
+
+e.addEdge(graph, 
+2
+, 
+5
+, 
+4
+); 
+
+e.addEdge(graph, 
+3
+, 
+4
+, 
+9
+); 
+
+e.addEdge(graph, 
+3
+, 
+5
+, 
+14
+); 
+
+e.addEdge(graph, 
+4
+, 
+5
+, 
+10
+); 
+
+e.addEdge(graph, 
+5
+, 
+6
+, 
+2
+); 
+
+e.addEdge(graph, 
+6
+, 
+7
+, 
+1
+); 
+
+e.addEdge(graph, 
+6
+, 
+8
+, 
+6
+); 
+
+e.addEdge(graph, 
+7
+, 
+8
+, 
+7
+); 
+
+
+// Method invoked 
+
+e.prims_mst(graph); 
+
+} 
+} 
+// This code is contributed by Vikash Kumar Dubey ",CorCod,658,658,nlogn
+"import java.util.Scanner;
+
+public class Main {
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
+
+		long n = sc.nextLong();
+		long k = sc.nextLong();
+		System.out.println(solve(n, k));
+
+		sc.close();
+	}
+
+	static long solve(long n, long k) {
+		return Math.max(0, Math.min(n, k - 1) - ((k + 2) / 2) + 1);
+	}
+}
+",CorCod,822,822,constant
+"
+// Java program for Kruskal's algorithm to find Minimum 
+// Spanning Tree of a given connected, undirected and 
+// weighted graph 
+import
+java.util.*; 
+import
+java.lang.*; 
+import
+java.io.*; 
+
+class
+Graph 
+{ 
+
+// A class to represent a graph edge 
+
+class
+Edge 
+implements
+Comparable<Edge> 
+
+{ 
+
+int
+src, dest, weight; 
+
+
+// Comparator function used for sorting edges 
+
+// based on their weight 
+
+public
+int
+compareTo(Edge compareEdge) 
+
+{ 
+
+return
+this
+.weight-compareEdge.weight; 
+
+} 
+
+}; 
+
+
+// A class to represent a subset for union-find 
+
+class
+subset 
+
+{ 
+
+int
+parent, rank; 
+
+}; 
+
+
+int
+V, E; 
+// V-> no. of vertices & E->no.of edges 
+
+Edge edge[]; 
+// collection of all edges 
+
+
+// Creates a graph with V vertices and E edges 
+
+Graph(
+int
+v, 
+int
+e) 
+
+{ 
+
+V = v; 
+
+E = e; 
+
+edge = 
+new
+Edge[E]; 
+
+for
+(
+int
+i=
+0
+; i<e; ++i) 
+
+edge[i] = 
+new
+Edge(); 
+
+} 
+
+
+// A utility function to find set of an element i 
+
+// (uses path compression technique) 
+
+int
+find(subset subsets[], 
+int
+i) 
+
+{ 
+
+// find root and make root as parent of i (path compression) 
+
+if
+(subsets[i].parent != i) 
+
+subsets[i].parent = find(subsets, subsets[i].parent); 
+
+
+return
+subsets[i].parent; 
+
+} 
+
+
+// A function that does union of two sets of x and y 
+
+// (uses union by rank) 
+
+void
+Union(subset subsets[], 
+int
+x, 
+int
+y) 
+
+{ 
+
+int
+xroot = find(subsets, x); 
+
+int
+yroot = find(subsets, y); 
+
+
+// Attach smaller rank tree under root of high rank tree 
+
+// (Union by Rank) 
+
+if
+(subsets[xroot].rank < subsets[yroot].rank) 
+
+subsets[xroot].parent = yroot; 
+
+else
+if
+(subsets[xroot].rank > subsets[yroot].rank) 
+
+subsets[yroot].parent = xroot; 
+
+
+// If ranks are same, then make one as root and increment 
+
+// its rank by one 
+
+else
+
+{ 
+
+subsets[yroot].parent = xroot; 
+
+subsets[xroot].rank++; 
+
+} 
+
+} 
+
+
+// The main function to construct MST using Kruskal's algorithm 
+
+void
+KruskalMST() 
+
+{ 
+
+Edge result[] = 
+new
+Edge[V]; 
+// Tnis will store the resultant MST 
+
+int
+e = 
+0
+; 
+// An index variable, used for result[] 
+
+int
+i = 
+0
+; 
+// An index variable, used for sorted edges 
+
+for
+(i=
+0
+; i<V; ++i) 
+
+result[i] = 
+new
+Edge(); 
+
+
+// Step 1: Sort all the edges in non-decreasing order of their 
+
+// weight. If we are not allowed to change the given graph, we 
+
+// can create a copy of array of edges 
+
+Arrays.sort(edge); 
+
+
+// Allocate memory for creating V ssubsets 
+
+subset subsets[] = 
+new
+subset[V]; 
+
+for
+(i=
+0
+; i<V; ++i) 
+
+subsets[i]=
+new
+subset(); 
+
+
+// Create V subsets with single elements 
+
+for
+(
+int
+v = 
+0
+; v < V; ++v) 
+
+{ 
+
+subsets[v].parent = v; 
+
+subsets[v].rank = 
+0
+; 
+
+} 
+
+
+i = 
+0
+; 
+// Index used to pick next edge 
+
+
+// Number of edges to be taken is equal to V-1 
+
+while
+(e < V - 
+1
+) 
+
+{ 
+
+// Step 2: Pick the smallest edge. And increment 
+
+// the index for next iteration 
+
+Edge next_edge = 
+new
+Edge(); 
+
+next_edge = edge[i++]; 
+
+
+int
+x = find(subsets, next_edge.src); 
+
+int
+y = find(subsets, next_edge.dest); 
+
+
+// If including this edge does't cause cycle, 
+
+// include it in result and increment the index 
+
+// of result for next edge 
+
+if
+(x != y) 
+
+{ 
+
+result[e++] = next_edge; 
+
+Union(subsets, x, y); 
+
+} 
+
+// Else discard the next_edge 
+
+} 
+
+
+// print the contents of result[] to display 
+
+// the built MST 
+
+System.out.println(
+""Following are the edges in ""
++ 
+
+""the constructed MST""
+); 
+
+for
+(i = 
+0
+; i < e; ++i) 
+
+System.out.println(result[i].src+
+"" -- ""
++ 
+
+result[i].dest+
+"" == ""
++ result[i].weight); 
+
+} 
+
+
+// Driver Program 
+
+public
+static
+void
+main (String[] args) 
+
+{ 
+
+
+/* Let us create following weighted graph 
+
+10 
+
+0--------1 
+
+| \ | 
+
+6| 5\ |15 
+
+| \ | 
+
+2--------3 
+
+4 */
+
+int
+V = 
+4
+; 
+// Number of vertices in graph 
+
+int
+E = 
+5
+; 
+// Number of edges in graph 
+
+Graph graph = 
+new
+Graph(V, E); 
+
+
+// add edge 0-1 
+
+graph.edge[
+0
+].src = 
+0
+; 
+
+graph.edge[
+0
+].dest = 
+1
+; 
+
+graph.edge[
+0
+].weight = 
+10
+; 
+
+
+// add edge 0-2 
+
+graph.edge[
+1
+].src = 
+0
+; 
+
+graph.edge[
+1
+].dest = 
+2
+; 
+
+graph.edge[
+1
+].weight = 
+6
+; 
+
+
+// add edge 0-3 
+
+graph.edge[
+2
+].src = 
+0
+; 
+
+graph.edge[
+2
+].dest = 
+3
+; 
+
+graph.edge[
+2
+].weight = 
+5
+; 
+
+
+// add edge 1-3 
+
+graph.edge[
+3
+].src = 
+1
+; 
+
+graph.edge[
+3
+].dest = 
+3
+; 
+
+graph.edge[
+3
+].weight = 
+15
+; 
+
+
+// add edge 2-3 
+
+graph.edge[
+4
+].src = 
+2
+; 
+
+graph.edge[
+4
+].dest = 
+3
+; 
+
+graph.edge[
+4
+].weight = 
+4
+; 
+
+
+graph.KruskalMST(); 
+
+} 
+} 
+//This code is contributed by Aakash Hasija ",CorCod,623,623,nlogn
+"
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int n = scanner.nextInt();
+        int[] P = new int[n];
+        int[] check=new int[n];
+        for (int i = 1; i < n; i++) {
+
+            P[i] = scanner.nextInt();
+            P[i]--;
+            check[P[i]]++;
+        }
+        int[] leaves = new int[n];
+
+
+        for (int i=0;i<n;i++) {
+            if(check[i]==0){
+                leaves[P[i]]++;
+            }
+        }
+
+
+        for (int i = 0; i < n; i++) {
+
+            if (check[i]>0&&leaves[i]<3) {
+                System.out.println(""No"");
+                return;
+            }
+        }
+        System.out.println(""Yes"");
+    }
+}
+",CorCod,341,341,linear
+"import java.io.*;
+import java.util.StringTokenizer;
+
+
+public class Main {
+    static int[] a;
+
+    public static void main(String[] args) throws IOException {
+        Scanner sc = new Scanner(System.in);
+        PrintWriter out = new PrintWriter(System.out);
+        int n = sc.nextInt();
+        a = sc.nextIntArray(n);
+        long inversions = divide(0, n - 1);
+//        out.println(inversions);
+//        System.err.println(Arrays.toString(a));
+        if (n == 5) out.println(""Petr"");
+        else {
+            if (n % 2 == 0) out.println(inversions % 2 == 0 ? ""Petr"" : ""Um_nik"");
+            else out.println(inversions % 2 != 0 ? ""Petr"" : ""Um_nik"");
+        }
+        out.flush();
+        out.close();
+    }
+
+    static long divide(int b, int e) {
+        if (b == e) return 0;
+        long cnt = 0;
+        int mid = b + e >> 1;
+        cnt += divide(b, mid);
+        cnt += divide(mid + 1, e);
+        cnt += merge(b, mid, e);
+        return cnt;
+    }
+
+    static long merge(int b, int mid, int e) {
+        long cnt = 0;
+        int len = e - b + 1;
+        int[] tmp = new int[len];
+        int i = b, j = mid + 1;
+        for (int k = 0; k < len; k++) {
+            if (i == mid + 1 || (j != e + 1 && a[i] > a[j])) {
+                tmp[k] = a[j++];
+                cnt += (mid + 1 - i);
+            } else tmp[k] = a[i++];
+        }
+        for (int k = 0; k < len; k++)
+            a[b + k] = tmp[k];
+        return cnt;
+    }
+
+    static class Scanner {
+
+        StringTokenizer st;
+        BufferedReader br;
+
+        public Scanner(InputStream system) {
+            br = new BufferedReader(new InputStreamReader(system));
+        }
+
+
+        public String next() throws IOException {
+            while (st == null || !st.hasMoreTokens()) st = new StringTokenizer(br.readLine());
+            return st.nextToken();
+        }
+
+        public String nextLine() throws IOException {
+            return br.readLine();
+        }
+
+        public int nextInt() throws IOException {
+            return Integer.parseInt(next());
+        }
+
+        public double nextDouble() throws IOException {
+            return Double.parseDouble(next());
+        }
+
+        public char nextChar() throws IOException {
+            return next().charAt(0);
+        }
+
+        public Long nextLong() throws IOException {
+            return Long.parseLong(next());
+        }
+
+        public boolean ready() throws IOException {
+            return br.ready();
+        }
+
+
+        public int[] nextIntArray(int n) throws IOException {
+            int[] a = new int[n];
+            for (int i = 0; i < n; i++)
+                a[i] = nextInt();
+            return a;
+        }
+
+        public long[] nextLongArray(int n) throws IOException {
+            long[] a = new long[n];
+            for (int i = 0; i < n; i++)
+                a[i] = nextLong();
+            return a;
+        }
+
+
+        public Integer[] nextIntegerArray(int n) throws IOException {
+            Integer[] a = new Integer[n];
+            for (int i = 0; i < n; i++)
+                a[i] = nextInt();
+            return a;
+        }
+
+        public double[] nextDoubleArray(int n) throws IOException {
+            double[] ans = new double[n];
+            for (int i = 0; i < n; i++)
+                ans[i] = nextDouble();
+            return ans;
+        }
+
+        public short nextShort() throws IOException {
+            return Short.parseShort(next());
+        }
+
+    }
+}",CorCod,728,728,nlogn
+"
+// Java Program to find the length of 
+// substring with maximum difference of 
+// zeroes and ones in binary string. 
+import
+java.util.*; 
+import
+java.lang.*; 
+import
+java.io.*; 
+
+class
+GFG { 
+
+
+// Find the length of substring with maximum 
+
+// difference of zeros and ones in binary 
+
+// string 
+
+public
+static
+int
+findLength(String str, 
+int
+n) 
+
+{ 
+
+
+int
+current_sum = 
+0
+; 
+
+int
+max_sum = 
+0
+; 
+
+
+// traverse a binary string from left to right 
+
+for
+(
+int
+i = 
+0
+; i < n; i++) { 
+
+
+// add current value to the current_sum 
+
+// according to the Character 
+
+// if it's '0' add 1 else -1 
+
+current_sum += (str.charAt(i) == 
+'0'
+? 
+1
+: -
+1
+); 
+
+
+if
+(current_sum < 
+0
+) 
+
+current_sum = 
+0
+; 
+
+
+// update maxium sum 
+
+max_sum = Math.max(current_sum, max_sum); 
+
+} 
+
+// return -1 if string does not contain any zero 
+
+// that means string contains all ones otherwise max_sum 
+
+return
+max_sum == 
+0
+? -
+1
+: max_sum; 
+
+} 
+
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+String str = 
+""11000010001""
+; 
+
+int
+n = str.length(); 
+
+
+System.out.println(findLength(str, n)); 
+
+} 
+} ",CorCod,352,352,linear
+"
+import java.util.*;
+import java.io.*;
+import java.math.*;
+public class loser
+{
+    static class InputReader {
+        public BufferedReader br;
+        public StringTokenizer token;
+        public InputReader(InputStream stream)
+        {
+            br=new BufferedReader(new InputStreamReader(stream),32768);
+            token=null;
+        }
+
+        public String next()
+        {
+            while(token==null || !token.hasMoreTokens())
+            {
+                try
+                {
+                    token=new StringTokenizer(br.readLine());
+                }
+                catch(IOException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }
+            return token.nextToken();
+        }
+
+        public int nextInt()
+        {
+            return Integer.parseInt(next());
+        }
+
+        public long nextLong()
+        {
+            return Long.parseLong(next());
+        }
+    }
+    static class card{
+        long a;
+        int i;
+        public card(long a,int i)
+        {
+            this.a=a;
+            this.i=i;
+        }
+    }
+    static class sort implements Comparator<pair>
+    {
+        public int compare(pair o1,pair o2)
+        {
+            if(o1.a!=o2.a)
+                return (int)(o1.a-o2.a);
+            else
+                return (int)(o1.b-o2.b);
+        }
+    }
+    static void shuffle(long a[])
+    {
+        List<Long> l=new ArrayList<>();
+        for(int i=0;i<a.length;i++)
+            l.add(a[i]);
+        Collections.shuffle(l);
+        for(int i=0;i<a.length;i++)
+            a[i]=l.get(i);
+    }
+
+    /*static long gcd(long a,long b)
+    {
+    if(b==0)
+    return a;
+    else
+    return gcd(b,a%b);
+    }*/
+    /*static boolean valid(int i,int j)
+    {
+    if(i<4 && i>=0 && j<4 && j>=0)
+    return true;
+    else
+    return false;
+    }*/
+    static class pair{
+        int a,b;
+        public pair(int a,int b)
+        {
+            this.a=a;
+            this.b=b;
+        }
+    }
+    public  static void main(String[] args) 
+    {
+        InputReader sc=new InputReader(System.in);
+        int k=sc.nextInt();
+        int n=sc.nextInt();
+        int s=sc.nextInt();
+        int p=sc.nextInt();
+        long d=(long)Math.ceil((double)n/s);
+        if(d==0)
+        d=1;
+        d=k*d;
+        long ans=(long)Math.ceil((double)d/p);
+        System.out.println(ans);
+    }
+}",CorCod,872,872,constant
+"
+// Java program to delete a node from 
+// Doubly Linked List 
+
+// Class for Doubly Linked List 
+public
+class
+DLL { 
+
+Node head; 
+// head of list 
+
+
+/* Doubly Linked list Node*/
+
+class
+Node { 
+
+int
+data; 
+
+Node prev; 
+
+Node next; 
+
+
+// Constructor to create a new node 
+
+// next and prev is by default initialized 
+
+// as null 
+
+Node(
+int
+d) { data = d; } 
+
+} 
+
+
+// Adding a node at the front of the list 
+
+public
+void
+push(
+int
+new_data) 
+
+{ 
+
+// 1. allocate node 
+
+// 2. put in the data 
+
+Node new_Node = 
+new
+Node(new_data); 
+
+
+// 3. Make next of new node as head 
+
+// and previous as NULL 
+
+new_Node.next = head; 
+
+new_Node.prev = 
+null
+; 
+
+
+// 4. change prev of head node to new node 
+
+if
+(head != 
+null
+) 
+
+head.prev = new_Node; 
+
+
+// 5. move the head to point to the new node 
+
+head = new_Node; 
+
+} 
+
+
+// This function prints contents of linked list 
+
+// starting from the given node 
+
+public
+void
+printlist(Node node) 
+
+{ 
+
+Node last = 
+null
+; 
+
+
+while
+(node != 
+null
+) { 
+
+System.out.print(node.data + 
+"" ""
+); 
+
+last = node; 
+
+node = node.next; 
+
+} 
+
+
+System.out.println(); 
+
+} 
+
+
+// Function to delete a node in a Doubly Linked List. 
+
+// head_ref --> pointer to head node pointer. 
+
+// del --> data of node to be deleted. 
+
+void
+deleteNode(Node head_ref, Node del) 
+
+{ 
+
+
+// Base case 
+
+if
+(head == 
+null
+|| del == 
+null
+) { 
+
+return
+; 
+
+} 
+
+
+// If node to be deleted is head node 
+
+if
+(head == del) { 
+
+head = del.next; 
+
+} 
+
+
+// Change next only if node to be deleted 
+
+// is NOT the last node 
+
+if
+(del.next != 
+null
+) { 
+
+del.next.prev = del.prev; 
+
+} 
+
+
+// Change prev only if node to be deleted 
+
+// is NOT the first node 
+
+if
+(del.prev != 
+null
+) { 
+
+del.prev.next = del.next; 
+
+} 
+
+
+// Finally, free the memory occupied by del 
+
+return
+; 
+
+} 
+
+
+// Driver Code 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+// Start with the empty list 
+
+DLL dll = 
+new
+DLL(); 
+
+
+// Insert 2. So linked list becomes 2->NULL 
+
+dll.push(
+2
+); 
+
+
+// Insert 4. So linked list becomes 4->2->NULL 
+
+dll.push(
+4
+); 
+
+
+// Insert 8. So linked list becomes 8->4->2->NULL 
+
+dll.push(
+8
+); 
+
+
+// Insert 10. So linked list becomes 10->8->4->2->NULL 
+
+dll.push(
+10
+); 
+
+
+System.out.print(
+""Created DLL is: ""
+); 
+
+dll.printlist(dll.head); 
+
+
+// Deleting first node 
+
+dll.deleteNode(dll.head, dll.head); 
+
+
+// List after deleting first node 
+
+// 8->4->2 
+
+System.out.print(
+""\nList after deleting first node: ""
+); 
+
+dll.printlist(dll.head); 
+
+
+// Deleting middle node from 8->4->2 
+
+dll.deleteNode(dll.head, dll.head.next); 
+
+
+System.out.print(
+""\nList after Deleting middle node: ""
+); 
+
+dll.printlist(dll.head); 
+
+} 
+} ",CorCod,841,841,constant
+"
+// Java implementation of simple 
+// algorithm to find smaller 
+// element on left side 
+import
+java.io.*; 
+class
+GFG { 
+
+// Prints smaller elements on 
+// left side of every element 
+static
+void
+printPrevSmaller(
+int
+[]arr, 
+int
+n) 
+{ 
+
+
+// Always print empty or '_' 
+
+// for first element 
+
+System.out.print( 
+""_, ""
+); 
+
+
+// Start from second element 
+
+for
+(
+int
+i = 
+1
+; i < n; i++) 
+
+{ 
+
+// look for smaller 
+
+// element on left of 'i' 
+
+int
+j; 
+
+for
+(j = i - 
+1
+; j >= 
+0
+; j--) 
+
+{ 
+
+if
+(arr[j] < arr[i]) 
+
+{ 
+
+System.out.print(arr[j] + 
+"", ""
+); 
+
+break
+; 
+
+} 
+
+} 
+
+
+// If there is no smaller 
+
+// element on left of 'i' 
+
+if
+(j == -
+1
+) 
+
+System.out.print( 
+""_, ""
+) ; 
+
+} 
+} 
+
+
+// Driver Code 
+
+public
+static
+void
+main (String[] args) 
+
+{ 
+
+int
+[]arr = {
+1
+, 
+3
+, 
+0
+, 
+2
+, 
+5
+}; 
+
+int
+n = arr.length; 
+
+printPrevSmaller(arr, n); 
+
+} 
+} 
+
+// This code is contributed by anuj_67. ",CorCod,423,423,quadratic
+"
+// Java program to find a pair with a given 
+// sum in a sorted and rotated array 
+class
+PairInSortedRotated 
+{ 
+
+// This function returns true if arr[0..n-1] 
+
+// has a pair with sum equals to x. 
+
+static
+boolean
+pairInSortedRotated(
+int
+arr[], 
+
+int
+n, 
+int
+x) 
+
+{ 
+
+// Find the pivot element 
+
+int
+i; 
+
+for
+(i = 
+0
+; i < n - 
+1
+; i++) 
+
+if
+(arr[i] > arr[i+
+1
+]) 
+
+break
+; 
+
+
+int
+l = (i + 
+1
+) % n; 
+// l is now index of 
+
+// smallest element 
+
+
+int
+r = i; 
+// r is now index of largest 
+
+//element 
+
+
+// Keep moving either l or r till they meet 
+
+while
+(l != r) 
+
+{ 
+
+// If we find a pair with sum x, we 
+
+// return true 
+
+if
+(arr[l] + arr[r] == x) 
+
+return
+true
+; 
+
+
+// If current pair sum is less, move 
+
+// to the higher sum 
+
+if
+(arr[l] + arr[r] < x) 
+
+l = (l + 
+1
+) % n; 
+
+
+else
+// Move to the lower sum side 
+
+r = (n + r - 
+1
+) % n; 
+
+} 
+
+return
+false
+; 
+
+} 
+
+
+/* Driver program to test above function */
+
+public
+static
+void
+main (String[] args) 
+
+{ 
+
+int
+arr[] = {
+11
+, 
+15
+, 
+6
+, 
+8
+, 
+9
+, 
+10
+}; 
+
+int
+sum = 
+16
+; 
+
+int
+n = arr.length; 
+
+
+if
+(pairInSortedRotated(arr, n, sum)) 
+
+System.out.print(
+""Array has two elements""
++ 
+
+"" with sum 16""
+); 
+
+else
+
+System.out.print(
+""Array doesn't have two""
++ 
+
+"" elements with sum 16 ""
+); 
+
+} 
+} 
+/*This code is contributed by Prakriti Gupta*/",CorCod,29,29,linear
+"
+// Java implementation to divide N into 
+// maximum number of segments 
+// of length a, b and c 
+import
+java.util.*; 
+
+class
+GFG 
+{ 
+
+
+// function to find the maximum 
+
+// number of segments 
+
+static
+int
+maximumSegments(
+int
+n, 
+int
+a, 
+
+int
+b, 
+int
+c) 
+
+{ 
+
+// stores the maximum number of 
+
+// segments each index can have 
+
+int
+dp[] = 
+new
+int
+[n + 
+10
+]; 
+
+
+// initialize with -1 
+
+Arrays.fill(dp, -
+1
+); 
+
+
+// 0th index will have 0 segments 
+
+// base case 
+
+dp[
+0
+] = 
+0
+; 
+
+
+// traverse for all possible 
+
+// segments till n 
+
+for
+(
+int
+i = 
+0
+; i < n; i++) 
+
+{ 
+
+if
+(dp[i] != -
+1
+) 
+
+{ 
+
+
+// conditions 
+
+if
+(i + a <= n ) 
+//avoid buffer overflow 
+
+dp[i + a] = Math.max(dp[i] + 
+1
+, 
+
+dp[i + a]); 
+
+
+if
+(i + b <= n ) 
+//avoid buffer overflow 
+
+dp[i + b] = Math.max(dp[i] + 
+1
+, 
+
+dp[i + b]); 
+
+
+if
+(i + c <= n ) 
+//avoid buffer overflow 
+
+dp[i + c] = Math.max(dp[i] + 
+1
+, 
+
+dp[i + c]); 
+
+} 
+
+} 
+
+return
+dp[n]; 
+
+} 
+
+
+// Driver code 
+
+public
+static
+void
+main(String arg[]) 
+
+{ 
+
+int
+n = 
+7
+, a = 
+5
+, b = 
+2
+, c = 
+5
+; 
+
+System.out.print(maximumSegments(n, a, b, c)); 
+
+} 
+} 
+
+// This code is contributed by Anant Agarwal. ",CorCod,222,222,linear
+"
+// Java program to reverse the number 
+// using a stack 
+import
+java.util.Stack; 
+
+public
+class
+GFG 
+{ 
+
+// Stack to maintain order of digits 
+
+static
+Stack<Integer> st= 
+new
+Stack<>(); 
+
+
+// Function to push digits into stack 
+
+static
+void
+push_digits(
+int
+number) 
+
+{ 
+
+while
+(number != 
+0
+) 
+
+{ 
+
+st.push(number % 
+10
+); 
+
+number = number / 
+10
+; 
+
+} 
+
+} 
+
+
+// Function to reverse the number 
+
+static
+int
+reverse_number(
+int
+number) 
+
+{ 
+
+// Function call to push number's 
+
+// digits to stack 
+
+push_digits(number); 
+
+int
+reverse = 
+0
+; 
+
+int
+i = 
+1
+; 
+
+
+// Popping the digits and forming 
+
+// the reversed number 
+
+while
+(!st.isEmpty()) 
+
+{ 
+
+reverse = reverse + (st.peek() * i); 
+
+st.pop(); 
+
+i = i * 
+10
+; 
+
+} 
+
+
+// Return the reversed number formed 
+
+return
+reverse; 
+
+} 
+
+
+// Driver program to test above function 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+int
+number = 
+39997
+; 
+
+System.out.println(reverse_number(number)); 
+
+} 
+} 
+// This code is contributed by Sumit Ghosh ",CorCod,906,906,logn
+"
+class
+GFG { 
+
+// Returns count of ways n people 
+
+// can remain single or paired up. 
+
+static
+int
+countFriendsPairings(
+int
+n) 
+
+{ 
+
+int
+a = 
+1
+, b = 
+2
+, c = 
+0
+; 
+
+if
+(n <= 
+2
+) { 
+
+return
+n; 
+
+} 
+
+for
+(
+int
+i = 
+3
+; i <= n; i++) { 
+
+c = b + (i - 
+1
+) * a; 
+
+a = b; 
+
+b = c; 
+
+} 
+
+return
+c; 
+
+} 
+
+
+// Driver code 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+int
+n = 
+4
+; 
+
+System.out.println(countFriendsPairings(n)); 
+
+} 
+} 
+
+// This code is contributed by Ravi Kasha. ",CorCod,62,62,linear
+"
+// An otpimized Java program to find pairs with distance 
+// equal to English alphabet distance 
+
+class
+Test { 
+
+static
+final
+int
+MAX_CHAR = 
+26
+; 
+
+
+// Method to count pairs with distance 
+
+// equal to English alphabet distance 
+
+static
+int
+countPairs(String str) 
+
+{ 
+
+int
+result = 
+0
+; 
+
+int
+n = str.length(); 
+
+
+for
+(
+int
+i = 
+0
+; i < n; i++) 
+
+
+// This loop runs at most 26 times 
+
+for
+(
+int
+j = 
+1
+; (i + j) < n && j <= MAX_CHAR; j++) 
+
+if
+((Math.abs(str.charAt(i + j) - str.charAt(i)) == j)) 
+
+result++; 
+
+
+return
+result; 
+
+} 
+
+
+// Driver method 
+
+public
+static
+void
+main(String args[]) 
+
+{ 
+
+String str = 
+""geeksforgeeks""
+; 
+
+System.out.println(countPairs(str)); 
+
+} 
+} ",CorCod,160,160,linear
+"import java.util.*;
+import java.io.*;
+
+public class Main {
+    public static void main(String args[]) {
+        FastReader fr = new FastReader();
+        PrintWriter out = new PrintWriter(System.out);
+        int n = fr.nextInt(), v = fr.nextInt();
+        if (v >= n)
+            out.println(n - 1);
+        else
+            out.println((n - v) * (n - v + 1) / 2 + v - 1);
+        out.flush();
+    }
+
+    static class FastReader {
+        BufferedReader br;
+        StringTokenizer st;
+
+        public FastReader() {
+            br = new BufferedReader(new InputStreamReader(System.in));
+        }
+
+        String next() {
+            while (st == null || !st.hasMoreElements()) {
+                try {
+                    st = new StringTokenizer(br.readLine());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return st.nextToken();
+        }
+
+        int nextInt() {
+            return Integer.parseInt(next());
+        }
+
+        long nextLong() {
+            return Long.parseLong(next());
+        }
+
+        double nextDouble() {
+            return Double.parseDouble(next());
+        }
+
+        String nextLine() {
+            String str = """";
+            try {
+                str = br.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return str;
+        }
+
+        int[] nextIntArray(int n) {
+            int a[] = new int[n];
+            for (int i = 0; i < n; i++) {
+                a[i] = nextInt();
+            }
+            return a;
+        }
+
+        int[] memset(int n, int val) {
+            int ar[] = new int[n];
+            Arrays.fill(ar, val);
+            return ar;
+        }
+    }
+}",CorCod,868,868,constant
+"
+import java.util.*;
+import java.io.*;
+
+public class TokitsukazeAndEnhancement {
+	
+	static char check(int n) {
+		if(n%4 == 0)
+			return 'D';
+		if(n%4 == 1)
+			return 'A';
+		if(n%4 == 2)
+			return 'C';
+		return 'B';
+	}
+	
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		PrintWriter pw = new PrintWriter(System.out);
+		StringTokenizer st;
+		int n = Integer.parseInt(br.readLine());
+		int a = n + 1;
+		int b = n + 2;
+		char n1 = check(n);
+		char a1 = check(a);
+		char b1 = check(b);
+		char sol = (char) Math.min(Math.min(a1, b1),n1);
+		if(sol == n1)
+			pw.println(0 + "" "" + sol);
+		else if(sol == a1)
+			pw.println(1 + "" "" + sol);
+		else if(sol == b1)
+			pw.println(2 + "" "" + sol);
+		pw.close();
+	}
+}
+",CorCod,787,787,constant
+"import java.util.Scanner;
+
+public class Piles {
+
+	public static void main(String[] args) {
+		Scanner scan = new Scanner(System.in);
+		int[] a = new int[2]; int x = scan.nextInt();
+		for(int i = 0; i < 2; i++) for(int j = 0; j < x; j++) a[i] += scan.nextInt();
+		System.out.println(a[1] <= a[0] ? ""Yes"" : ""No"");
+
+	}
+
+}
+",CorCod,307,307,linear
+"
+// Java program to find sum of maximum 
+// sum alternating sequence starting with 
+// first element. 
+
+public
+class
+GFG 
+{ 
+
+// Return sum of maximum sum alternating 
+
+// sequence starting with arr[0] and is first 
+
+// decreasing. 
+
+static
+int
+maxAlternateSum(
+int
+arr[], 
+int
+n) 
+
+{ 
+
+if
+(n == 
+1
+) 
+
+return
+arr[
+0
+]; 
+
+
+// create two empty array that store result of 
+
+// maximum sum of alternate sub-sequence 
+
+
+// stores sum of decreasing and increasing 
+
+// sub-sequence 
+
+int
+dec[] = 
+new
+int
+[n]; 
+
+
+
+// store sum of increasing and decreasing sun-sequence 
+
+int
+inc[] = 
+new
+int
+[n]; 
+
+
+// As per question, first element must be part 
+
+// of solution. 
+
+dec[
+0
+] = inc[
+0
+] = arr[
+0
+]; 
+
+
+int
+flag = 
+0
+; 
+
+
+// Traverse remaining elements of array 
+
+for
+(
+int
+i=
+1
+; i<n; i++) 
+
+{ 
+
+for
+(
+int
+j=
+0
+; j<i; j++) 
+
+{ 
+
+// IF current sub-sequence is decreasing the 
+
+// update dec[j] if needed. dec[i] by current 
+
+// inc[j] + arr[i] 
+
+if
+(arr[j] > arr[i]) 
+
+{ 
+
+dec[i] = Math.max(dec[i], inc[j]+arr[i]); 
+
+
+// Revert the flag , if first decreasing 
+
+// is found 
+
+flag = 
+1
+; 
+
+} 
+
+
+// If next element is greater but flag should be 1 
+
+// i.e. this element should be counted after the 
+
+// first decreasing element gets counted 
+
+else
+if
+(arr[j] < arr[i] && flag == 
+1
+) 
+
+
+// If current sub-sequence is increasing 
+
+// then update inc[i] 
+
+inc[i] = Math.max(inc[i], dec[j]+arr[i]); 
+
+} 
+
+} 
+
+
+// find maximum sum in b/w inc[] and dec[] 
+
+int
+result = Integer.MIN_VALUE; 
+
+for
+(
+int
+i = 
+0
+; i < n; i++) 
+
+{ 
+
+if
+(result < inc[i]) 
+
+result = inc[i]; 
+
+if
+(result < dec[i]) 
+
+result = dec[i]; 
+
+} 
+
+
+// return maximum sum alternate sun-sequence 
+
+return
+result; 
+
+} 
+
+
+// Driver Method 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+int
+arr[]= {
+8
+, 
+2
+, 
+3
+, 
+5
+, 
+7
+, 
+9
+, 
+10
+}; 
+
+System.out.println(
+""Maximum sum = ""
++ 
+
+maxAlternateSum(arr , arr.length)); 
+
+} 
+} ",CorCod,476,476,quadratic
+"import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.StringTokenizer;
+
+public class CoveredPointsCount {
+	
+	//UPSOLVE
+	
+	public static void main(String[] args) throws IOException {
+		
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+	        
+		int n = Integer.parseInt(st.nextToken());
+	     
+		long[] myArray = new long[2 * n];
+	        
+			for (int i = 0; i < n; i++)  {
+	        	StringTokenizer st1 = new StringTokenizer(br.readLine());
+	        	myArray[2 * i] = Long.parseLong(st1.nextToken()) * 2;
+	        	myArray[2 * i + 1] = Long.parseLong(st1.nextToken()) * 2 + 1;
+	        }  
+	        
+	        Arrays.sort(myArray);
+	        long[] ans = new long[n + 1];
+	        int cnt = 0;
+	       
+	        for (int i = 0; i < 2 * n - 1; i++)   {
+	            if (myArray[i] % 2 == 0) cnt++; else cnt--;
+	            ans[cnt] += (myArray[i + 1] + 1) / 2 - (myArray[i] + 1) / 2;
+	        }   
+	        
+	        StringBuilder answer = new StringBuilder();
+	        
+	        for (int i = 1; i < n + 1; i++) {
+	        	answer.append(ans[i]);
+	        	answer.append("" "");
+	        }  
+	        
+	        System.out.println(answer);
+
+	}
+
+}
+",CorCod,726,726,nlogn
+"
+// Java program to Count elements which 
+// divides all numbers in range L-R 
+import
+java.io.*; 
+
+class
+GFG 
+{ 
+
+// function to count element 
+// Time complexity O(n^2) worst case 
+static
+int
+answerQuery(
+int
+a[], 
+int
+n, 
+
+int
+l, 
+int
+r) 
+{ 
+
+// answer for query 
+
+int
+count = 
+0
+; 
+
+
+// 0 based index 
+
+l = l - 
+1
+; 
+
+
+// iterate for all elements 
+
+for
+(
+int
+i = l; i < r; i++) 
+
+{ 
+
+int
+element = a[i]; 
+
+int
+divisors = 
+0
+; 
+
+
+// check if the element divides 
+
+// all numbers in range 
+
+for
+(
+int
+j = l; j < r; j++) 
+
+{ 
+
+// no of elements 
+
+if
+(a[j] % a[i] == 
+0
+) 
+
+divisors++; 
+
+else
+
+break
+; 
+
+} 
+
+
+// if all elements are divisible by a[i] 
+
+if
+(divisors == (r - l)) 
+
+count++; 
+
+} 
+
+
+// answer for every query 
+
+return
+count; 
+} 
+
+// Driver Code 
+public
+static
+void
+main (String[] args) 
+{ 
+
+int
+a[] = { 
+1
+, 
+2
+, 
+3
+, 
+5
+}; 
+
+int
+n = a.length; 
+
+
+int
+l = 
+1
+, r = 
+4
+; 
+
+System.out.println( answerQuery(a, n, l, r)); 
+
+
+l = 
+2
+; r = 
+4
+; 
+
+System.out.println( answerQuery(a, n, l, r)); 
+} 
+} 
+
+// This code is contributed by anuj_67.. ",CorCod,574,574,quadratic
+"import java.util.*;
+import java.io.*;
+import java.math.*;
+ 
+public class Main {
+    public static void main(String[] args) throws IOException {
+        PrintWriter out = new PrintWriter(System.out);
+        //Scanner sc = new Scanner();
+        Reader in = new Reader();
+        Main solver = new Main();
+        solver.solve(out, in);
+        out.flush();
+        out.close();
+ 
+    }
+ 
+    static int INF = (int)1e5*4*4+5;
+    static int maxn = (int)1e5*2+1;
+    static int mod=(int)1e9+7 ;
+    static int n,m,k,t,q,x,a,b,y;
+    
+    static ArrayList<Integer> adj[];
+    static int[] dist,parent,back;
+    static boolean[] vis,vist;
+    static int root=0,ans=1;
+    
+    
+    void solve(PrintWriter out, Reader in) throws IOException{
+        n = in.nextInt();
+
+
+        if(n==1) {out.println(1);return;}
+        adj = new ArrayList[n+1];
+        for(int i=1;i<=n;i++) 
+            adj[i] = new ArrayList<Integer>();
+        
+        int u,v;
+        for(int i=0;i<n-1;i++){
+            u = in.nextInt();
+            v = in.nextInt();
+             
+            adj[u].add(v);
+            adj[v].add(u);
+        }
+        
+        vist = new boolean[n+1];
+        vis = new boolean[n+1];
+        vist[1] =true;
+        makeroot(1);
+        
+        parent = new int[n+1];
+        dist = new int[n+1];
+        back = new int[n+1];
+        
+        dfs(root,0);
+        calcdist(root);
+        
+        vist = new boolean[n+1];
+        vis = new boolean[n+1];
+        vist[root] =true;
+        
+        
+
+        PriorityQueue<Node> pq = new PriorityQueue<Node>();
+        for(int i=1;i<=n;i++){
+            if(i!=root) pq.add(new Node(i,dist[i]));
+        }
+        
+        Node elm;
+        int rt = root;
+        out.print(1);
+        
+        makeroot(root);
+        removeNodes(root,rt);
+        ans+=dist[rt];
+        out.print("" ""+ans);
+        int itr=2;
+        for(int i=2;i<=n;i++){
+            
+            elm = pq.remove();
+            if(vis[elm.idx]) continue;
+            removeNodes(back[elm.idx],elm.idx);
+            ans += elm.dist+1;
+            out.print("" ""+ans);
+            itr++;
+        }
+        for(int i=itr;i<n;i++)
+            out.print("" ""+ans);
+        out.println();
+    }
+    
+    //<>
+    
+    static class Node implements Comparable<Node>{
+        int dist,idx;
+        
+        Node(int idx,int dist){
+            this.idx = idx;
+            this.dist = dist;
+        }
+        
+        public int compareTo(Node o) {
+            return o.dist-this.dist;
+        }
+    }
+    
+    static void removeNodes(int s,int e){
+        vis[s]=true;
+        while(s!=e){
+            vis[s] = true;
+            s = parent[s];
+        }
+        vis[s]=true;
+        return;
+    }
+    
+    static int calcdist(int s){
+        int res=0;
+        int tmp=0;
+        for(int e:adj[s]){
+            if(e!=parent[s]){
+                tmp= calcdist(e);
+                if(1+tmp>res){
+                    res = 1+tmp;
+                    back[s] = back[e];
+                }
+            }
+        }
+        
+        if(res==0) back[s]=s;
+        return dist[s] = res;
+    }
+    
+    static void dfs(int s,int p){
+        for(int e:adj[s]){
+            if(e!=p){
+                parent[e]=s;
+                dfs(e,s);
+            }
+        }
+        return;
+    }
+    
+    static void makeroot(int s){
+        Queue<Integer> q = new LinkedList<>();
+        q.add(s);
+        
+        int elm=0;
+        while(q.size()!=0){
+            elm = q.remove();
+            for(int e:adj[elm]){
+                if(!vist[e]){
+                    vist[e]=true;
+                    q.add(e);
+                    root = e;
+                }
+            }
+        }
+        return;
+    }
+    
+    
+    static class Reader {
+
+    private InputStream mIs;
+    private byte[] buf = new byte[1024];
+    private int curChar;
+    private int numChars;
+
+    public Reader() {
+        this(System.in);
+    }
+
+    public Reader(InputStream is) {
+        mIs = is;
+    }
+
+    public int read() {
+        if (numChars == -1) {
+            throw new InputMismatchException();
+
+    }
+        if (curChar >= numChars) {
+            curChar = 0;
+            try {
+                numChars = mIs.read(buf);
+            } catch (IOException e) {
+                throw new InputMismatchException();
+            }
+            if (numChars <= 0) {
+                return -1;
+            }
+        }
+        return buf[curChar++];
+    }
+
+    public String nextLine() {
+        int c = read();
+        while (isSpaceChar(c)) {
+            c = read();
+        }
+        StringBuilder res = new StringBuilder();
+        do {
+            res.appendCodePoint(c);
+            c = read();
+        } while (!isEndOfLine(c));
+        return res.toString();
+    }
+
+    public String next() {
+        int c = read();
+        while (isSpaceChar(c)) {
+            c = read();
+        }
+        StringBuilder res = new StringBuilder();
+        do {
+            res.appendCodePoint(c);
+            c = read();
+        } while (!isSpaceChar(c));
+        return res.toString();
+    }
+
+    double nextDouble()
+    {
+        return Double.parseDouble(next());
+    }
+
+    public long nextLong() {
+        int c = read();
+        while (isSpaceChar(c)) {
+            c = read();
+        }
+        int sgn = 1;
+        if (c == '-') {
+            sgn = -1;
+            c = read();
+        }
+        long res = 0;
+        do {
+            if (c < '0' || c > '9') {
+                throw new InputMismatchException();
+            }
+            res *= 10;
+            res += c - '0';
+            c = read();
+        } while (!isSpaceChar(c));
+        return res * sgn;
+    }
+
+    public int nextInt() {
+        int c = read();
+        while (isSpaceChar(c)) {
+            c = read();
+        }
+        int sgn = 1;
+        if (c == '-') {
+            sgn = -1;
+            c = read();
+        }
+        int res = 0;
+        do {
+            if (c < '0' || c > '9') {
+                throw new InputMismatchException();
+            }
+            res *= 10;
+            res += c - '0';
+            c = read();
+        } while (!isSpaceChar(c));
+        return res * sgn;
+    }
+
+    public boolean isSpaceChar(int c) {
+        return c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == -1;
+    }
+
+    public boolean isEndOfLine(int c) {
+        return c == '\n' || c == '\r' || c == -1;
+    }
+
+    }
+}",CorCod,588,588,nlogn
+"
+import java.util.Scanner;
+
+public class origami {
+	public static void main(String args[]){
+		Scanner input = new Scanner(System.in);
+		double n = input.nextInt();
+		double k = input.nextInt();
+		double red = 0;
+		double green = 0;
+		double blue = 0;
+		double ans = 0;
+		red = (2 * n) / k;
+		green = (5 * n) / k;
+		blue = (8 * n) / k;
+
+		double red1 = Math.ceil(red) ;
+		double green1 = Math.ceil(green);
+		double blue1 = Math.ceil(blue);
+
+		ans+=red1;
+		ans+=green1;
+		ans+=blue1;
+		Double answer = new Double(ans);
+		int finished = answer.intValue();
+		System.out.println(finished);
+	}
+}
+",CorCod,823,823,constant
+"
+// Java program to check if Binary tree is sum tree or not 
+
+/* A binary tree node has data, left child and right child */
+class
+Node 
+{ 
+
+int
+data; 
+
+Node left, right, nextRight; 
+
+
+Node(
+int
+item) 
+
+{ 
+
+data = item; 
+
+left = right = nextRight = 
+null
+; 
+
+} 
+} 
+
+class
+BinaryTree 
+{ 
+
+Node root; 
+
+
+/* A utility function to get the sum of values in tree with root 
+
+as root */
+
+int
+sum(Node node) 
+
+{ 
+
+if
+(node == 
+null
+) 
+
+return
+0
+; 
+
+return
+sum(node.left) + node.data + sum(node.right); 
+
+} 
+
+
+/* returns 1 if sum property holds for the given 
+
+node and both of its children */
+
+int
+isSumTree(Node node) 
+
+{ 
+
+int
+ls, rs; 
+
+
+/* If node is NULL or it's a leaf node then 
+
+return true */
+
+if
+((node == 
+null
+) || (node.left == 
+null
+&& node.right == 
+null
+)) 
+
+return
+1
+; 
+
+
+/* Get sum of nodes in left and right subtrees */
+
+ls = sum(node.left); 
+
+rs = sum(node.right); 
+
+
+/* if the node and both of its children satisfy the 
+
+property return 1 else 0*/
+
+if
+((node.data == ls + rs) && (isSumTree(node.left) != 
+0
+) 
+
+&& (isSumTree(node.right)) != 
+0
+) 
+
+return
+1
+; 
+
+
+return
+0
+; 
+
+} 
+
+
+/* Driver program to test above functions */
+
+public
+static
+void
+main(String args[]) 
+
+{ 
+
+BinaryTree tree = 
+new
+BinaryTree(); 
+
+tree.root = 
+new
+Node(
+26
+); 
+
+tree.root.left = 
+new
+Node(
+10
+); 
+
+tree.root.right = 
+new
+Node(
+3
+); 
+
+tree.root.left.left = 
+new
+Node(
+4
+); 
+
+tree.root.left.right = 
+new
+Node(
+6
+); 
+
+tree.root.right.right = 
+new
+Node(
+3
+); 
+
+
+if
+(tree.isSumTree(tree.root) != 
+0
+) 
+
+System.out.println(
+""The given tree is a sum tree""
+); 
+
+else
+
+System.out.println(
+""The given tree is not a sum tree""
+); 
+
+} 
+} 
+
+// This code has been contributed by Mayank Jaiswal ",CorCod,581,581,quadratic
+"
+// A Dynamic Programming solution for subset 
+// sum problem 
+class
+GFG { 
+
+
+// Returns true if there is a subset of 
+
+// set[] with sun equal to given sum 
+
+static
+boolean
+isSubsetSum(
+int
+set[], 
+
+int
+n, 
+int
+sum) 
+
+{ 
+
+// The value of subset[i][j] will be 
+
+// true if there is a subset of 
+
+// set[0..j-1] with sum equal to i 
+
+boolean
+subset[][] = 
+
+new
+boolean
+[sum+
+1
+][n+
+1
+]; 
+
+
+// If sum is 0, then answer is true 
+
+for
+(
+int
+i = 
+0
+; i <= n; i++) 
+
+subset[
+0
+][i] = 
+true
+; 
+
+
+// If sum is not 0 and set is empty, 
+
+// then answer is false 
+
+for
+(
+int
+i = 
+1
+; i <= sum; i++) 
+
+subset[i][
+0
+] = 
+false
+; 
+
+
+// Fill the subset table in botton 
+
+// up manner 
+
+for
+(
+int
+i = 
+1
+; i <= sum; i++) 
+
+{ 
+
+for
+(
+int
+j = 
+1
+; j <= n; j++) 
+
+{ 
+
+subset[i][j] = subset[i][j-
+1
+]; 
+
+if
+(i >= set[j-
+1
+]) 
+
+subset[i][j] = subset[i][j] || 
+
+subset[i - set[j-
+1
+]][j-
+1
+]; 
+
+} 
+
+} 
+
+
+/* // uncomment this code to print table 
+
+for (int i = 0; i <= sum; i++) 
+
+{ 
+
+for (int j = 0; j <= n; j++) 
+
+System.out.println (subset[i][j]); 
+
+} */
+
+
+return
+subset[sum][n]; 
+
+} 
+
+
+/* Driver program to test above function */
+
+public
+static
+void
+main (String args[]) 
+
+{ 
+
+int
+set[] = {
+3
+, 
+34
+, 
+4
+, 
+12
+, 
+5
+, 
+2
+}; 
+
+int
+sum = 
+9
+; 
+
+int
+n = set.length; 
+
+if
+(isSubsetSum(set, n, sum) == 
+true
+) 
+
+System.out.println(
+""Found a subset""
+
++ 
+"" with given sum""
+); 
+
+else
+
+System.out.println(
+""No subset with""
+
++ 
+"" given sum""
+); 
+
+} 
+} 
+
+/* This code is contributed by Rajat Mishra */",CorCod,546,546,quadratic
+"import java.util.*;
+
+public class Main {
+    public static void main(String args[]) {
+        Scanner sc = new Scanner(System.in);
+
+        long n = sc.nextLong();
+        long s = sc.nextLong();
+
+        long ans = (s - 1) / n + 1;
+        System.out.print(ans);
+    }
+}",CorCod,851,851,constant
+"import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.StringTokenizer;
+
+/**
+ * @author Don Li
+ */
+public class TwoSquares {
+    
+    int INF = 1000;
+    
+    void solve() {
+        int[][] s1 = new int[4][2];
+        for (int i = 0; i < 4; i++) {
+            s1[i][0] = in.nextInt();
+            s1[i][1] = in.nextInt();
+        }
+        
+        int[][] s2 = new int[4][2];
+        for (int i = 0; i < 4; i++) {
+            s2[i][0] = in.nextInt();
+            s2[i][1] = in.nextInt();
+        }
+        
+        if (ok(s1, s2)) {
+            out.println(""Yes"");
+            return;
+        }
+        
+        rotate(s1);
+        rotate(s2);
+        
+        if (ok(s2, s1)) {
+            out.println(""Yes"");
+            return;
+        }
+        
+        out.println(""No"");
+    }
+    
+    void rotate(int[][] s) {
+        for (int i = 0; i < 4; i++) {
+            int x = s[i][0], y = s[i][1];
+            s[i][0] = x - y;
+            s[i][1] = x + y;
+        }
+    }
+    
+    boolean ok(int[][] s1, int[][] s2) {
+        int xmin = INF, xmax = -INF, ymin = INF, ymax = -INF;
+        for (int i = 0; i < 4; i++) {
+            xmin = Math.min(xmin, s1[i][0]);
+            xmax = Math.max(xmax, s1[i][0]);
+            ymin = Math.min(ymin, s1[i][1]);
+            ymax = Math.max(ymax, s1[i][1]);
+        }
+        
+        for (int i = 0; i < 4; i++) {
+            if (s2[i][0] >= xmin && s2[i][0] <= xmax && s2[i][1] >= ymin && s2[i][1] <= ymax) return true;
+        }
+        
+        int[] mid2 = new int[]{s2[0][0] + s2[2][0], s2[0][1] + s2[2][1]};
+        return mid2[0] >= xmin * 2 && mid2[0] <= xmax * 2 && mid2[1] >= ymin * 2 && mid2[1] <= ymax * 2;
+    }
+    
+    public static void main(String[] args) {
+        in = new FastScanner(new BufferedReader(new InputStreamReader(System.in)));
+        out = new PrintWriter(System.out);
+        new TwoSquares().solve();
+        out.close();
+    }
+    
+    static FastScanner in;
+    static PrintWriter out;
+    
+    static class FastScanner {
+        BufferedReader in;
+        StringTokenizer st;
+        
+        public FastScanner(BufferedReader in) {
+            this.in = in;
+        }
+        
+        public String nextToken() {
+            while (st == null || !st.hasMoreTokens()) {
+                try {
+                    st = new StringTokenizer(in.readLine());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return st.nextToken();
+        }
+        
+        public int nextInt() {
+            return Integer.parseInt(nextToken());
+        }
+        
+        public long nextLong() {
+            return Long.parseLong(nextToken());
+        }
+        
+        public double nextDouble() {
+            return Double.parseDouble(nextToken());
+        }
+    }
+}
+",CorCod,877,877,constant
+"import java.util.*;
+import java.io.*;
+import java.lang.*;
+import java.math.*;
+public class C {
+    public static void main(String[] args) throws Exception {
+        BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+        // Scanner scan = new Scanner(System.in);
+        PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
+        int n = Integer.parseInt(bf.readLine());
+        int counter = 0;
+        for(int i=0; i<2*n/3; i++) System.out.println(""0 "" + i);
+        for(int i=0; i<n-2*n/3; i++) System.out.println(""3 "" + (2*i+1));
+
+    }
+}
+",CorCod,318,318,linear
+"import java.util.Scanner;
+
+public class codef8 {
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		Scanner sc = new Scanner(System.in);
+		int num = sc.nextInt();
+		int beacon[] = new int[1000001];
+		int pos[] = new int[num];
+		for (int i = 0; i < num; i++) {
+			int position = sc.nextInt();
+			beacon[position] = sc.nextInt();
+			pos[i] = position;
+		}
+		int dp[] = new int[1000001];
+		int max = 0;
+		if (beacon[0] != 0)
+			dp[0] = 1;
+		
+		for (int i = 1; i <= 1000000; i++) {
+			if (beacon[i] == 0) {
+				dp[i] = dp[i-1];
+			} 
+			else {
+				int j = i - beacon[i] - 1;
+				if (j < 0) {
+					dp[i] = 1;
+				}
+				else {
+					dp[i] = dp[j] + 1;
+				}
+			}
+			max = Math.max(max, dp[i]);
+		}		
+		System.out.println(num-max);
+	}
+
+}
+",CorCod,243,243,linear
+"
+// Java program to count 1's in a sorted array 
+class
+CountOnes 
+{ 
+
+/* Returns counts of 1's in arr[low..high]. The 
+
+array is assumed to be sorted in non-increasing 
+
+order */
+
+int
+countOnes(
+int
+arr[], 
+int
+low, 
+int
+high) 
+
+{ 
+
+if
+(high >= low) 
+
+{ 
+
+// get the middle index 
+
+int
+mid = low + (high - low)/
+2
+; 
+
+
+// check if the element at middle index is last 1 
+
+if
+( (mid == high || arr[mid+
+1
+] == 
+0
+) && 
+
+(arr[mid] == 
+1
+)) 
+
+return
+mid+
+1
+; 
+
+
+// If element is not last 1, recur for right side 
+
+if
+(arr[mid] == 
+1
+) 
+
+return
+countOnes(arr, (mid + 
+1
+), high); 
+
+
+// else recur for left side 
+
+return
+countOnes(arr, low, (mid -
+1
+)); 
+
+} 
+
+return
+0
+; 
+
+} 
+
+
+/* Driver program to test above functions */
+
+public
+static
+void
+main(String args[]) 
+
+{ 
+
+CountOnes ob = 
+new
+CountOnes(); 
+
+int
+arr[] = {
+1
+, 
+1
+, 
+1
+, 
+1
+, 
+0
+, 
+0
+, 
+0
+}; 
+
+int
+n = arr.length; 
+
+System.out.println(
+""Count of 1's in given array is ""
++ 
+
+ob.countOnes(arr, 
+0
+, n-
+1
+) ); 
+
+} 
+} 
+/* This code is contributed by Rajat Mishra */",CorCod,918,918,logn
+"
+import
+java.util.PriorityQueue; 
+import
+java.util.Scanner; 
+import
+java.util.Comparator; 
+
+// node class is the basic structure 
+// of each node present in the Huffman - tree. 
+class
+HuffmanNode { 
+
+
+int
+data; 
+
+char
+c; 
+
+
+HuffmanNode left; 
+
+HuffmanNode right; 
+} 
+
+// comparator class helps to compare the node 
+// on the basis of one of its attribute. 
+// Here we will be compared 
+// on the basis of data values of the nodes. 
+class
+MyComparator 
+implements
+Comparator<HuffmanNode> { 
+
+public
+int
+compare(HuffmanNode x, HuffmanNode y) 
+
+{ 
+
+
+return
+x.data - y.data; 
+
+} 
+} 
+
+public
+class
+Huffman { 
+
+
+// recursive function to print the 
+
+// huffman-code through the tree traversal. 
+
+// Here s is the huffman - code generated. 
+
+public
+static
+void
+printCode(HuffmanNode root, String s) 
+
+{ 
+
+
+// base case; if the left and right are null 
+
+// then its a leaf node and we print 
+
+// the code s generated by traversing the tree. 
+
+if
+(root.left 
+
+== 
+null
+
+&& root.right 
+
+== 
+null
+
+&& Character.isLetter(root.c)) { 
+
+
+// c is the character in the node 
+
+System.out.println(root.c + 
+"":""
++ s); 
+
+
+return
+; 
+
+} 
+
+
+// if we go to left then add ""0"" to the code. 
+
+// if we go to the right add""1"" to the code. 
+
+
+// recursive calls for left and 
+
+// right sub-tree of the generated tree. 
+
+printCode(root.left, s + 
+""0""
+); 
+
+printCode(root.right, s + 
+""1""
+); 
+
+} 
+
+
+// main function 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+
+Scanner s = 
+new
+Scanner(System.in); 
+
+
+// number of characters. 
+
+int
+n = 
+6
+; 
+
+char
+[] charArray = { 
+'a'
+, 
+'b'
+, 
+'c'
+, 
+'d'
+, 
+'e'
+, 
+'f'
+}; 
+
+int
+[] charfreq = { 
+5
+, 
+9
+, 
+12
+, 
+13
+, 
+16
+, 
+45
+}; 
+
+
+// creating a priority queue q. 
+
+// makes a min-priority queue(min-heap). 
+
+PriorityQueue<HuffmanNode> q 
+
+= 
+new
+PriorityQueue<HuffmanNode>(n, 
+new
+MyComparator()); 
+
+
+for
+(
+int
+i = 
+0
+; i < n; i++) { 
+
+
+// creating a Huffman node object 
+
+// and add it to the priority queue. 
+
+HuffmanNode hn = 
+new
+HuffmanNode(); 
+
+
+hn.c = charArray[i]; 
+
+hn.data = charfreq[i]; 
+
+
+hn.left = 
+null
+; 
+
+hn.right = 
+null
+; 
+
+
+// add functions adds 
+
+// the huffman node to the queue. 
+
+q.add(hn); 
+
+} 
+
+
+// create a root node 
+
+HuffmanNode root = 
+null
+; 
+
+
+// Here we will extract the two minimum value 
+
+// from the heap each time until 
+
+// its size reduces to 1, extract until 
+
+// all the nodes are extracted. 
+
+while
+(q.size() > 
+1
+) { 
+
+
+// first min extract. 
+
+HuffmanNode x = q.peek(); 
+
+q.poll(); 
+
+
+// second min extarct. 
+
+HuffmanNode y = q.peek(); 
+
+q.poll(); 
+
+
+// new node f which is equal 
+
+HuffmanNode f = 
+new
+HuffmanNode(); 
+
+
+// to the sum of the frequency of the two nodes 
+
+// assigning values to the f node. 
+
+f.data = x.data + y.data; 
+
+f.c = 
+'-'
+; 
+
+
+// first extracted node as left child. 
+
+f.left = x; 
+
+
+// second extracted node as the right child. 
+
+f.right = y; 
+
+
+// marking the f node as the root node. 
+
+root = f; 
+
+
+// add this node to the priority-queue. 
+
+q.add(f); 
+
+} 
+
+
+// print the codes by traversing the tree 
+
+printCode(root, 
+""""
+); 
+
+} 
+} 
+
+// This code is contributed by Kunwar Desh Deepak Singh ",CorCod,707,707,nlogn
+"
+// A space efficient Java program to rearrange contents of 
+// arr[] such that arr[j] becomes j if arr[i] is j 
+
+class
+RearrangeArray { 
+
+// A utility function to rearrange elements in the cycle 
+
+// starting at arr[i]. This function assumes values in 
+
+// arr[] be from 1 to n. It changes arr[j-1] to i+1 
+
+// if arr[i-1] is j+1 
+
+void
+rearrangeUtil(
+int
+arr[], 
+int
+n, 
+int
+i) 
+
+{ 
+
+// 'val' is the value to be stored at 'arr[i]' 
+
+
+// The next value is determined using current index 
+
+int
+val = -(i + 
+1
+); 
+
+
+// The next index is determined 
+
+// using current value 
+
+i = arr[i] - 
+1
+; 
+
+
+// While all elements in cycle are not processed 
+
+while
+(arr[i] > 
+0
+) { 
+
+// Store value at index as it is going to be 
+
+// used as next index 
+
+int
+new_i = arr[i] - 
+1
+; 
+
+
+// Update arr[] 
+
+arr[i] = val; 
+
+
+// Update value and index for next iteration 
+
+val = -(i + 
+1
+); 
+
+i = new_i; 
+
+} 
+
+} 
+
+
+// A space efficient method to rearrange 'arr[0..n-1]' 
+
+// so that 'arr[j]' becomes 'i' if 'arr[i]' is 'j' 
+
+void
+rearrange(
+int
+arr[], 
+int
+n) 
+
+{ 
+
+// Increment all values by 1, so that all elements 
+
+// can be made negative to mark them as visited 
+
+int
+i; 
+
+for
+(i = 
+0
+; i < n; i++) 
+
+arr[i]++; 
+
+
+// Process all cycles 
+
+for
+(i = 
+0
+; i < n; i++) { 
+
+// Process cycle starting at arr[i] if this cycle is 
+
+// not already processed 
+
+if
+(arr[i] > 
+0
+) 
+
+rearrangeUtil(arr, n, i); 
+
+} 
+
+
+// Change sign and values of arr[] to get the original 
+
+// values back, i.e., values in range from 0 to n-1 
+
+for
+(i = 
+0
+; i < n; i++) 
+
+arr[i] = (-arr[i]) - 
+1
+; 
+
+} 
+
+
+// A utility function to print contents of arr[0..n-1] 
+
+void
+printArray(
+int
+arr[], 
+int
+n) 
+
+{ 
+
+int
+i; 
+
+for
+(i = 
+0
+; i < n; i++) 
+
+System.out.print(arr[i] + 
+"" ""
+); 
+
+System.out.println(
+""""
+); 
+
+} 
+
+
+// Driver program 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+RearrangeArray arrange = 
+new
+RearrangeArray(); 
+
+int
+arr[] = { 
+2
+, 
+0
+, 
+1
+, 
+4
+, 
+5
+, 
+3
+}; 
+
+int
+n = arr.length; 
+
+
+System.out.println(
+""Given array is ""
+); 
+
+arrange.printArray(arr, n); 
+
+
+arrange.rearrange(arr, n); 
+
+
+System.out.println(
+""Modified array is ""
+); 
+
+arrange.printArray(arr, n); 
+
+} 
+} ",CorCod,130,130,linear
+"import java.io.BufferedInputStream;
+import java.util.Scanner;
+
+public class RookHome {
+	static long MAX = 1_000_000_000;
+
+	public static void main(String[] args) {
+		Scanner s = new Scanner(new BufferedInputStream(System.in));
+		int n = s.nextInt();
+		int m = s.nextInt();
+		long[] vert = new long[n + 2];
+		vert[0] = 1;
+		for (int i = 1; i <= n; i++) {
+			vert[i] = s.nextLong();
+		}
+		vert[n + 1] = MAX;
+		long[][] hor = new long[m][2];
+		for (int i = 0; i < m; i++) {
+			hor[i][0] = s.nextLong();
+			hor[i][1] = s.nextLong();
+			s.nextLong();
+		}
+		long min = Long.MAX_VALUE;
+		int count;
+		for(int i = 0; i < vert.length - 1; i++) {
+			count = 0;
+			for(int j = 0; j < m; j++) {
+				if(hor[j][0] <= vert[i] && hor[j][1] >= vert[i + 1]) {
+					count++;
+				}
+			}
+			min = Math.min(min, i + count);
+		}
+		System.out.println(min);
+	}
+}
+",CorCod,456,456,quadratic
+"import java.io.*;
+import java.util.*;
+ 
+ 
+ 
+public class Main {
+	
+	static InputReader in = new InputReader(System.in);
+	static PrintWriter out = new PrintWriter(System.out);
+
+	static long oo = 1000000000000L;
+	
+	public static void main(String[] args) throws IOException {
+ 
+		int n = in.nextInt();
+		int q = in.nextInt();
+		
+		ArrayDeque<Integer> dq = new ArrayDeque<>();
+		int max = -1;
+		for(int i = 0; i < n; ++i) {
+			int x = in.nextInt();
+			dq.add(x);
+			max = Math.max(max, x);
+		}
+		ArrayList<Pair> ans = new ArrayList<>();
+		while(dq.peekFirst() != max) {
+			int a = dq.pollFirst();
+			int b = dq.pollFirst();
+			ans.add(new Pair(a, b));
+			if(a > b) {
+				dq.addFirst(a);
+				dq.addLast(b);
+			}
+			else {
+				dq.addFirst(b);
+				dq.addLast(a);
+			}
+		}
+		ArrayList<Integer> a = new ArrayList<>();
+		dq.pollFirst();
+		for(int x : dq)
+			a.add(x);
+		while(q --> 0) {
+			long m = in.nextLong() - 1;
+			if(m < ans.size()) {
+				System.out.println(ans.get((int)m).first + "" "" + ans.get((int)m).second);
+			}
+			else {
+				int idx = (int)((m - ans.size()) % a.size());
+				System.out.println(max + "" "" + a.get(idx));
+			}
+		}
+		
+		out.close();
+	}
+	
+	
+	
+	static long lcm(long a, long b) {
+		return a * b / gcd(a, b);
+	}
+	
+	static boolean nextPermutation(int[] a) {
+		for(int i = a.length - 2; i >= 0; --i) {
+			if(a[i] < a[i+1]) {
+				for(int j = a.length - 1; ; --j) {
+					if(a[i] < a[j]) {
+						int t = a[i];
+						a[i] = a[j];
+						a[j] = t;
+						for(i++, j = a.length - 1; i < j; ++i, --j) {
+							t = a[i];
+							a[i] = a[j];
+							a[j] = t;
+						}
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	
+	
+	static void shuffle(int[] a) {
+		Random r = new Random();
+		for(int i = a.length - 1; i > 0; --i) {
+			int si = r.nextInt(i);
+			int t = a[si];
+			a[si] = a[i];
+			a[i] = t;
+		}
+	}
+	
+	static void shuffle(long[] a) {
+		Random r = new Random();
+		for(int i = a.length - 1; i > 0; --i) {
+			int si = r.nextInt(i);
+			long t = a[si];
+			a[si] = a[i];
+			a[i] = t;
+		}
+	}
+	
+	static int lower_bound(int[] a, int n, int k) {
+		int s = 0;
+		int e = n;
+		int m;
+		while (e - s > 0) {
+			m = (s + e) / 2;
+			if (a[m] < k)
+				s = m + 1;
+			else
+				e = m;
+		}
+		return e;
+	}
+	static int lower_bound(long[] a, int n, long k) {
+		int s = 0;
+		int e = n;
+		int m;
+		while (e - s > 0) {
+			m = (s + e) / 2;
+			if (a[m] < k)
+				s = m + 1;
+			else
+				e = m;
+		}
+		return e;
+	}
+	
+	static int gcd(int a, int b) {
+		return b == 0 ? a : gcd(b, a % b);
+	}
+	static long gcd(long a, long b) {
+		return b == 0 ? a : gcd(b, a % b);
+	}
+	
+	static class Pair implements Comparable<Pair> {
+		int first, second;
+ 
+		public Pair(int first, int second) {
+			super();
+			this.first = first;
+			this.second = second;
+		}
+ 
+		@Override
+		public int compareTo(Pair o) {
+			return this.first != o.first ? this.first - o.first : this.second - o.second;
+		}
+ 
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + first;
+			result = prime * result + second;
+			return result;
+		}
+ 
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Pair other = (Pair) obj;
+			if (first != other.first)
+				return false;
+			if (second != other.second)
+				return false;
+			return true;
+		}
+	}
+	
+	
+}
+ 
+ 
+ 
+class InputReader {
+ 
+	private final InputStream stream;
+	private final byte[] buf = new byte[8192];
+	private int curChar, snumChars;
+ 
+	public InputReader(InputStream st) {
+		this.stream = st;
+	}
+ 
+	public int read() {
+		if (snumChars == -1)
+			throw new InputMismatchException();
+		if (curChar >= snumChars) {
+			curChar = 0;
+			try {
+				snumChars = stream.read(buf);
+			} catch (IOException e) {
+				throw new InputMismatchException();
+			}
+			if (snumChars <= 0)
+				return -1;
+		}
+		return buf[curChar++];
+	}
+ 
+	public int nextInt() {
+		int c = read();
+		while (isSpaceChar(c)) {
+			c = read();
+		}
+		int sgn = 1;
+		if (c == '-') {
+			sgn = -1;
+			c = read();
+		}
+		int res = 0;
+		do {
+			res *= 10;
+			res += c - '0';
+			c = read();
+		} while (!isSpaceChar(c));
+		return res * sgn;
+	}
+ 
+	public long nextLong() {
+		int c = read();
+		while (isSpaceChar(c)) {
+			c = read();
+		}
+		int sgn = 1;
+		if (c == '-') {
+			sgn = -1;
+			c = read();
+		}
+		long res = 0;
+		do {
+			res *= 10;
+			res += c - '0';
+			c = read();
+		} while (!isSpaceChar(c));
+		return res * sgn;
+	}
+ 
+	public int[] nextIntArray(int n) {
+		int a[] = new int[n];
+		for (int i = 0; i < n; i++) {
+			a[i] = nextInt();
+		}
+		return a;
+	}
+ 
+	public String readString() {
+		int c = read();
+		while (isSpaceChar(c)) {
+			c = read();
+		}
+		StringBuilder res = new StringBuilder();
+		do {
+			res.appendCodePoint(c);
+			c = read();
+		} while (!isSpaceChar(c));
+		return res.toString();
+	}
+ 
+	public String nextLine() {
+		int c = read();
+		while (isSpaceChar(c))
+			c = read();
+		StringBuilder res = new StringBuilder();
+		do {
+			res.appendCodePoint(c);
+			c = read();
+		} while (!isEndOfLine(c));
+		return res.toString();
+	}
+ 
+	public boolean isSpaceChar(int c) {
+		return c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == -1;
+	}
+ 
+	private boolean isEndOfLine(int c) {
+		return c == '\n' || c == '\r' || c == -1;
+	}
+ 
+}",CorCod,372,372,linear
+"import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
+public class BOOL {
+    static char [][]ch;
+    static int n,m;
+private static FastReader in =new FastReader();
+    public static void main(String[] args) {
+    int n=in.nextInt();
+    int a[]=new int[1000002];
+    int dp[]=new int[1000002],ans=0;
+    for(int i=0;i<n;i++){a[in.nextInt()]=in.nextInt();}
+    dp[0]=a[0]==0?0:1;
+    for(int i=1;i<1000002;i++){
+    if(a[i]==0){dp[i]=dp[i-1];}
+    else{
+    if(a[i]>=i){dp[i]=1;}
+    else{
+    dp[i]=dp[i-a[i]-1]+1;
+    }}
+    if(dp[i]>=ans)ans=dp[i];
+    }
+        System.out.println(n-ans);
+    }}
+class FastReader
+    {
+        BufferedReader br;
+        StringTokenizer st;
+ 
+        public FastReader()
+        {
+            br = new BufferedReader(new
+                     InputStreamReader(System.in));
+        }
+ 
+        String next()
+        {
+            while (st == null || !st.hasMoreElements())
+            {
+                try
+                {
+                    st = new StringTokenizer(br.readLine());
+                }
+                catch (IOException  e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            return st.nextToken();
+        }
+ 
+        int nextInt()
+        {
+            return Integer.parseInt(next());
+        }
+ 
+        long nextLong()
+        {
+            return Long.parseLong(next());
+        }
+ 
+        double nextDouble()
+        {
+            return Double.parseDouble(next());
+        }
+ 
+        String nextLine()
+        {
+            String str = """";
+            try
+            {
+                str = br.readLine();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+            return str;
+        }
+}
+",CorCod,113,113,linear
+"import java.io.BufferedReader;
+
+import java.io.PrintWriter;
+
+import java.io.InputStreamReader;
+
+import java.io.IOException;
+
+import java.util.StringTokenizer;
+
+public class Main {
+    
+    static Scanner in = new Scanner();
+    static PrintWriter out = new PrintWriter(System.out);
+    
+    public static void main(String[] args) throws IOException {
+        int n = in.nextInt(), l[] = new int[n],
+            p = -1000000, d_min = 1000000, min = 1000000000;
+        for(int i = 0; i < n; i++) {
+            l[i] = in.nextInt();
+            min = Math.min(min, l[i]);
+        }
+        for(int i = 0; i < n; i++)
+            if(l[i] == min) {
+                d_min = Math.min(d_min, i - p);
+                p = i;
+            }
+        out.print(d_min);
+        out.close();
+    }
+    
+    static class Scanner {
+        BufferedReader br;
+        StringTokenizer st;
+        
+        public Scanner() {
+            br = new BufferedReader(new InputStreamReader(System.in));
+            st = new StringTokenizer("""");
+        }
+        
+        public String next() throws IOException {
+            if(!st.hasMoreTokens())
+                st = new StringTokenizer(br.readLine());
+            return st.nextToken();
+        }
+        
+        public String nextLine() throws IOException {
+            while(!st.hasMoreTokens())
+                st = new StringTokenizer(br.readLine());
+            String r = st.nextToken(""\n"");
+            st = new StringTokenizer(br.readLine(), "" "");
+            return r;
+        }
+        
+        public int nextInt() throws IOException {
+            return Integer.parseInt(next());
+        }
+        
+        public long nextLong() throws IOException {
+            return Long.parseLong(next());
+        }
+    }
+}",CorCod,171,171,linear
+"import java.util.*;
+import java.io.*;
+
+public class aaaaaaaaaaaaaaaa {
+	public void run() throws Exception {
+		Scanner file = new Scanner(System.in);
+		int a = file.nextInt(), b= file.nextInt(), c = file.nextInt(), n = file.nextInt();
+		a -= c;
+		b -= c;
+		if (a < 0 || b < 0) System.out.println(-1);
+		else {
+			int x = a + b + c;
+			if (x >= n) System.out.println(-1);
+			else System.out.println(n - x);
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		new aaaaaaaaaaaaaaaa().run();
+	}
+
+}",CorCod,749,749,constant
+"
+// Java program to illustrate 
+// the number of ways to represent 
+// N as sum of 1, 3 and 4. 
+
+class
+GFG { 
+
+
+// Function to count the 
+
+// number of ways to represent 
+
+// n as sum of 1, 3 and 4 
+
+static
+int
+countWays(
+int
+n) 
+
+{ 
+
+int
+DP[] = 
+new
+int
+[n + 
+1
+]; 
+
+
+// base cases 
+
+DP[
+0
+] = DP[
+1
+] = DP[
+2
+] = 
+1
+; 
+
+DP[
+3
+] = 
+2
+; 
+
+
+// iterate for all values from 4 to n 
+
+for
+(
+int
+i = 
+4
+; i <= n; i++) 
+
+DP[i] = DP[i - 
+1
+] + DP[i - 
+3
+] 
+
++ DP[i - 
+4
+]; 
+
+
+return
+DP[n]; 
+
+} 
+
+
+// driver code 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+int
+n = 
+10
+; 
+
+System.out.println(countWays(n)); 
+
+} 
+} 
+
+// This code is contributed 
+// by prerna saini. ",CorCod,237,237,linear
+"package com.interview.binarysearch;
+
+/**
+ * http://www.geeksforgeeks.org/find-the-point-where-a-function-becomes-negative/
+ */
+public class MonotonicallyIncreasingFunctionBecomesPositive {
+
+    private int f(int x){
+        return x*x - 10*x - 20;
+    }
+    
+    public int findPoint(){
+        int i=1;
+        while(f(i) <=0 ){
+            i = i*2;
+        }
+        return binarySearch(i/2,i);
+    }
+    
+    private int binarySearch(int start,int end){
+        int mid = (start+end)/2;
+        while(start < end){
+            mid = (start+end)/2;
+            if(f(mid) >0 && f(mid-1) <=0){
+                return mid;
+            }
+            if(f(mid) <=0 && f(mid+1)>0){
+                return mid+1;
+            }
+            if(f(mid) <= 0){
+                start = mid+1;
+            }else{
+                end = mid-1;
+            }
+        }
+        return mid;
+    }
+    
+    public static void main(String args[]){
+        MonotonicallyIncreasingFunctionBecomesPositive mif = new MonotonicallyIncreasingFunctionBecomesPositive();
+        System.out.print(mif.findPoint());
+    }
+}
+",CorCod,884,884,logn
+"import java.util.*;
+public class Test { public static void main(String[] args)
+{
+Scanner sc = new Scanner(System.in);
+int n= sc.nextInt();
+int x= (int)Math.sqrt(n) ;
+int a[] = new int[n+5];
+for(int i=1,o=n,j;i<=n;i+=x)
+for(j=(int)Math.min(i+x-1,n);j>=i;a[j--]=o--);
+for(int i=1;i<=n;i++)System.out.print(a[i]+"" "");
+System.out.println();
+
+
+} 
+}",CorCod,234,234,linear
+"/**
+ * Created by Baelish on 7/30/2018.
+ */
+
+import java.io.*;
+import java.util.*;
+import static java.lang.Math.*;
+
+public class B {
+    public static void main(String[] args)throws Exception {
+        FastReader in = new FastReader(System.in);
+        PrintWriter pw = new PrintWriter(System.out);
+
+        int ans = -1;
+        int f[] = new int[(int)2e5+50];
+        int g[] = new int[(int)2e5+50];
+
+        int n = in.nextInt(), x = in.nextInt();
+
+        int arr[] = new int[n+1];
+        for (int i = 1; i <= n && ans == -1; i++) {
+            int a = in.nextInt();
+            if(f[a] > 0){
+                ans = 0; break;
+            }
+            f[a]++;
+            arr[i] = a;
+        }
+
+        for (int i = 1; i <= n && ans == -1; i++) {
+            int a = arr[i] & x;
+            if( (a == arr[i] && f[a] > 1) || (a != arr[i] && f[a] > 0)){
+                ans = 1; break;
+            }
+            
+            g[a]++;
+        }
+
+        for (int i = 1; i <= n && ans == -1; i++) {
+            int a = arr[i] & x;
+            if(g[a] > 1){
+                ans = 2; break;
+            }
+            //g[a]++;
+        }
+
+        pw.println(ans);
+
+
+
+        pw.close();
+    }
+
+    static void debug(Object...obj) {
+        System.err.println(Arrays.deepToString(obj));
+    }
+
+    static class FastReader {
+        InputStream is;
+        private byte[] inbuf = new byte[1024];
+        private int lenbuf = 0, ptrbuf = 0;
+        static final int ints[] = new int[128];
+
+        public FastReader(InputStream is){
+            for(int i='0';i<='9';i++) ints[i]=i-'0';
+            this.is = is;
+        }
+
+        public int readByte(){
+            if(lenbuf == -1)throw new InputMismatchException();
+            if(ptrbuf >= lenbuf){
+                ptrbuf = 0;
+                try { lenbuf = is.read(inbuf); } catch (IOException e) { throw new InputMismatchException(); }
+                if(lenbuf <= 0)return -1;
+            }
+            return inbuf[ptrbuf++];
+        }
+
+        public boolean isSpaceChar(int c) {
+            return !(c >= 33 && c <= 126);
+        }
+        public int skip() {
+            int b;
+            while((b = readByte()) != -1 && isSpaceChar(b));
+            return b;
+        }
+
+        public String next(){
+            int b = skip();
+            StringBuilder sb = new StringBuilder();
+            while(!(isSpaceChar(b))){ // when nextLine, (isSpaceChar(b) && b != ' ')
+                sb.appendCodePoint(b);
+                b = readByte();
+            }
+            return sb.toString();
+        }
+
+        public int nextInt(){
+            int num = 0, b;
+            boolean minus = false;
+            while((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'));
+            if(b == '-'){
+                minus = true;
+                b = readByte();
+            }
+
+            while(true){
+                if(b >= '0' && b <= '9'){
+                    num = (num<<3) + (num<<1) + ints[b];
+                }else{
+                    return minus ? -num : num;
+                }
+                b = readByte();
+            }
+        }
+
+        public long nextLong() {
+            long num = 0;
+            int b;
+            boolean minus = false;
+            while((b = readByte()) != -1 && !((b >= '0' && b <= '9') || b == '-'));
+            if(b == '-'){
+                minus = true;
+                b = readByte();
+            }
+
+            while(true){
+                if(b >= '0' && b <= '9'){
+                    num = (num<<3) + (num<<1) + ints[b];
+                }else{
+                    return minus ? -num : num;
+                }
+                b = readByte();
+            }
+        }
+
+        public double nextDouble() {
+            return Double.parseDouble(next());
+        }
+       /* public char nextChar() {
+            return (char)skip();
+        }*/
+
+        public char[] next(int n){
+            char[] buf = new char[n];
+            int b = skip(), p = 0;
+            while(p < n && !(isSpaceChar(b))){
+                buf[p++] = (char)b;
+                b = readByte();
+            }
+            return n == p ? buf : Arrays.copyOf(buf, p);
+        }
+
+        /*private char buff[] = new char[1005];
+        public char[] nextCharArray(){
+            int b = skip(), p = 0;
+            while(!(isSpaceChar(b))){
+                buff[p++] = (char)b;
+                b = readByte();
+            }
+            return Arrays.copyOf(buff, p);
+        }*/
+    }
+}",CorCod,116,116,linear
+"
+// Java program to find length of longest increasing subsequence 
+// in O(n Log n) time 
+import
+java.io.*; 
+import
+java.util.*; 
+import
+java.lang.Math; 
+
+class
+LIS { 
+
+// Binary search (note boundaries in the caller) 
+
+// A[] is ceilIndex in the caller 
+
+static
+int
+CeilIndex(
+int
+A[], 
+int
+l, 
+int
+r, 
+int
+key) 
+
+{ 
+
+while
+(r - l > 
+1
+) { 
+
+int
+m = l + (r - l) / 
+2
+; 
+
+if
+(A[m] >= key) 
+
+r = m; 
+
+else
+
+l = m; 
+
+} 
+
+
+return
+r; 
+
+} 
+
+
+static
+int
+LongestIncreasingSubsequenceLength(
+int
+A[], 
+int
+size) 
+
+{ 
+
+// Add boundary case, when array size is one 
+
+
+int
+[] tailTable = 
+new
+int
+[size]; 
+
+int
+len; 
+// always points empty slot 
+
+
+tailTable[
+0
+] = A[
+0
+]; 
+
+len = 
+1
+; 
+
+for
+(
+int
+i = 
+1
+; i < size; i++) { 
+
+if
+(A[i] < tailTable[
+0
+]) 
+
+// new smallest value 
+
+tailTable[
+0
+] = A[i]; 
+
+
+else
+if
+(A[i] > tailTable[len - 
+1
+]) 
+
+// A[i] wants to extend largest subsequence 
+
+tailTable[len++] = A[i]; 
+
+
+else
+
+// A[i] wants to be current end candidate of an existing 
+
+// subsequence. It will replace ceil value in tailTable 
+
+tailTable[CeilIndex(tailTable, -
+1
+, len - 
+1
+, A[i])] = A[i]; 
+
+} 
+
+
+return
+len; 
+
+} 
+
+
+// Driver program to test above function 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+int
+A[] = { 
+2
+, 
+5
+, 
+3
+, 
+7
+, 
+11
+, 
+8
+, 
+10
+, 
+13
+, 
+6
+}; 
+
+int
+n = A.length; 
+
+System.out.println(
+""Length of Longest Increasing Subsequence is ""
++ LongestIncreasingSubsequenceLength(A, n)); 
+
+} 
+} 
+/* This code is contributed by Devesh Agrawal*/",CorCod,700,700,nlogn
+"
+// Java program to find Minimum 
+// number of jumps to reach end 
+class
+GFG 
+{ 
+// Returns Minimum number 
+// of jumps to reach end 
+static
+int
+minJumps(
+int
+arr[], 
+
+int
+n) 
+{ 
+
+// jumps[0] will 
+
+// hold the result 
+
+int
+[] jumps = 
+new
+int
+[n]; 
+
+int
+min; 
+
+
+// Minimum number of jumps 
+
+// needed to reach last 
+
+// element from last elements 
+
+// itself is always 0 
+
+jumps[n - 
+1
+] = 
+0
+; 
+
+
+
+// Start from the second 
+
+// element, move from right 
+
+// to left and construct the 
+
+// jumps[] array where jumps[i] 
+
+// represents minimum number of 
+
+// jumps needed to reach arr[m-1] 
+
+// from arr[i] 
+
+for
+(
+int
+i = n - 
+2
+; i >= 
+0
+; i--) 
+
+{ 
+
+// If arr[i] is 0 then arr[n-1] 
+
+// can't be reached from here 
+
+if
+(arr[i] == 
+0
+) 
+
+jumps[i] = Integer.MAX_VALUE; 
+
+
+// If we can direcly reach to 
+
+// the end point from here then 
+
+// jumps[i] is 1 
+
+else
+if
+(arr[i] >= n - i - 
+1
+) 
+
+jumps[i] = 
+1
+; 
+
+
+// Otherwise, to find out 
+
+// the minimum number of 
+
+// jumps needed to reach 
+
+// arr[n-1], check all the 
+
+// points reachable from 
+
+// here and jumps[] value 
+
+// for those points 
+
+else
+
+{ 
+
+// initialize min value 
+
+min = Integer.MAX_VALUE; 
+
+
+// following loop checks 
+
+// with all reachable points 
+
+// and takes the minimum 
+
+for
+(
+int
+j = i + 
+1
+; j < n && 
+
+j <= arr[i] + i; j++) 
+
+{ 
+
+if
+(min > jumps[j]) 
+
+min = jumps[j]; 
+
+} 
+
+
+// Handle overflow 
+
+if
+(min != Integer.MAX_VALUE) 
+
+jumps[i] = min + 
+1
+; 
+
+else
+
+jumps[i] = min; 
+// or Integer.MAX_VALUE 
+
+} 
+
+} 
+
+
+return
+jumps[
+0
+]; 
+} 
+
+// Driver Code 
+public
+static
+void
+main(String[] args) 
+{ 
+
+int
+[] arr = {
+1
+, 
+3
+, 
+6
+, 
+1
+, 
+0
+, 
+9
+}; 
+
+int
+size = arr.length; 
+
+System.out.println(
+""Minimum number of""
++ 
+
+"" jumps to reach end is ""
++ 
+
+minJumps(arr, size)); 
+
+} 
+} 
+
+// This code is contributed by mits. ",CorCod,418,418,quadratic
+"import java.io.*;
+import java.util.*;
+import java.math.*;
+import java.lang.*;
+ 
+import static java.lang.Math.*;
+
+public class Main implements Runnable {
+    static class InputReader {
+        private InputStream stream;
+        private byte[] buf = new byte[1024];
+        private int curChar;
+        private int numChars;
+        private SpaceCharFilter filter;
+        private BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        public InputReader(InputStream stream) {
+            this.stream = stream;
+        }
+        
+        public int read() {
+            if (numChars==-1) 
+                throw new InputMismatchException();
+            
+            if (curChar >= numChars) {
+                curChar = 0;
+                try {
+                    numChars = stream.read(buf);
+                }
+                catch (IOException e) {
+                    throw new InputMismatchException();
+                }
+                
+                if(numChars <= 0)               
+                    return -1;
+            }
+            return buf[curChar++];
+        }
+     
+        public String nextLine() {
+            String str = """";
+            try {
+                str = br.readLine();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            return str;
+        }
+        public int nextInt() {
+            int c = read();
+            
+            while(isSpaceChar(c)) 
+                c = read();
+            
+            int sgn = 1;
+            
+            if (c == '-') {
+                sgn = -1;
+                c = read();
+            }
+            
+            int res = 0;
+            do {
+                if(c<'0'||c>'9') 
+                    throw new InputMismatchException();
+                res *= 10;
+                res += c - '0';
+                c = read();
+            }
+            while (!isSpaceChar(c)); 
+            
+            return res * sgn;
+        }
+        
+        public long nextLong() {
+            int c = read();
+            while (isSpaceChar(c))
+                c = read();
+            int sgn = 1;
+            if (c == '-') {
+                sgn = -1;
+                c = read();
+            }
+            long res = 0;
+            
+            do {
+                if (c < '0' || c > '9')
+                    throw new InputMismatchException();
+                res *= 10;
+                res += c - '0';
+                c = read();
+            }
+            while (!isSpaceChar(c));
+                return res * sgn;
+        }
+        
+        public double nextDouble() {
+            int c = read();
+            while (isSpaceChar(c))
+                c = read();
+            int sgn = 1;
+            if (c == '-') {
+                sgn = -1;
+                c = read();
+            }
+            double res = 0;
+            while (!isSpaceChar(c) && c != '.') {
+                if (c == 'e' || c == 'E')
+                    return res * Math.pow(10, nextInt());
+                if (c < '0' || c > '9')
+                    throw new InputMismatchException();
+                res *= 10;
+                res += c - '0';
+                c = read();
+            }
+            if (c == '.') {
+                c = read();
+                double m = 1;
+                while (!isSpaceChar(c)) {
+                    if (c == 'e' || c == 'E')
+                        return res * Math.pow(10, nextInt());
+                    if (c < '0' || c > '9')
+                        throw new InputMismatchException();
+                    m /= 10;
+                    res += (c - '0') * m;
+                    c = read();
+                }
+            }
+            return res * sgn;
+        }
+        
+        public String readString() {
+            int c = read();
+            while (isSpaceChar(c))
+                c = read();
+            StringBuilder res = new StringBuilder();
+            do {
+                res.appendCodePoint(c);
+                c = read();
+            } 
+            while (!isSpaceChar(c));
+            
+            return res.toString();
+        }
+     
+        public boolean isSpaceChar(int c) {
+            if (filter != null)
+                return filter.isSpaceChar(c);
+            return c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == -1;
+        }
+     
+        public String next() {
+            return readString();
+        }
+        
+        public interface SpaceCharFilter {
+            public boolean isSpaceChar(int ch);
+        }
+    }
+    public static void main(String args[]) throws Exception {
+        new Thread(null, new Main(),""Main"",1<<26).start();
+    }
+    
+    static void merge(int arr[], int l, int m, int r) { 
+        int n1 = m - l + 1; 
+        int n2 = r - m; 
+        int L[] = new int [n1]; 
+        int R[] = new int [n2]; 
+        for (int i=0; i<n1; ++i) 
+            L[i] = arr[l + i]; 
+        for (int j=0; j<n2; ++j) 
+            R[j] = arr[m + 1+ j]; 
+        int i = 0, j = 0; 
+        int k = l; 
+        while (i < n1 && j < n2){ 
+            if (L[i] <= R[j]){ 
+                arr[k] = L[i]; 
+                i++; 
+            } 
+            else{ 
+                arr[k] = R[j]; 
+                j++; 
+            } 
+            k++; 
+        } 
+        while (i < n1){ 
+            arr[k] = L[i]; 
+            i++; 
+            k++; 
+        } 
+        while (j < n2) 
+        { 
+            arr[k] = R[j]; 
+            j++; 
+            k++; 
+        } 
+    } 
+    static void sort(int arr[], int l, int r) { 
+        if (l < r) 
+        { 
+            int m = (l+r)/2; 
+            sort(arr, l, m); 
+            sort(arr , m+1, r); 
+            merge(arr, l, m, r); 
+        } 
+    } 
+    
+    static void merge(long arr[], int l, int m, int r) { 
+        int n1 = m - l + 1; 
+        int n2 = r - m; 
+        long L[] = new long [n1]; 
+        long R[] = new long [n2]; 
+        for (int i=0; i<n1; ++i) 
+            L[i] = arr[l + i]; 
+        for (int j=0; j<n2; ++j) 
+            R[j] = arr[m + 1+ j]; 
+        int i = 0, j = 0; 
+        int k = l; 
+        while (i < n1 && j < n2){ 
+            if (L[i] <= R[j]){ 
+                arr[k] = L[i]; 
+                i++; 
+            } 
+            else{ 
+                arr[k] = R[j]; 
+                j++; 
+            } 
+            k++; 
+        } 
+        while (i < n1){ 
+            arr[k] = L[i]; 
+            i++; 
+            k++; 
+        } 
+        while (j < n2) 
+        { 
+            arr[k] = R[j]; 
+            j++; 
+            k++; 
+        } 
+    } 
+    static void sort(long arr[], int l, int r) { 
+        if (l < r) 
+        { 
+            int m = (l+r)/2; 
+            sort(arr, l, m); 
+            sort(arr , m+1, r); 
+            merge(arr, l, m, r); 
+        } 
+    }
+    static int gcd(int a, int b){ 
+        if (b == 0) 
+            return a; 
+        return gcd(b, a % b);  
+    }
+    static long gcd(long a, long b){ 
+        if (b == 0) 
+            return a; 
+        return gcd(b, a % b);  
+    } 
+    public long m=(long)1e9+7;;
+    
+    public void run() {
+        InputReader in = new InputReader(System.in);
+        PrintWriter out = new PrintWriter(System.out);
+        
+        int a=in.nextInt(),b=in.nextInt(),c=in.nextInt(),n=in.nextInt();
+        int nnew=a+b-c;
+        if((n>nnew) && (a>=c) && (b>=c))
+            out.println(n-nnew);
+        else
+            out.println(-1);
+        
+        out.close();
+    }
+}",CorCod,856,856,constant
+"
+// Java program to find nth 
+// element of Newman-Conway Sequence 
+import
+java.io.*; 
+
+class
+GFG { 
+
+
+// Recursion to find 
+
+// n-th element 
+
+static
+int
+sequence(
+int
+n) 
+
+{ 
+
+if
+(n == 
+1
+|| n == 
+2
+) 
+
+return
+1
+; 
+
+else
+
+return
+sequence(sequence(n - 
+1
+)) 
+
++ sequence(n - sequence(n - 
+1
+)); 
+
+} 
+
+
+// Driver Program 
+
+public
+static
+void
+main(String args[]) 
+
+{ 
+
+int
+n = 
+10
+; 
+
+System.out.println(sequence(n)); 
+
+} 
+} 
+
+/*This code is contributed by Nikita Tiwari.*/",CorCod,268,268,linear
+"
+// Java program to calculate max_difference between 
+// the sum of two subarrays of length k and N - k 
+import
+java.util.*; 
+
+class
+GFG 
+{ 
+
+// Function to calculate max_difference 
+static
+int
+maxDifference(
+int
+arr[], 
+int
+N, 
+int
+k) 
+{ 
+
+int
+M, S = 
+0
+, S1 = 
+0
+, max_difference = 
+0
+; 
+
+
+// Sum of the array 
+
+for
+(
+int
+i = 
+0
+; i < N; i++) 
+
+S += arr[i]; 
+
+int
+temp; 
+
+
+// Sort the array in descending order 
+
+for
+(
+int
+i = 
+0
+; i < N; i++) 
+
+{ 
+
+for
+(
+int
+j = i + 
+1
+; j < N; j++) 
+
+{ 
+
+if
+(arr[i] < arr[j]) 
+
+{ 
+
+temp = arr[i]; 
+
+arr[i] = arr[j]; 
+
+arr[j] = temp; 
+
+} 
+
+} 
+
+} 
+
+
+M = Math.max(k, N - k); 
+
+for
+(
+int
+i = 
+0
+; i < M; i++) 
+
+S1 += arr[i]; 
+
+
+// Calculating max_difference 
+
+max_difference = S1 - (S - S1); 
+
+return
+max_difference; 
+} 
+
+// Driver Code 
+public
+static
+void
+main(String args[]) 
+{ 
+
+int
+arr[] = { 
+8
+, 
+4
+, 
+5
+, 
+2
+, 
+10
+}; 
+
+int
+N = arr.length; 
+
+int
+k = 
+2
+; 
+
+System.out.println(maxDifference(arr, N, k)); 
+} 
+} 
+
+// This code is contributed by 
+// Surendra_Gangwar ",CorCod,717,717,nlogn
+"import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.StringTokenizer;
+
+public class SashaAndHisTrip {
+	public static BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+	public static PrintWriter out = new PrintWriter(new BufferedOutputStream(System.out));
+	public static StringTokenizer st;
+	
+	public static void main(String[] args) throws IOException {
+		int n = nextInt();
+		int v = nextInt();
+		
+		if (v >= n-1)
+			System.out.println(n-1);
+		else
+			System.out.println((n-v)*(n-v+1)/2+v-1);
+	}
+	
+	public static String nextLine() throws IOException {
+		return in.readLine();
+	}
+
+	public static String nextString() throws IOException {
+		while (st == null || !st.hasMoreTokens())
+			st = new StringTokenizer(in.readLine());
+		return st.nextToken();
+	}
+
+	public static int nextInt() throws IOException {
+		return Integer.parseInt(nextString());
+	}
+
+	public static long nextLong() throws IOException {
+		return Long.parseLong(nextString());
+	}
+
+	public static int[] intArray(int n) throws IOException {
+		int[] a = new int[n];
+		for (int i = 0; i < n; i++)
+			a[i] = nextInt();
+		return a;
+	}
+
+	public static int[][] intArray(int n, int m) throws IOException {
+		int[][] a = new int[n][m];
+		for (int i = 0; i < n; i++)
+			for (int j = 0; j < m; j++)
+				a[i][j] = nextInt();
+		return a;
+	}
+
+	public static long[] longArray(int n) throws IOException {
+		long[] a = new long[n];
+		for (int i = 0; i < n; i++)
+			a[i] = nextLong();
+		return a;
+	}
+}",CorCod,842,842,constant
+"import java.io.*;
+import java.util.*;
+
+
+
+public class hi {
+    public static void main(String[] args) throws IOException{
+        Reader in=new Reader();
+		PrintWriter w = new PrintWriter(System.out);
+		int n=in.nextInt();
+		int[] arr=in.nextIntArray(n);
+		int k=Integer.MAX_VALUE;
+		for (int i = 0; i < n; i++) {
+			for (int j = i+1; j < n; j++) {
+				int a=(int)Math.floor((Math.min(arr[i],arr[j])/Math.abs(i-j)));
+				if(a < k)
+					k=a;
+			}
+		}
+		w.println(k);
+        w.close();
+        return;
+	}
+	
+}
+
+
+class Reader 
+	{ 
+		final private int BUFFER_SIZE = 1 << 16; 
+		private DataInputStream din; 
+		private byte[] buffer; 
+		private int bufferPointer, bytesRead; 
+
+		public Reader() 
+		{ 
+			din = new DataInputStream(System.in); 
+			buffer = new byte[BUFFER_SIZE]; 
+			bufferPointer = bytesRead = 0; 
+		} 
+		public String nextLine() throws IOException{
+			int c = read();
+			while (isSpaceChar(c))
+				c = read();
+			StringBuilder res = new StringBuilder();
+			do {
+				res.appendCodePoint(c);
+				c = read();
+			} while (!isEndOfLine(c));
+			return res.toString();
+		}
+        public String next() throws IOException{
+			int c = read();
+			while (isSpaceChar(c)) {
+				c = read();
+			}
+			StringBuilder res = new StringBuilder();
+			do {
+				res.appendCodePoint(c);
+				c = read();
+			} while (!isSpaceChar(c));
+			return res.toString();
+		}
+		public int nextInt() throws IOException 
+		{ 
+			int ret = 0; 
+			byte c = read(); 
+			while (c <= ' ') 
+				c = read(); 
+			boolean neg = (c == '-'); 
+			if (neg) 
+				c = read(); 
+			do
+			{ 
+				ret = ret * 10 + c - '0'; 
+			} while ((c = read()) >= '0' && c <= '9'); 
+
+			if (neg) 
+				return -ret; 
+			return ret; 
+        } 
+        public int[] nextIntArray(int n) throws IOException{
+			int a[] = new int[n];
+			for (int i = 0; i < n; i++) {
+				a[i] = nextInt();
+            }
+
+			return a;
+		}
+		public long nextLong() throws IOException 
+		{ 
+			long ret = 0; 
+			byte c = read(); 
+			while (c <= ' ') 
+				c = read(); 
+			boolean neg = (c == '-'); 
+			if (neg) 
+				c = read(); 
+			do { 
+				ret = ret * 10 + c - '0'; 
+			} 
+			while ((c = read()) >= '0' && c <= '9'); 
+			if (neg) 
+				return -ret; 
+			return ret; 
+		} 
+
+		public double nextDouble() throws IOException 
+		{ 
+			double ret = 0, div = 1; 
+			byte c = read(); 
+			while (c <= ' ') 
+				c = read(); 
+			boolean neg = (c == '-'); 
+			if (neg) 
+				c = read(); 
+
+			do { 
+				ret = ret * 10 + c - '0'; 
+			} 
+			while ((c = read()) >= '0' && c <= '9'); 
+
+			if (c == '.') 
+			{ 
+				while ((c = read()) >= '0' && c <= '9') 
+				{ 
+					ret += (c - '0') / (div *= 10); 
+				} 
+			} 
+
+			if (neg) 
+				return -ret; 
+			return ret; 
+		} 
+
+		private void fillBuffer() throws IOException 
+		{ 
+			bytesRead = din.read(buffer, bufferPointer = 0, BUFFER_SIZE); 
+			if (bytesRead == -1) 
+				buffer[0] = -1; 
+		} 
+
+		private byte read() throws IOException 
+		{ 
+			if (bufferPointer == bytesRead) 
+				fillBuffer(); 
+			return buffer[bufferPointer++]; 
+		} 
+
+		public void close() throws IOException 
+		{ 
+			if (din == null) 
+				return; 
+			din.close(); 
+        } 
+        public boolean isSpaceChar(int c) {
+			return c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == -1;
+		}
+
+		private boolean isEndOfLine(int c) {
+			return c == '\n' || c == '\r' || c == -1;
+		}
+    }
+",CorCod,431,431,quadratic
+"import java.io.*;
+import java.math.BigInteger;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.InputMismatchException;
+import java.util.StringTokenizer;
+
+public class C {
+    static class FastWriter {
+        private final BufferedWriter bw;
+
+        public FastWriter() {
+            this.bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        }
+
+        public void print(Object object) throws IOException {
+            bw.append("""" + object);
+        }
+
+        public void println(Object object) throws IOException {
+            print(object);
+            bw.append(""\n"");
+        }
+
+        public void close() throws IOException {
+            bw.close();
+        }
+    }
+
+    static class FastReader {
+        BufferedReader br;
+        StringTokenizer st;
+
+        public FastReader() {
+            br = new BufferedReader(new InputStreamReader(System.in));
+        }
+
+        String next() {
+            while (st == null || !st.hasMoreElements()) {
+                try {
+                    st = new StringTokenizer(br.readLine());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return st.nextToken();
+        }
+
+        int nextInt() {
+            return Integer.parseInt(next());
+        }
+
+        long nextLong() {
+            return Long.parseLong(next());
+        }
+
+        double nextDouble() {
+            return Double.parseDouble(next());
+        }
+
+        String nextLine() {
+            String str = """";
+            try {
+                str = br.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return str;
+        }
+
+        BigInteger nextBigInteger() {
+            try {
+                return new BigInteger(nextLine());
+            } catch (NumberFormatException e) {
+                throw new InputMismatchException();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        FastReader fr = new FastReader();
+        FastWriter fw = new FastWriter();
+        int n = fr.nextInt();
+        int q = fr.nextInt();
+        int[] aa = new int[n - 1];
+        int[] ab = new int[n - 1];
+        Deque<Integer> dq = new ArrayDeque<>();
+        for (int i = 0; i < n; i++) dq.addLast(fr.nextInt());
+        for (int i = 0; i < n - 1; i++) {
+            int a = dq.removeFirst();
+            int b = dq.removeFirst();
+            aa[i] = a;
+            ab[i] = b;
+            int mi = Math.min(a, b);
+            int ma = Math.max(a, b);
+            dq.addFirst(ma);
+            dq.addLast(mi);
+        }
+        int fm = dq.removeFirst();
+        int[] arr = new int[n - 1];
+        for (int i = 0; i < arr.length; i++) arr[i] = dq.removeFirst();
+        while (q-- > 0) {
+            long m = fr.nextLong() - 1;
+            if (m < n - 1) {
+                System.out.println(aa[(int) m] + "" "" + ab[(int) m]);
+            } else {
+                m = m % (n - 1);
+                System.out.println(fm + "" "" + arr[(int) m]);
+            }
+        }
+    }
+}
+",CorCod,2,2,linear
+"import java.util.*;
+
+public class CoinsTask {
+	
+	public static void main(String[] args) {
+		Scanner in = new Scanner(System.in);
+		int n = in.nextInt();
+		int S = in.nextInt();
+		int mCoins = 0;
+		while(S/n != 0) {
+			mCoins+=1;
+			S-=n;
+		}
+		mCoins = S == 0? mCoins : mCoins+1;
+		System.out.print(mCoins);
+	}
+
+}
+",CorCod,137,137,linear
+"
+// Java program to find possibility to sort 
+// by multiple subarray reverse operation 
+import
+java.util.*; 
+class
+GFG { 
+
+
+static
+boolean
+ifPossible(
+int
+arr[], 
+int
+n) 
+
+{ 
+
+
+// making the copy of the original array 
+
+int
+copy[] = Arrays.copyOf(arr, arr.length); 
+
+
+// sorting the copied array 
+
+Arrays.sort(copy); 
+
+
+for
+(
+int
+i = 
+0
+; i < n; i++) { 
+
+
+// checking mirror image of elements of 
+
+// sorted copy array and equivalent element 
+
+// of original array 
+
+if
+(!(arr[i] == copy[i]) && !(arr[n - 
+1
+- i] == copy[i])) 
+
+return
+false
+; 
+
+} 
+
+
+return
+true
+; 
+
+} 
+
+
+// driver code 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+int
+arr[] = { 
+1
+, 
+7
+, 
+6
+, 
+4
+, 
+5
+, 
+3
+, 
+2
+, 
+8
+}; 
+
+int
+n = arr.length; 
+
+if
+(ifPossible(arr, n)) 
+
+System.out.println(
+""Yes""
+); 
+
+else
+
+System.out.println(
+""No""
+); 
+
+} 
+} ",CorCod,670,670,nlogn
+"
+// Java program to sort an 
+// array using stack 
+import
+java.io.*; 
+import
+java.util.*; 
+
+class
+GFG 
+{ 
+
+// This function return 
+
+// the sorted stack 
+
+static
+Stack<Integer> sortStack(Stack<Integer> input) 
+
+{ 
+
+Stack<Integer> tmpStack = 
+
+new
+Stack<Integer>(); 
+
+
+while
+(!input.empty()) 
+
+{ 
+
+// pop out the 
+
+// first element 
+
+int
+tmp = input.peek(); 
+
+input.pop(); 
+
+
+// while temporary stack is 
+
+// not empty and top of stack 
+
+// is smaller than temp 
+
+while
+(!tmpStack.empty() && 
+
+tmpStack.peek() < tmp) 
+
+{ 
+
+// pop from temporary 
+
+// stack and push it 
+
+// to the input stack 
+
+input.push(tmpStack.peek()); 
+
+tmpStack.pop(); 
+
+} 
+
+
+// push temp in 
+
+// tempory of stack 
+
+tmpStack.push(tmp); 
+
+} 
+
+
+return
+tmpStack; 
+
+} 
+
+
+static
+void
+sortArrayUsingStacks(
+int
+[]arr, 
+
+int
+n) 
+
+{ 
+
+// push array elements 
+
+// to stack 
+
+Stack<Integer> input = 
+
+new
+Stack<Integer>(); 
+
+for
+(
+int
+i = 
+0
+; i < n; i++) 
+
+input.push(arr[i]); 
+
+
+// Sort the temporary stack 
+
+Stack<Integer> tmpStack = 
+
+sortStack(input); 
+
+
+// Put stack elements 
+
+// in arrp[] 
+
+for
+(
+int
+i = 
+0
+; i < n; i++) 
+
+{ 
+
+arr[i] = tmpStack.peek(); 
+
+tmpStack.pop(); 
+
+} 
+
+} 
+
+
+// Driver Code 
+
+public
+static
+void
+main(String args[]) 
+
+{ 
+
+int
+[]arr = {
+10
+, 
+5
+, 
+15
+, 
+45
+}; 
+
+int
+n = arr.length; 
+
+
+sortArrayUsingStacks(arr, n); 
+
+
+for
+(
+int
+i = 
+0
+; i < n; i++) 
+
+System.out.print(arr[i] + 
+"" ""
+); 
+
+} 
+} 
+
+// This code is contributed by 
+// Manish Shaw(manishshaw1) ",CorCod,396,396,quadratic
+"
+// Java program program to merge two 
+// sorted arrays with O(1) extra space. 
+
+import
+java.util.Arrays; 
+
+class
+Test 
+{ 
+
+static
+int
+arr1[] = 
+new
+int
+[]{
+1
+, 
+5
+, 
+9
+, 
+10
+, 
+15
+, 
+20
+}; 
+
+static
+int
+arr2[] = 
+new
+int
+[]{
+2
+, 
+3
+, 
+8
+, 
+13
+}; 
+
+
+static
+void
+merge(
+int
+m, 
+int
+n) 
+
+{ 
+
+// Iterate through all elements of ar2[] starting from 
+
+// the last element 
+
+for
+(
+int
+i=n-
+1
+; i>=
+0
+; i--) 
+
+{ 
+
+/* Find the smallest element greater than ar2[i]. Move all 
+
+elements one position ahead till the smallest greater 
+
+element is not found */
+
+int
+j, last = arr1[m-
+1
+]; 
+
+for
+(j=m-
+2
+; j >= 
+0
+&& arr1[j] > arr2[i]; j--) 
+
+arr1[j+
+1
+] = arr1[j]; 
+
+
+// If there was a greater element 
+
+if
+(j != m-
+2
+|| last > arr2[i]) 
+
+{ 
+
+arr1[j+
+1
+] = arr2[i]; 
+
+arr2[i] = last; 
+
+} 
+
+} 
+
+} 
+
+
+// Driver method to test the above function 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+merge(arr1.length,arr2.length); 
+
+System.out.print(
+""After Merging nFirst Array: ""
+); 
+
+System.out.println(Arrays.toString(arr1)); 
+
+System.out.print(
+""Second Array: ""
+); 
+
+System.out.println(Arrays.toString(arr2)); 
+
+} 
+} ",CorCod,462,462,quadratic
+"
+// Java program to find maximum revenue 
+// by placing billboard on the highway 
+// with given constarints. 
+
+class
+GFG 
+{ 
+
+static
+int
+maxRevenue(
+int
+m, 
+int
+[] x, 
+
+int
+[] revenue, 
+
+int
+n, 
+int
+t) 
+{ 
+
+
+// Array to store maximum revenue 
+
+// at each miles. 
+
+int
+[] maxRev = 
+new
+int
+[m + 
+1
+]; 
+
+for
+(
+int
+i = 
+0
+; i < m + 
+1
+; i++) 
+
+maxRev[i] = 
+0
+; 
+
+
+// actual minimum distance between 
+
+// 2 billboards. 
+
+int
+nxtbb = 
+0
+; 
+
+for
+(
+int
+i = 
+1
+; i <= m; i++) 
+
+{ 
+
+// check if all billboards are 
+
+// already placed. 
+
+if
+(nxtbb < n) 
+
+{ 
+
+// check if we have billboard for 
+
+// that particular mile. If not, 
+
+// copy the previous maximum revenue. 
+
+if
+(x[nxtbb] != i) 
+
+maxRev[i] = maxRev[i - 
+1
+]; 
+
+
+// we do have billboard for this mile. 
+
+else
+
+{ 
+
+// We have 2 options, we either take 
+
+// current or we ignore current billboard. 
+
+
+// If current position is less than or 
+
+// equal to t, then we can have only 
+
+// one billboard. 
+
+if
+(i <= t) 
+
+maxRev[i] = Math.max(maxRev[i - 
+1
+], 
+
+revenue[nxtbb]); 
+
+
+// Else we may have to remove 
+
+// previously placed billboard 
+
+else
+
+maxRev[i] = Math.max(maxRev[i - t - 
+1
+] + 
+
+revenue[nxtbb], 
+
+maxRev[i - 
+1
+]); 
+
+
+nxtbb++; 
+
+} 
+
+} 
+
+else
+
+maxRev[i] = maxRev[i - 
+1
+]; 
+
+} 
+
+
+return
+maxRev[m]; 
+} 
+
+// Driver Code 
+public
+static
+void
+main(String []args) 
+{ 
+
+int
+m = 
+20
+; 
+
+int
+[] x = 
+new
+int
+[]{
+6
+, 
+7
+, 
+12
+, 
+13
+, 
+14
+}; 
+
+int
+[] revenue = 
+new
+int
+[]{
+5
+, 
+6
+, 
+5
+, 
+3
+, 
+1
+}; 
+
+int
+n = x.length; 
+
+int
+t = 
+5
+; 
+
+System.out.println(maxRevenue(m, x, revenue, n, t)); 
+} 
+} 
+
+// This code is contributed by Ita_c. ",CorCod,331,331,linear
+"
+// Java program to Rearrange positive and negative 
+// numbers in a array 
+class
+GFG { 
+
+
+/* Function to print an array */
+
+static
+void
+printArray(
+int
+A[], 
+int
+size) 
+
+{ 
+
+for
+(
+int
+i = 
+0
+; i < size; i++) 
+
+System.out.print(A[i] + 
+"" ""
+); 
+
+System.out.println(
+""""
+); 
+
+; 
+
+} 
+
+
+/* Function to reverse an array. An array can be 
+reversed in O(n) time and O(1) space. */
+
+static
+void
+reverse(
+int
+arr[], 
+int
+l, 
+int
+r) 
+
+{ 
+
+if
+(l < r) { 
+
+arr = swap(arr, l, r); 
+
+reverse(arr, ++l, --r); 
+
+} 
+
+} 
+
+
+// Merges two subarrays of arr[]. 
+
+// First subarray is arr[l..m] 
+
+// Second subarray is arr[m+1..r] 
+
+static
+void
+merge(
+int
+arr[], 
+int
+l, 
+int
+m, 
+int
+r) 
+
+{ 
+
+int
+i = l; 
+// Initial index of 1st subarray 
+
+int
+j = m + 
+1
+; 
+// Initial index of IInd 
+
+
+while
+(i <= m && arr[i] < 
+0
+) 
+
+i++; 
+
+
+// arr[i..m] is positive 
+
+
+while
+(j <= r && arr[j] < 
+0
+) 
+
+j++; 
+
+
+// arr[j..r] is positive 
+
+
+// reverse positive part of 
+
+// left sub-array (arr[i..m]) 
+
+reverse(arr, i, m); 
+
+
+// reverse negative part of 
+
+// right sub-array (arr[m+1..j-1]) 
+
+reverse(arr, m + 
+1
+, j - 
+1
+); 
+
+
+// reverse arr[i..j-1] 
+
+reverse(arr, i, j - 
+1
+); 
+
+} 
+
+
+// Function to Rearrange positive and negative 
+
+// numbers in a array 
+
+static
+void
+RearrangePosNeg(
+int
+arr[], 
+int
+l, 
+int
+r) 
+
+{ 
+
+if
+(l < r) { 
+
+// Same as (l+r)/2, but avoids overflow for 
+
+// large l and h 
+
+int
+m = l + (r - l) / 
+2
+; 
+
+
+// Sort first and second halves 
+
+RearrangePosNeg(arr, l, m); 
+
+RearrangePosNeg(arr, m + 
+1
+, r); 
+
+
+merge(arr, l, m, r); 
+
+} 
+
+} 
+
+static
+int
+[] swap(
+int
+[] arr, 
+int
+i, 
+int
+j) 
+
+{ 
+
+int
+temp = arr[i]; 
+
+arr[i] = arr[j]; 
+
+arr[j] = temp; 
+
+return
+arr; 
+
+} 
+
+
+/* Driver code*/
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+int
+arr[] = { -
+12
+, 
+11
+, -
+13
+, -
+5
+, 
+6
+, -
+7
+, 
+5
+, -
+3
+, -
+6
+}; 
+
+int
+arr_size = arr.length; 
+
+
+RearrangePosNeg(arr, 
+0
+, arr_size - 
+1
+); 
+
+
+printArray(arr, arr_size); 
+
+} 
+} 
+
+// This code has been contributed by 29AjayKumar ",CorCod,502,502,quadratic
+"
+import java.math.BigInteger;
+import java.util.Scanner;
+
+
+public class Main {
+	static Scanner sc = new Scanner (System.in);
+    public static void main(String[] args) {
+    	int n = sc.nextInt();
+    	int k = sc.nextInt();
+    	char str[][] = new char[5][n];
+        for(int i = 0;i < 4;i ++){
+        	for(int j = 0;j < n;j ++)
+                str[i][j] = '.';
+        }
+        if(k % 2 == 0){
+            k /= 2;
+            for(int i = 1;i <= 2;i++){
+                for(int j = 1;j <= k;j++)
+                     str[i][j] = '#'; 
+            }
+        }
+        else{
+            str[1][n / 2] = '#';
+            if(k != 1){
+                int tmp = n / 2;
+                if(k <= n - 2){
+                    for(int i = 1;i<= (k - 1) / 2;i++){
+                        str[1][i] = '#';
+                        str[1][n - 1 - i] = '#';
+                    }
+                }
+                else{
+                    for(int i = 1;i <= n - 2;i++) str[1][i] = '#';
+                    k -= n - 2;
+                    for(int i = 1;i <= k/2;i++){
+                        str[2][i] = '#';
+                        str[2][n - 1 - i]='#';
+                    }
+                }
+     
+            }
+        }
+        System.out.println(""YES"");
+        for(int i = 0;i < 4;i ++){
+        	System.out.println(str[i]);
+        }
+    }
+ }",CorCod,233,233,linear
+"import java.io.OutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.util.StringTokenizer;
+import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.InputStream;
+
+/**
+ * Built using CHelper plug-in
+ * Actual solution is at the top
+ *
+ * @author kessido
+ */
+public class Main {
+    public static void main(String[] args) {
+        InputStream inputStream = System.in;
+        OutputStream outputStream = System.out;
+        InputReader in = new InputReader(inputStream);
+        PrintWriter out = new PrintWriter(outputStream);
+        TaskG solver = new TaskG();
+        solver.solve(1, in, out);
+        out.close();
+    }
+
+    static class TaskG {
+        static int[][] g;
+        static int n;
+        static int[] a;
+        static int[][] edges;
+        static long[] dp;
+        static long[] dpPathToRootWithDetours;
+        static int time = 0;
+        static int[] appearance;
+        static int[] firstAppearance;
+        static int[] depth;
+
+        public static void dfs(int i, int parE) {
+            firstAppearance[i] = time;
+            appearance[time++] = i;
+            dp[i] = a[i];
+            for (int eIndex : g[i]) {
+                if (eIndex == parE) continue;
+                int child = i ^ edges[eIndex][0] ^ edges[eIndex][1];
+                dfs(child, eIndex);
+                appearance[time++] = i;
+                dp[i] += Math.max(dp[child] - edges[eIndex][2] * 2, 0);
+            }
+        }
+
+        public static void dfs2(int i, int parE) {
+            if (i == 0) {
+                dpPathToRootWithDetours[i] = dp[i];
+            } else {
+                int par = i ^ edges[parE][0] ^ edges[parE][1];
+                depth[i] = depth[par] + 1;
+                dpPathToRootWithDetours[i] = dpPathToRootWithDetours[par] - Math.max(0, dp[i] - edges[parE][2] * 2);
+                dpPathToRootWithDetours[i] -= edges[parE][2];
+                dpPathToRootWithDetours[i] += dp[i];
+
+                long myPathWeight = Math.max(dp[i] - edges[parE][2] * 2, 0);
+                long change = dp[par] - myPathWeight - edges[parE][2] * 2;
+                change = Math.max(change, 0);
+                dp[i] += change;
+            }
+            for (int eIndex : g[i]) {
+                if (eIndex == parE) continue;
+                dfs2(i ^ edges[eIndex][0] ^ edges[eIndex][1], eIndex);
+            }
+        }
+
+        public void solve(int testNumber, InputReader in, PrintWriter out) {
+            n = in.NextInt();
+            int q = in.NextInt();
+            a = in.NextIntArray(n);
+            edges = new int[n - 1][3];
+            {
+                long[] count = new long[n];
+                for (int i = 0; i < n - 1; i++) {
+                    int u = in.NextInt() - 1;
+                    int v = in.NextInt() - 1;
+                    int w = in.NextInt();
+                    edges[i][0] = u;
+                    edges[i][1] = v;
+                    edges[i][2] = w;
+                    count[u]++;
+                    count[v]++;
+                }
+
+                g = new int[n][];
+                for (int i = 0; i < n; i++) {
+                    g[i] = new int[(int) count[i]];
+                }
+                for (int i = 0; i < n - 1; i++) {
+                    for (int j = 0; j < 2; j++) {
+                        g[edges[i][j]][(int) --count[edges[i][j]]] = i;
+                    }
+                }
+            }
+            dp = new long[n];
+            dpPathToRootWithDetours = new long[n];
+            depth = new int[n];
+            firstAppearance = new int[n];
+            appearance = new int[(n - 1) * 2 + 1];
+            dfs(0, -1);
+            dfs2(0, -1);
+            GraphLowestCommonAncestor.LCA lca = GraphLowestCommonAncestor.createLCA(appearance, firstAppearance, depth);
+            firstAppearance = null;
+            depth = null;
+            appearance = null;
+            edges = null;
+            g = null;
+            for (int i = 0; i < q; i++) {
+                int u = in.NextInt() - 1;
+                int v = in.NextInt() - 1;
+                int lcaI = lca.getLCA(u, v);
+                long res = dpPathToRootWithDetours[u] + dpPathToRootWithDetours[v] - 2 * dpPathToRootWithDetours[lcaI] + dp[lcaI];
+                out.println(res);
+            }
+        }
+
+    }
+
+    static class MinRangeSparseTable implements ISearchInRange {
+        private final int[][] sparseTables;
+        private final long[] array;
+        private final boolean reverseOrdered;
+
+        public MinRangeSparseTable(long[] array, boolean reverseOrdered) {
+            this.reverseOrdered = reverseOrdered;
+            this.array = array;
+            int LCALength = IntegerExtension.getNumberOfBits(array.length);
+            sparseTables = new int[LCALength][];
+            sparseTables[0] = new int[array.length];
+            for (int i = 0; i < array.length; i++) {
+                sparseTables[0][i] = i;
+            }
+            for (int i = 1; i < LCALength; i++) {
+                int size = 1 << i;
+                int jumpSize = 1 << (i - 1);
+                sparseTables[i] = new int[sparseTables[0].length - size + 1];
+                for (int j = 0; j < sparseTables[i].length; j++) {
+                    sparseTables[i][j] = min(sparseTables[i - 1][j], sparseTables[i - 1][j + jumpSize]);
+                }
+            }
+        }
+
+        private int min(int a, int b) {
+            return ((array[a] < array[b]) ^ reverseOrdered) ? a : b;
+        }
+
+
+        public Pair<Long, Long> queryIndexValueInRange(long l, long r) {
+            int size = (int) (r - l + 1);
+            int LCAIndex = IntegerExtension.getNumberOfBits(size) - 1;
+            int sizeNeeded = 1 << LCAIndex;
+            int res = min(sparseTables[LCAIndex][(int) l], sparseTables[LCAIndex][(int) (r - sizeNeeded + 1)]);
+            return new Pair<>((long) res, array[res]);
+        }
+
+        public MinRangeSparseTable(long[] array) {
+            this(array, false);
+        }
+
+    }
+
+    static class GraphLowestCommonAncestor {
+        public static GraphLowestCommonAncestor.LCA createLCA(int[] appearances, final int[] firstAppearance, final int[] depth) {
+            return new GraphLowestCommonAncestor.LCA_MinRangeSparseTable(appearances, firstAppearance, depth);
+        }
+
+        public interface LCA {
+            int getLCA(int a, int b);
+
+        }
+
+        private static class LCA_MinRangeSparseTable implements GraphLowestCommonAncestor.LCA {
+            private final MinRangeSparseTable minRangeSparseTable;
+            private final int[] firstAppearance;
+            private final int[] indexToNode;
+
+            public LCA_MinRangeSparseTable(int[] appearances, final int[] firstAppearance, final int[] depth) {
+                this.firstAppearance = firstAppearance;
+                this.indexToNode = appearances;
+                long[] depthOrder = new long[appearances.length];
+                for (int i = 0; i < depthOrder.length; i++) {
+                    depthOrder[i] = depth[appearances[i]];
+                }
+                minRangeSparseTable = new MinRangeSparseTable(depthOrder);
+            }
+
+
+            public int getLCA(int a, int b) {
+                a = firstAppearance[a];
+                b = firstAppearance[b];
+                int l = Math.min(a, b), r = Math.max(a, b);
+                return indexToNode[(int) (long) minRangeSparseTable.queryIndexValueInRange(l, r).first];
+            }
+
+        }
+
+    }
+
+    static class InputReader {
+        BufferedReader reader;
+        StringTokenizer tokenizer;
+
+        public InputReader(InputStream stream) {
+            reader = new BufferedReader(new InputStreamReader(stream), 32768);
+            tokenizer = null;
+        }
+
+        public String next() {
+            while (tokenizer == null || !tokenizer.hasMoreTokens()) {
+                try {
+                    tokenizer = new StringTokenizer(reader.readLine(), "" \t\n\r\f,"");
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return tokenizer.nextToken();
+        }
+
+        public int NextInt() {
+            return Integer.parseInt(next());
+        }
+
+        public int[] NextIntArray(int n) {
+            return NextIntArray(n, 0);
+        }
+
+        public int[] NextIntArray(int n, int offset) {
+            int[] a = new int[n];
+            for (int i = 0; i < n; i++) {
+                a[i] = NextInt() + offset;
+            }
+            return a;
+        }
+
+    }
+
+    static interface ISearchInRange {
+    }
+
+    static class Pair<T1, T2> {
+        public T1 first;
+        public T2 second;
+
+        public Pair(T1 f, T2 s) {
+            first = f;
+            second = s;
+        }
+
+    }
+
+    static class IntegerExtension {
+        public static int getNumberOfBits(long i) {
+            return 64 - Long.numberOfLeadingZeros(i);
+        }
+
+    }
+}
+
+",CorCod,641,641,nlogn
+"//q4
+
+import java.io.*;
+import java.util.*;
+import java.math.*;
+
+
+public class q4 {
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        PrintWriter out=new PrintWriter(new OutputStreamWriter(System.out));
+        
+        int query = in.nextInt();
+        
+        while (query -- > 0) {
+            int n = in.nextInt();
+            int k = in.nextInt();
+            
+            char[] arr = new char[n];
+            //slot all n into char array
+            String code = in.next();
+            for (int i = 0; i < n; i++) {
+                arr[i] = code.charAt(i);
+                
+            }
+            
+            //R, G, B cycle
+            int r = 0;
+            int g = 0;
+            int b = 0;
+            
+            for (int i = 0; i < k; i++) {
+                if (i % 3 == 0) {
+                    if (arr[i] == 'R') {g++; b++;}
+                    else if (arr[i] == 'G') {r++; b++;}
+                    else {r++; g++;} //if is 'B'
+                } else if (i % 3 == 1) {
+                    if (arr[i] == 'G') {g++; b++;}
+                    else if (arr[i] == 'B') {r++; b++;}
+                    else {r++; g++;} //if is 'R'
+                } else { //if mod 3 is 2
+                    if (arr[i] == 'B') {g++; b++;}
+                    else if (arr[i] == 'R') {r++; b++;}
+                    else {r++; g++;} //if is 'G'     
+                }
+            }
+            
+            //starting from kth position, if different then add 1, and check (j-k)th position
+            int rMin = r;
+            int gMin = g;
+            int bMin = b;
+            for (int j = k; j < n; j++) {
+                //R cycle
+                if ((j % 3 == 0 && arr[j] != 'R') ||  
+                    (j % 3 == 1 && arr[j] != 'G') ||
+                    (j % 3 == 2 && arr[j] != 'B')) {
+                    r++;
+                }
+                //R cycle 
+                if (((j - k) % 3 == 0 && arr[j - k] != 'R') ||  
+                    ((j - k) % 3 == 1 && arr[j - k] != 'G') ||
+                    ((j - k) % 3 == 2 && arr[j - k] != 'B')) {
+                    r--;
+                }
+                rMin = Math.min(r, rMin);
+                //G cycle
+                if ((j % 3 == 0 && arr[j] != 'G') ||  
+                    (j % 3 == 1 && arr[j] != 'B') ||
+                    (j % 3 == 2 && arr[j] != 'R')) {
+                    g++;
+                } 
+                if (((j - k) % 3 == 0 && arr[j - k] != 'G') ||  
+                    ((j - k) % 3 == 1 && arr[j - k] != 'B') ||
+                    ((j - k) % 3 == 2 && arr[j - k] != 'R')) {
+                    g--;
+                }      
+                gMin = Math.min(gMin, g);
+                //B cycle
+                if ((j % 3 == 0 && arr[j] != 'B') ||  
+                    (j % 3 == 1 && arr[j] != 'R') ||
+                    (j % 3 == 2 && arr[j] != 'G')) {
+                    b++;
+                }       
+                if (((j - k) % 3 == 0 && arr[j - k] != 'B') ||  
+                    ((j - k) % 3 == 1 && arr[j - k] != 'R') ||
+                    ((j - k) % 3 == 2 && arr[j - k] != 'G')) {
+                    b--;
+                } 
+                bMin = Math.min(bMin, b);
+                
+            }
+            
+            out.println(Math.min(Math.min(rMin, gMin), bMin));
+            
+        }
+        out.flush();
+        
+    } 
+    
+}",CorCod,407,407,quadratic
+"
+import java.util.Scanner;
+
+public class Main {
+	public static void main(String args[]) {
+		Scanner sc=new Scanner(System.in);
+		int n=sc.nextInt();
+		int tmp;
+		int min=Integer.MAX_VALUE;
+		for(int i=0;i<n;i++) {
+			tmp=sc.nextInt();
+			if(i>n-1-i) {
+				tmp=tmp/i;
+			}else {
+				tmp=tmp/(n-1-i);
+			}
+			if(tmp<min) {
+				min=tmp;
+			}
+		}
+		System.out.println(min);
+	}
+}
+",CorCod,207,207,linear
+"import java.io.*;
+import java.util.*;
+public class codef
+{
+    public static void main(String ar[]) throws IOException
+    {
+        BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+        int n=Integer.parseInt(br.readLine());
+        String st[]=br.readLine().split("" "");
+        int a[]=new int[n];
+        for(int i=0;i<n;i++)
+            a[i]=Integer.parseInt(st[i]);
+
+        int max=0;
+        for(int i=0;i<n;i++)
+        {
+            if(i!=0 && a[i]>a[max])
+                max=i;
+        }
+       // System.out.println(a[max]);
+        int maxi=max;
+        int i=max-1;
+        while(i>=0)
+        {
+            if(a[i]>a[max])
+            {
+                System.out.println(""NO"");
+                return;
+            }
+            max=i;
+            i--;
+        }
+        max=maxi;
+        i=max+1;
+        while(i<n)
+        {
+            if(a[i]>a[max])
+            {
+                System.out.println(""NO"");
+                return;
+            }
+            max=i;
+            i++;
+        }
+        System.out.println(""YES"");
+    }
+}",CorCod,321,321,linear
+"
+// Java program to find the minimum possible 
+// difference between maximum and minimum 
+// elements when we have to add/subtract 
+// every number by k 
+import
+java.util.*; 
+
+class
+GFG { 
+
+
+// Modifies the array by subtracting/adding 
+
+// k to every element such that the difference 
+
+// between maximum and minimum is minimized 
+
+static
+int
+getMinDiff(
+int
+arr[], 
+int
+n, 
+int
+k) 
+
+{ 
+
+if
+(n == 
+1
+) 
+
+return
+0
+; 
+
+
+// Sort all elements 
+
+Arrays.sort(arr); 
+
+
+// Initialize result 
+
+int
+ans = arr[n-
+1
+] - arr[
+0
+]; 
+
+
+// Handle corner elements 
+
+int
+small = arr[
+0
+] + k; 
+
+int
+big = arr[n-
+1
+] - k; 
+
+int
+temp = 
+0
+; 
+
+
+if
+(small > big) 
+
+{ 
+
+temp = small; 
+
+small = big; 
+
+big = temp; 
+
+} 
+
+
+// Traverse middle elements 
+
+for
+(
+int
+i = 
+1
+; i < n-
+1
+; i ++) 
+
+{ 
+
+int
+subtract = arr[i] - k; 
+
+int
+add = arr[i] + k; 
+
+
+// If both subtraction and addition 
+
+// do not change diff 
+
+if
+(subtract >= small || add <= big) 
+
+continue
+; 
+
+
+// Either subtraction causes a smaller 
+
+// number or addition causes a greater 
+
+// number. Update small or big using 
+
+// greedy approach (If big - subtract 
+
+// causes smaller diff, update small 
+
+// Else update big) 
+
+if
+(big - subtract <= add - small) 
+
+small = subtract; 
+
+else
+
+big = add; 
+
+} 
+
+
+return
+Math.min(ans, big - small); 
+
+} 
+
+
+// Driver function to test the above function 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+int
+arr[] = {
+4
+, 
+6
+}; 
+
+int
+n = arr.length; 
+
+int
+k = 
+10
+; 
+
+System.out.println(
+""Maximum difference is ""
++ 
+
+getMinDiff(arr, n, k)); 
+
+} 
+} 
+// This code is contributed by Prerna Saini ",CorCod,727,727,nlogn
+"import java.util.*;
+
+public class helloWorld 
+{
+	public static void main(String[] args) 
+	{		
+		Scanner in = new Scanner(System.in);
+		int n = in.nextInt();
+		int m = in.nextInt();
+		int l = 1000, r = 0, u = 1000, b = 0;
+		
+		for(int i = 0; i < n; i++ ) {
+			String str = in.next();
+			for(int j = 0; j < m; j++)
+				if(str.charAt(j) == 'B') {
+					l = Math.min(j+1, l);
+					r = Math.max(j+1, r);
+					u = Math.min(i+1, u);
+					b = Math.max(i+1, b);
+				}
+		}
+		
+		System.out.println((u+b)/2 + "" "" + (l+r)/2);
+		
+		in.close();
+	}
+}
+
+
+
+",CorCod,549,549,quadratic
+"import java.util.*;
+
+public class Main{
+    public static void main(String [] args)
+    {
+        Scanner scan=new Scanner(System.in);
+        int n=scan.nextInt();
+        char c[]=new char[n];
+        Arrays.fill(c,'o');
+        int x=1,y=1,z;
+        while(y<=n)
+        {
+            c[y-1]='O';
+            z=x+y;
+            x=y;
+            y=z;
+        }
+        String ans=new String(c);
+        System.out.println(ans);
+    }
+}",CorCod,225,225,linear
+"import java.util.*;
+
+
+public class Main {
+    static int n=5;
+    static int[] arr=new int[5];
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n=sc.nextInt();
+        int arr[]=new int[n];
+        for (int i=0;i<n;i++)
+        {
+            arr[i]=sc.nextInt();
+        }
+        for (int i=0;i<n;i++)
+        {
+            if (arr[i]>=0)
+            {
+                arr[i]=-arr[i]-1;
+            }
+        }
+        if (n%2!=0)
+        {
+            int min=0;
+            for (int i=1;i<n;i++)
+            {
+                if (arr[i]<arr[min])
+                    min=i;
+            }
+            arr[min]=-arr[min]-1;
+        }
+        for (int x:arr)
+        {
+            System.out.print(x + "" "");
+        }
+
+    }
+}",CorCod,327,327,linear
+"
+class
+SmallestMissing 
+{ 
+
+int
+findFirstMissing(
+int
+array[], 
+int
+start, 
+int
+end) 
+
+{ 
+
+if
+(start > end) 
+
+return
+end + 
+1
+; 
+
+
+if
+(start != array[start]) 
+
+return
+start; 
+
+
+int
+mid = (start + end) / 
+2
+; 
+
+
+// Left half has all elements from 0 to mid 
+
+if
+(array[mid] == mid) 
+
+return
+findFirstMissing(array, mid+
+1
+, end); 
+
+
+return
+findFirstMissing(array, start, mid); 
+
+} 
+
+
+// Driver program to test the above function 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+SmallestMissing small = 
+new
+SmallestMissing(); 
+
+int
+arr[] = {
+0
+, 
+1
+, 
+2
+, 
+3
+, 
+4
+, 
+5
+, 
+6
+, 
+7
+, 
+10
+}; 
+
+int
+n = arr.length; 
+
+System.out.println(
+""First Missing element is : ""
+
++ small.findFirstMissing(arr, 
+0
+, n - 
+1
+)); 
+
+} 
+} ",CorCod,925,925,logn
+"
+// Java program to query number of palindromic 
+// substrings of a string in a range 
+import
+java.io.*; 
+
+class
+GFG { 
+
+// Function to construct the dp array 
+
+static
+void
+constructDp(
+int
+dp[][], String str) 
+
+{ 
+
+int
+l = str.length(); 
+
+
+// declare 2D array isPalin, isPalin[i][j] will 
+
+// be 1 if str(i..j) is palindrome 
+
+int
+[][] isPalin = 
+new
+int
+[l + 
+1
+][l + 
+1
+]; 
+
+
+// initialize dp and isPalin array by zeros 
+
+for
+(
+int
+i = 
+0
+; i <= l; i++) { 
+
+for
+(
+int
+j = 
+0
+; j <= l; j++) { 
+
+isPalin[i][j] = dp[i][j] = 
+0
+; 
+
+} 
+
+} 
+
+
+// loop for starting index of range 
+
+for
+(
+int
+i = l - 
+1
+; i >= 
+0
+; i--) { 
+
+// initialize value for one character strings as 1 
+
+isPalin[i][i] = 
+1
+; 
+
+dp[i][i] = 
+1
+; 
+
+
+// loop for ending index of range 
+
+for
+(
+int
+j = i + 
+1
+; j < l; j++) { 
+
+/* isPalin[i][j] will be 1 if ith and 
+
+jth characters are equal and mid 
+
+substring str(i+1..j-1) is also a 
+
+palindrome */
+
+isPalin[i][j] = (str.charAt(i) == str.charAt(j) && (i + 
+1
+> j - 
+1
+|| (isPalin[i + 
+1
+][j - 
+1
+]) != 
+0
+)) ? 
+1
+: 
+0
+; 
+
+
+/* dp[i][j] will be addition of number 
+
+of palindromes from i to j-1 and i+1 
+
+to j subtracting palindromes from i+1 
+
+to j-1 (as counted twice) plus 1 if 
+
+str(i..j) is also a palindrome */
+
+dp[i][j] = dp[i][j - 
+1
+] + dp[i + 
+1
+][j] - dp[i + 
+1
+][j - 
+1
+] + isPalin[i][j]; 
+
+} 
+
+} 
+
+} 
+
+
+// method returns count of palindromic substring in range (l, r) 
+
+static
+int
+countOfPalindromeInRange(
+int
+dp[][], 
+int
+l, 
+int
+r) 
+
+{ 
+
+return
+dp[l][r]; 
+
+} 
+
+
+// driver program 
+
+public
+static
+void
+main(String args[]) 
+
+{ 
+
+int
+MAX = 
+50
+; 
+
+String str = 
+""xyaabax""
+; 
+
+int
+[][] dp = 
+new
+int
+[MAX][MAX]; 
+
+constructDp(dp, str); 
+
+
+int
+l = 
+3
+; 
+
+int
+r = 
+5
+; 
+
+System.out.println(countOfPalindromeInRange(dp, l, r)); 
+
+} 
+} 
+
+// Contributed by Pramod Kumar ",CorCod,467,467,quadratic
+"
+// Java Program to find max subarray 
+// sum excluding some elements 
+import
+java.io.*; 
+
+class
+GFG { 
+
+
+// Function to check the element 
+
+// present in array B 
+
+static
+boolean
+isPresent(
+int
+B[], 
+
+int
+m, 
+
+int
+x) 
+
+{ 
+
+for
+(
+int
+i = 
+0
+; i < m; i++) 
+
+if
+(B[i] == x) 
+
+return
+true
+; 
+
+
+return
+false
+; 
+
+} 
+
+
+// Utility function for findMaxSubarraySum() 
+
+// with the following parameters 
+
+// A => Array A, 
+
+// B => Array B, 
+
+// n => Number of elements in Array A, 
+
+// m => Number of elements in Array B 
+
+static
+int
+findMaxSubarraySumUtil(
+int
+A[], 
+int
+B[], 
+
+int
+n, 
+int
+m) 
+
+{ 
+
+
+// set max_so_far to INT_MIN 
+
+int
+max_so_far = -
+2147483648
+, curr_max = 
+0
+; 
+
+
+for
+(
+int
+i = 
+0
+; i < n; i++) { 
+
+
+// if the element is present in B, 
+
+// set current max to 0 and move to 
+
+// the next element 
+
+if
+(isPresent(B, m, A[i])) { 
+
+curr_max = 
+0
+; 
+
+continue
+; 
+
+} 
+
+
+// Proceed as in Kadane's Algorithm 
+
+curr_max = Math.max(A[i], curr_max + A[i]); 
+
+max_so_far = Math.max(max_so_far, curr_max); 
+
+} 
+
+return
+max_so_far; 
+
+} 
+
+
+// Wrapper for findMaxSubarraySumUtil() 
+
+static
+void
+findMaxSubarraySum(
+int
+A[], 
+int
+B[], 
+
+int
+n, 
+int
+m) 
+
+{ 
+
+int
+maxSubarraySum = findMaxSubarraySumUtil(A, B, 
+
+n, m); 
+
+
+// This case will occour when all 
+
+// elements of A are are present 
+
+// in B, thus no subarray can be formed 
+
+if
+(maxSubarraySum == -
+2147483648
+) { 
+
+System.out.println(
+""Maximum Subarray Sum""
+
++ 
+"" ""
++ 
+""can't be found""
+); 
+
+
+} 
+
+else
+{ 
+
+System.out.println(
+""The Maximum Subarray Sum = ""
+
++ maxSubarraySum); 
+
+} 
+
+} 
+
+
+// Driver code 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+
+int
+A[] = { 
+3
+, 
+4
+, 
+5
+, -
+4
+, 
+6
+}; 
+
+int
+B[] = { 
+1
+, 
+8
+, 
+5
+}; 
+
+
+int
+n = A.length; 
+
+int
+m = B.length; 
+
+
+// Calling Function 
+
+findMaxSubarraySum(A, B, n, m); 
+
+} 
+} 
+
+// This code is contributed by Ajit. ",CorCod,582,582,quadratic
+"import java.io.OutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.List;
+import java.util.stream.Stream;
+import java.io.BufferedWriter;
+import java.io.Writer;
+import java.io.OutputStreamWriter;
+import java.util.InputMismatchException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+
+/**
+ * Built using CHelper plug-in
+ * Actual solution is at the top
+ *
+ * @author lewin
+ */
+public class Main {
+    public static void main(String[] args) {
+        InputStream inputStream = System.in;
+        OutputStream outputStream = System.out;
+        InputReader in = new InputReader(inputStream);
+        OutputWriter out = new OutputWriter(outputStream);
+        ERandomForestRank solver = new ERandomForestRank();
+        solver.solve(1, in, out);
+        out.close();
+    }
+
+    static class ERandomForestRank {
+        int n;
+        List<Integer>[] tree;
+        int mod = 998244353;
+        long[][] dp;
+
+        public void solve(int testNumber, InputReader in, OutputWriter out) {
+            n = in.nextInt();
+            tree = LUtils.genArrayList(n);
+            for (int i = 0; i < n - 1; i++) {
+                int a = in.nextInt() - 1, b = in.nextInt() - 1;
+                tree[a].add(b);
+                tree[b].add(a);
+            }
+            dp = new long[n][];
+            out.println((dfs(0, -1)[2] * 2) % mod);
+        }
+
+        long[] dfs(int node, int par) {
+            long tot = 1;
+            long alltaken = 1;
+            for (int next : tree[node]) {
+                if (next == par) continue;
+                long[] r = dfs(next, node);
+                tot = tot * (r[0] + r[1] + r[0] + r[1]) % mod;
+                alltaken = alltaken * (r[1] + r[1] + r[0]) % mod;
+            }
+            long free = alltaken;
+            long notfree = (tot - alltaken + mod) % mod;
+            long sum = notfree;
+            for (int next : tree[node]) {
+                if (next == par) continue;
+                long mult = tot * Utils.inv((dp[next][0] + dp[next][1] + dp[next][0] + dp[next][1]) % mod, mod) % mod;
+                sum = (sum + 2 * mult * dp[next][2]) % mod;
+            }
+            return dp[node] = new long[]{free, notfree, sum};
+        }
+
+    }
+
+    static class Utils {
+        public static long inv(long N, long M) {
+            long x = 0, lastx = 1, y = 1, lasty = 0, q, t, a = N, b = M;
+            while (b != 0) {
+                q = a / b;
+                t = a % b;
+                a = b;
+                b = t;
+                t = x;
+                x = lastx - q * x;
+                lastx = t;
+                t = y;
+                y = lasty - q * y;
+                lasty = t;
+            }
+            return (lastx + M) % M;
+        }
+
+    }
+
+    static class LUtils {
+        public static <E> List<E>[] genArrayList(int size) {
+            return Stream.generate(ArrayList::new).limit(size).toArray(List[]::new);
+        }
+
+    }
+
+    static class InputReader {
+        private InputStream stream;
+        private byte[] buf = new byte[1 << 20];
+        private int curChar;
+        private int numChars;
+
+        public InputReader(InputStream stream) {
+            this.stream = stream;
+        }
+
+        public int read() {
+            if (this.numChars == -1) {
+                throw new InputMismatchException();
+            } else {
+                if (this.curChar >= this.numChars) {
+                    this.curChar = 0;
+
+                    try {
+                        this.numChars = this.stream.read(this.buf);
+                    } catch (IOException var2) {
+                        throw new InputMismatchException();
+                    }
+
+                    if (this.numChars <= 0) {
+                        return -1;
+                    }
+                }
+
+                return this.buf[this.curChar++];
+            }
+        }
+
+        public int nextInt() {
+            int c;
+            for (c = this.read(); isSpaceChar(c); c = this.read()) {
+                ;
+            }
+
+            byte sgn = 1;
+            if (c == 45) {
+                sgn = -1;
+                c = this.read();
+            }
+
+            int res = 0;
+
+            while (c >= 48 && c <= 57) {
+                res *= 10;
+                res += c - 48;
+                c = this.read();
+                if (isSpaceChar(c)) {
+                    return res * sgn;
+                }
+            }
+
+            throw new InputMismatchException();
+        }
+
+        public static boolean isSpaceChar(int c) {
+            return c == 32 || c == 10 || c == 13 || c == 9 || c == -1;
+        }
+
+    }
+
+    static class OutputWriter {
+        private final PrintWriter writer;
+
+        public OutputWriter(OutputStream outputStream) {
+            writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(outputStream)));
+        }
+
+        public OutputWriter(Writer writer) {
+            this.writer = new PrintWriter(writer);
+        }
+
+        public void close() {
+            writer.close();
+        }
+
+        public void println(long i) {
+            writer.println(i);
+        }
+
+    }
+}
+
+",CorCod,284,284,linear
+"
+import
+java.util.*; 
+import
+java.lang.*; 
+class
+Main 
+{ 
+
+static
+void
+minAbsSumPair(
+int
+arr[], 
+int
+n) 
+
+{ 
+
+// Variables to keep track of current sum and minimum sum 
+
+int
+sum, min_sum = 
+999999
+; 
+
+
+// left and right index variables 
+
+int
+l = 
+0
+, r = n-
+1
+; 
+
+
+// variable to keep track of the left and right pair for min_sum 
+
+int
+min_l = l, min_r = n-
+1
+; 
+
+
+/* Array should have at least two elements*/
+
+if
+(n < 
+2
+) 
+
+{ 
+
+System.out.println(
+""Invalid Input""
+); 
+
+return
+; 
+
+} 
+
+
+/* Sort the elements */
+
+sort(arr, l, r); 
+
+
+while
+(l < r) 
+
+{ 
+
+sum = arr[l] + arr[r]; 
+
+
+/*If abs(sum) is less then update the result items*/
+
+if
+(Math.abs(sum) < Math.abs(min_sum)) 
+
+{ 
+
+min_sum = sum; 
+
+min_l = l; 
+
+min_r = r; 
+
+} 
+
+if
+(sum < 
+0
+) 
+
+l++; 
+
+else
+
+r--; 
+
+} 
+
+
+
+System.out.println(
+"" The two elements whose ""
++ 
+
+""sum is minimum are ""
++ 
+
+arr[min_l]+ 
+"" and ""
++arr[min_r]); 
+
+} 
+
+
+// main function 
+
+public
+static
+void
+main (String[] args) 
+
+{ 
+
+int
+arr[] = {
+1
+, 
+60
+, -
+10
+, 
+70
+, -
+80
+, 
+85
+}; 
+
+int
+n = arr.length; 
+
+minAbsSumPair(arr, n); 
+
+} 
+
+
+/* Functions for QuickSort */
+
+
+/* This function takes last element as pivot, 
+
+places the pivot element at its correct 
+
+position in sorted array, and places all 
+
+smaller (smaller than pivot) to left of 
+
+pivot and all greater elements to right 
+
+of pivot */
+
+static
+int
+partition(
+int
+arr[], 
+int
+low, 
+int
+high) 
+
+{ 
+
+int
+pivot = arr[high]; 
+
+int
+i = (low-
+1
+); 
+// index of smaller element 
+
+for
+(
+int
+j=low; j<high; j++) 
+
+{ 
+
+// If current element is smaller than or 
+
+// equal to pivot 
+
+if
+(arr[j] <= pivot) 
+
+{ 
+
+i++; 
+
+
+// swap arr[i] and arr[j] 
+
+int
+temp = arr[i]; 
+
+arr[i] = arr[j]; 
+
+arr[j] = temp; 
+
+} 
+
+} 
+
+
+// swap arr[i+1] and arr[high] (or pivot) 
+
+int
+temp = arr[i+
+1
+]; 
+
+arr[i+
+1
+] = arr[high]; 
+
+arr[high] = temp; 
+
+
+return
+i+
+1
+; 
+
+} 
+
+
+
+/* The main function that implements QuickSort() 
+
+arr[] --> Array to be sorted, 
+
+low --> Starting index, 
+
+high --> Ending index */
+
+static
+void
+sort(
+int
+arr[], 
+int
+low, 
+int
+high) 
+
+{ 
+
+if
+(low < high) 
+
+{ 
+
+/* pi is partitioning index, arr[pi] is 
+
+now at right place */
+
+int
+pi = partition(arr, low, high); 
+
+
+// Recursively sort elements before 
+
+// partition and after partition 
+
+sort(arr, low, pi-
+1
+); 
+
+sort(arr, pi+
+1
+, high); 
+
+} 
+
+} 
+} ",CorCod,659,659,nlogn
+"import java.io.BufferedReader;
+import java.io.PrintWriter;
+
+import java.io.InputStreamReader;
+
+import java.io.IOException;
+
+import java.util.StringTokenizer;
+
+public class Main {
+    
+    static Scanner in = new Scanner();
+    static PrintWriter out = new PrintWriter(System.out);
+    
+    public static void main(String[] args) throws IOException {
+        int x = in.nextInt(),
+            y = in.nextInt(),
+            z = in.nextInt(),
+            t1 = in.nextInt(),
+            t2 = in.nextInt(),
+            t3 = in.nextInt()*3,
+            d = Math.abs(x - y);
+        out.print(((Math.abs(x - z) + d) * t2 + t3 > d * t1 ? ""NO"" : ""YES""));
+        out.close();
+    }
+    
+    static class Scanner {
+        BufferedReader br;
+        StringTokenizer st;
+        
+        public Scanner() {
+            br = new BufferedReader(new InputStreamReader(System.in));
+            st = new StringTokenizer("""");
+        }
+        
+        public String next() throws IOException {
+            if(!st.hasMoreTokens())
+                st = new StringTokenizer(br.readLine());
+            return st.nextToken();
+        }
+        
+        public int nextInt() throws IOException {
+            return Integer.parseInt(next());
+        }
+    }
+}",CorCod,736,736,constant
+"import java.util.*;
+import java.io.*;
+import java.text.*;
+import java.math.*;
+import static java.lang.Integer.*;
+import static java.lang.Double.*;
+import java.lang.Math.*;
+
+public class two_squares {
+
+	public static void main(String[] args) throws Exception {
+		new two_squares().run();
+	}
+
+	public void run() throws Exception {
+		FastIO file = new FastIO();
+		double x1 = file.nextInt();
+		double y1 = file.nextInt();
+		double x2 = file.nextInt();
+		double y2 = file.nextInt();
+		double x3 = file.nextInt();
+		double y3 = file.nextInt();
+		double x4 = file.nextInt();
+		double y4 = file.nextInt();
+		double minx1, maxx1, miny1, maxy1;
+		minx1 = Math.min(x1, Math.min(x2, Math.min(x3, x4)));
+		maxx1 = Math.max(x1, Math.max(x2, Math.max(x3, x4)));
+		miny1 = Math.min(y1, Math.min(y2, Math.min(y3, y4)));
+		maxy1 = Math.max(y1, Math.max(y2, Math.max(y3, y4)));
+		double x5 = file.nextInt();
+		double y5 = file.nextInt();
+		double x6 = file.nextInt();
+		double y6 = file.nextInt();
+		double x7 = file.nextInt();
+		double y7 = file.nextInt();
+		double x8 = file.nextInt();
+		double y8 = file.nextInt();
+		double minx2, maxx2, miny2, maxy2;
+		minx2 = Math.min(x5, Math.min(x6, Math.min(x7, x8)));
+		maxx2 = Math.max(x5, Math.max(x6, Math.max(x7, x8)));
+		miny2 = Math.min(y5, Math.min(y6, Math.min(y7, y8)));
+		maxy2 = Math.max(y5, Math.max(y6, Math.max(y7, y8)));
+		Point _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16;
+		_1 = new Point(x1, y1);
+		_2 = new Point(x2, y2);
+		_3 = new Point(x3, y3);
+		_4 = new Point(x4, y4);
+		_5 = new Point(x5, y5);
+		_6 = new Point(x6, y6);
+		_7 = new Point(x7, y7);
+		_8 = new Point(x8, y8);
+		_9 = new Point(minx1, maxy1);
+		_10 = new Point(minx1, miny1);
+		_11 = new Point(maxx1, maxy1);
+		_12 = new Point(maxx1, miny1);
+		double m1 = (minx2 + maxx2) / 2;
+		double m2 = (miny2 + maxy2) / 2;
+		_13 = new Point(minx2, m2);
+		_14 = new Point(m1, miny2);
+		_15 = new Point(maxx2, m2);
+		_16 = new Point(m1, maxy2);
+		Point[] a = {_1, _2, _3, _4};
+		Point[] b = {_5, _6, _7, _8};
+		boolean works = false;
+		Line[] aa = {new Line(_9,_10), new Line(_10, _12), new Line(_12, _11), new Line(_11, _9)};
+		Line[] bb = {new Line(_13, _14), new Line(_14, _15), new Line(_15, _16), new Line(_16, _13)};
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (aa[i].intersection(bb[i]) != null) {
+					works = true;
+				}
+			}
+		}
+		for (Point p : b) {
+			if (p.x >= minx1 && p.x <= maxx1 && p.y >= miny1 && p.y <= maxy1) {
+				works = true;
+			}
+		}
+		for (Point p : a) {
+			boolean result = false;
+		      for (int i = 0, j = b.length - 1; i < b.length; j = i++) {
+		        if ((b[i].y > p.y) != (b[j].y > p.y) &&
+		            (p.x < (b[j].x - b[i].x) * (p.y - b[i].y) / (b[j].y-b[i].y) + b[i].x)) {
+		          result = !result;
+		         }
+		      }
+		      if (result) works = true;
+		}
+		System.out.println(works ? ""YES"" : ""NO"");
+	}
+	public static class Point {
+		double x, y;
+		public Point(double a, double b) {
+			x = a;
+			y = b;
+		}
+	}
+	public static class Line {
+		Point a, b;
+		public Line(Point x, Point y) {
+			a = x;
+			b = y;
+		}
+		public Point intersection(Line o) {
+			double x1 = a.x;
+			double y1 = a.y;
+			double x2 = b.x;
+			double y2 = b.y;
+			double x3 = o.a.x;
+			double y3 = o.a.y;
+			double x4 = o.b.x;
+			double y4 = o.b.y;
+			double denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+			  double ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3))/denom;
+			  double ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3))/denom;
+			    if (ua >= 0.0f && ua <= 1.0f && ub >= 0.0f && ub <= 1.0f) {
+			        return new Point((int) (x1 + ua*(x2 - x1)), (int) (y1 + ua*(y2 - y1)));
+			    }
+
+			  return null;
+		}
+	}
+	public static class FastIO {
+		BufferedReader br;
+		StringTokenizer st;
+
+		public FastIO() {
+			br = new BufferedReader(new InputStreamReader(System.in));
+		}
+
+		String next() {
+			while (st == null || !st.hasMoreElements()) {
+				try {
+					st = new StringTokenizer(br.readLine());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			return st.nextToken();
+		}
+
+		int nextInt() {
+			return Integer.parseInt(next());
+		}
+
+		long nextLong() {
+			return Long.parseLong(next());
+		}
+
+		double nextDouble() {
+			return Double.parseDouble(next());
+		}
+
+		String nextLine() {
+			String str = """";
+			try {
+				str = br.readLine();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return str;
+		}
+	}
+
+	public static long pow(long n, long p, long mod) {
+		if (p == 0)
+			return 1;
+		if (p == 1)
+			return n % mod;
+		if (p % 2 == 0) {
+			long temp = pow(n, p / 2, mod);
+			return (temp * temp) % mod;
+		} else {
+			long temp = pow(n, p / 2, mod);
+			temp = (temp * temp) % mod;
+			return (temp * n) % mod;
+
+		}
+	}
+
+	public static long pow(long n, long p) {
+		if (p == 0)
+			return 1;
+		if (p == 1)
+			return n;
+		if (p % 2 == 0) {
+			long temp = pow(n, p / 2);
+			return (temp * temp);
+		} else {
+			long temp = pow(n, p / 2);
+			temp = (temp * temp);
+			return (temp * n);
+
+		}
+	}
+
+	public static long gcd(long x, long y) {
+		if (x == 0)
+			return y;
+		else
+			return gcd(y % x, x);
+	}
+
+	public static boolean isPrime(int n) {
+		if (n <= 1)
+			return false;
+		if (n <= 3)
+			return true;
+
+		if (n % 2 == 0 || n % 3 == 0)
+			return false;
+
+		for (int i = 5; i * i <= n; i = i + 6)
+			if (n % i == 0 || n % (i + 2) == 0)
+				return false;
+
+		return true;
+	}
+}
+",CorCod,755,755,constant
+"
+// Java program to find largest pair sum in a given array 
+
+class
+Test 
+{ 
+
+static
+int
+arr[] = 
+new
+int
+[]{
+12
+, 
+34
+, 
+10
+, 
+6
+, 
+40
+}; 
+
+
+/* Method to return largest pair sum. Assumes that 
+
+there are at-least two elements in arr[] */
+
+static
+int
+findLargestSumPair() 
+
+{ 
+
+// Initialize first and second largest element 
+
+int
+first, second; 
+
+if
+(arr[
+0
+] > arr[
+1
+]) 
+
+{ 
+
+first = arr[
+0
+]; 
+
+second = arr[
+1
+]; 
+
+} 
+
+else
+
+{ 
+
+first = arr[
+1
+]; 
+
+second = arr[
+0
+]; 
+
+} 
+
+
+// Traverse remaining array and find first and second largest 
+
+// elements in overall array 
+
+for
+(
+int
+i = 
+2
+; i<arr.length; i ++) 
+
+{ 
+
+/* If current element is greater than first then update both 
+
+first and second */
+
+if
+(arr[i] > first) 
+
+{ 
+
+second = first; 
+
+first = arr[i]; 
+
+} 
+
+
+/* If arr[i] is in between first and second then update second */
+
+else
+if
+(arr[i] > second && arr[i] != first) 
+
+second = arr[i]; 
+
+} 
+
+return
+(first + second); 
+
+} 
+
+// Driver method to test the above function 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+
+System.out.println(
+""Max Pair Sum is ""
++ findLargestSumPair()); 
+
+
+} 
+} ",CorCod,359,359,linear
+"
+// Java program to Find the repeating 
+// and missing elements 
+
+import
+java.io.*; 
+
+class
+GFG { 
+
+static
+int
+x, y; 
+
+
+static
+void
+getTwoElements(
+int
+arr[], 
+int
+n) 
+
+{ 
+
+/* Will hold xor of all elements 
+
+and numbers from 1 to n */
+
+int
+xor1; 
+
+
+/* Will have only single set bit of xor1 */
+
+int
+set_bit_no; 
+
+
+int
+i; 
+
+x = 
+0
+; 
+
+y = 
+0
+; 
+
+
+xor1 = arr[
+0
+]; 
+
+
+/* Get the xor of all array elements */
+
+for
+(i = 
+1
+; i < n; i++) 
+
+xor1 = xor1 ^ arr[i]; 
+
+
+/* XOR the previous result with numbers from 
+
+1 to n*/
+
+for
+(i = 
+1
+; i <= n; i++) 
+
+xor1 = xor1 ^ i; 
+
+
+/* Get the rightmost set bit in set_bit_no */
+
+set_bit_no = xor1 & ~(xor1 - 
+1
+); 
+
+
+/* Now divide elements into two sets by comparing 
+
+rightmost set bit of xor1 with the bit at the same 
+
+position in each element. Also, get XORs of two 
+
+sets. The two XORs are the output elements. The 
+
+following two for loops serve the purpose */
+
+for
+(i = 
+0
+; i < n; i++) { 
+
+if
+((arr[i] & set_bit_no) != 
+0
+) 
+
+/* arr[i] belongs to first set */
+
+x = x ^ arr[i]; 
+
+
+else
+
+/* arr[i] belongs to second set*/
+
+y = y ^ arr[i]; 
+
+} 
+
+for
+(i = 
+1
+; i <= n; i++) { 
+
+if
+((i & set_bit_no) != 
+0
+) 
+
+/* i belongs to first set */
+
+x = x ^ i; 
+
+
+else
+
+/* i belongs to second set*/
+
+y = y ^ i; 
+
+} 
+
+
+/* *x and *y hold the desired output elements */
+
+} 
+
+/* Driver program to test above function */
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+int
+arr[] = { 
+1
+, 
+3
+, 
+4
+, 
+5
+, 
+1
+, 
+6
+, 
+2
+}; 
+
+
+int
+n = arr.length; 
+
+getTwoElements(arr, n); 
+
+System.out.println(
+"" The missing element is ""
+
++ x + 
+""and the ""
+
++ 
+""repeating number is ""
+
++ y); 
+
+} 
+} 
+
+// This code is contributed by Gitanjali. ",CorCod,337,337,linear
+"
+// Java program to find a pair with the given difference 
+import
+java.io.*; 
+
+class
+PairDifference 
+{ 
+
+// The function assumes that the array is sorted 
+
+static
+boolean
+findPair(
+int
+arr[],
+int
+n) 
+
+{ 
+
+int
+size = arr.length; 
+
+
+// Initialize positions of two elements 
+
+int
+i = 
+0
+, j = 
+1
+; 
+
+
+// Search for a pair 
+
+while
+(i < size && j < size) 
+
+{ 
+
+if
+(i != j && arr[j]-arr[i] == n) 
+
+{ 
+
+System.out.print(
+""Pair Found: ""
++ 
+
+""( ""
++arr[i]+
+"", ""
++ arr[j]+
+"" )""
+); 
+
+return
+true
+; 
+
+} 
+
+else
+if
+(arr[j] - arr[i] < n) 
+
+j++; 
+
+else
+
+i++; 
+
+} 
+
+
+System.out.print(
+""No such pair""
+); 
+
+return
+false
+; 
+
+} 
+
+
+// Driver program to test above function 
+
+public
+static
+void
+main (String[] args) 
+
+{ 
+
+int
+arr[] = {
+1
+, 
+8
+, 
+30
+, 
+40
+, 
+100
+}; 
+
+int
+n = 
+60
+; 
+
+findPair(arr,n); 
+
+} 
+} 
+/*This code is contributed by Devesh Agrawal*/",CorCod,108,108,linear
+"
+import java.io.*;
+import java.math.*;
+import java.util.*;
+
+
+// author @mdazmat9
+public  class codeforces{
+    public static void main(String[] args) throws IOException {
+        Scanner sc = new Scanner(System.in);
+        PrintWriter out = new PrintWriter(System.out);
+        int test = 1;
+        for (int ind = 0; ind < test; ind++) {
+          int [] a=new int[3];
+          a[0]=sc.nextInt();
+          a[1]=sc.nextInt();
+          a[2]=sc.nextInt();
+          Arrays.sort(a);
+          int k1=a[0];
+          int k2=a[1];
+          int k3=a[2];
+          if(k1==1 || k2==1 || k3==1){
+              out.println(""YES"");
+          }
+          else if((k1==2 && k2==2)||(k2==2 && k3==2)){
+              out.println(""YES"");
+            }
+            else if(k1==3 && k2==3 && k3==3){
+              out.println(""YES"");
+          }
+          else if(k1==2 && k2==4 && k3==4){
+              out.println(""YES"");
+          }
+          else
+              out.println(""NO"");
+
+        }
+        out.flush();
+    }
+
+
+
+
+
+    static   void shuffle(int[] a) {
+        int n = a.length;
+        for(int i = 0; i < n; i++) {
+            int r = i + (int) (Math.random() * (n - i));
+            int tmp = a[i];
+            a[i] = a[r];
+            a[r] = tmp;
+        }
+    }
+    static long gcd(long a , long b)
+    {
+        if(b == 0)
+            return a;
+        return gcd(b , a % b);
+    }
+
+}
+class Scanner {
+    public BufferedReader reader;
+    public StringTokenizer st;
+
+    public Scanner(InputStream stream) {
+        reader = new BufferedReader(new InputStreamReader(stream));
+        st = null;
+    }
+
+    public String next() {
+        while (st == null || !st.hasMoreTokens()) {
+            try {
+                String line = reader.readLine();
+                if (line == null) return null;
+                st = new StringTokenizer(line);
+            } catch (Exception e) {
+                throw (new RuntimeException());
+            }
+        }
+        return st.nextToken();
+    }
+
+    public int nextInt() {
+        return Integer.parseInt(next());
+    }
+
+    public long nextLong() {
+        return Long.parseLong(next());
+    }
+
+    public double nextDouble() {
+        return Double.parseDouble(next());
+    }
+}
+
+class OutputWriter {
+    BufferedWriter writer;
+
+    public OutputWriter(OutputStream stream) {
+        writer = new BufferedWriter(new OutputStreamWriter(stream));
+    }
+
+    public void print(int i) throws IOException {
+        writer.write(i);
+    }
+
+    public void print(String s) throws IOException {
+        writer.write(s);
+    }
+
+    public void print(char[] c) throws IOException {
+        writer.write(c);
+    }
+
+    public void close() throws IOException {
+        writer.close();
+    }
+
+}",CorCod,806,806,constant
+"import java.util.*;
+import java.io.*;
+
+public class RGBSubstring {
+    public static void main(String[] args) {
+        FastScanner scanner = new FastScanner();
+        PrintWriter out = new PrintWriter(System.out);
+        int Q = scanner.nextInt();
+        while(Q-->0) {
+            int N = scanner.nextInt();
+            int K = scanner.nextInt();
+            String s1 = ""RGB"";
+            String s2 = ""GBR"";
+            String s3 = ""BRG"";
+            char[] arr = scanner.next().toCharArray();
+            int[] cnts = new int[3];
+            for(int i = 0; i < K; i++) {
+                int ind = i % 3;
+                if (arr[i] != s1.charAt(ind)) cnts[0]++;
+                if (arr[i] != s2.charAt(ind)) cnts[1]++;
+                if (arr[i] != s3.charAt(ind)) cnts[2]++;
+            }
+            int ans = Math.min(Math.min(cnts[0], cnts[1]), cnts[2]);
+            for(int i = K; i < N; i++) {
+                int ind = (K-1)%3;
+                int[] nextCnts = new int[3];
+                nextCnts[1] = cnts[0];
+                nextCnts[2] = cnts[1];
+                nextCnts[0] = cnts[2];
+                if ('R' != arr[i-K]) nextCnts[1]--;
+                if ('G' != arr[i-K]) nextCnts[2]--;
+                if ('B' != arr[i-K]) nextCnts[0]--;
+                if (arr[i] != s1.charAt(ind)) nextCnts[0]++;
+                if (arr[i] != s2.charAt(ind)) nextCnts[1]++;
+                if (arr[i] != s3.charAt(ind)) nextCnts[2]++;
+                cnts = nextCnts;
+                for(int j = 0; j < 3; j++) ans = Math.min(ans, cnts[j]);
+            }
+            out.println(ans);
+        }
+        out.flush();
+    }
+    
+    public static class FastScanner {
+        BufferedReader br;
+        StringTokenizer st;
+        
+        public FastScanner(Reader in) {
+            br = new BufferedReader(in);
+        }
+        
+        public FastScanner() {
+            this(new InputStreamReader(System.in));
+        }
+        
+        String next() {
+            while (st == null || !st.hasMoreElements()) {
+                try {
+                    st = new StringTokenizer(br.readLine());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return st.nextToken();
+        }
+        
+        int nextInt() {
+            return Integer.parseInt(next());
+        }
+        
+        long nextLong() {
+            return Long.parseLong(next());
+        }
+        
+        double nextDouble() {
+            return Double.parseDouble(next());
+        }
+        
+        String readNextLine() {
+            String str = """";
+            try {
+                str = br.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return str;
+        }
+        
+        int[] readIntArray(int n) {
+            int[] a = new int[n];
+            for (int idx = 0; idx < n; idx++) {
+                a[idx] = nextInt();
+            }
+            return a;
+        }
+    }
+}
+",CorCod,385,385,quadratic
+"import java.util.*;
+
+public class Solution {
+	public static void main(String[] args) {
+		Scanner scanner = new Scanner(System.in);
+		Comp c1 = getComp(scanner);
+		Comp c2 = getComp(scanner);
+		c1.sortByPrice();
+		c2.sortByPrice();	
+		int i = 0;
+		int j = 0;
+		while(i < c1.num || j < c2.num) {
+			Elem xi = (i < c1.num) ? c1.elems.get(i) : null;
+			Elem yj = (j < c2.num) ? c2.elems.get(j) : null;
+			if(xi != null && yj != null) {
+				if(xi.price >= yj.price) {
+					if(!c2.resultSet.contains(xi)) {
+						c1.resultSet.add(xi);
+					}
+					i++;
+				} else {
+					if(!c1.resultSet.contains(yj)) {
+						c2.resultSet.add(yj);
+					}
+					j++;
+				}
+			} else
+			if(xi != null) {
+				if(!c2.resultSet.contains(xi)) {
+					c1.resultSet.add(xi);
+				}
+				i++;
+			} else {
+				if(!c1.resultSet.contains(yj)) {
+					c2.resultSet.add(yj);
+				}
+				j++;
+			}				
+		}
+		
+		long result = c1.getResultPrice() + c2.getResultPrice();
+		System.out.println(result);
+   }
+   
+   private static Comp getComp(Scanner scanner) {
+	   Comp c = new Comp();
+	   c.num = scanner.nextInt();
+	   for(int i = 0; i < c.num; i++) {
+		   c.addElem(scanner.nextLong(), scanner.nextLong());
+	   }
+	   return c;
+   }
+}
+
+class Comp {
+	int num;
+	List<Elem> elems = new ArrayList<>();
+	Set<Elem> resultSet = new HashSet<>();
+	
+	void addElem(long el, long pr) {
+		Elem elem = new Elem(el, pr);
+		elems.add(elem);
+	}
+	
+	void sortByPrice() {
+		Collections.sort(elems);
+	}
+	
+	long getResultPrice() {
+		long sumPrice = 0;
+		for(Elem elem : resultSet) {
+			sumPrice += elem.price;
+		}
+		
+		return sumPrice;
+	}
+}
+
+class Elem implements Comparable<Elem> {
+	long elem;
+	long price;
+	
+	public Elem(long el, long pr) {
+		this.elem = el;
+		this.price = pr;
+	}
+	
+	public int compareTo(Elem other) {
+		return (int) (other.price - price);
+	}
+	
+	public boolean equals(Object o) {
+		if(!(o instanceof Elem)) {
+			return false;
+		}
+		
+		Elem other = (Elem) o;
+		return (other.elem == elem);
+	}
+	
+	public int hashCode() {
+		return (int) elem;
+	}
+	
+	public String toString() {
+		return ""("" + elem + "", "" + price + "")"";
+	}
+}
+",CorCod,611,611,nlogn
+"import java.util.Scanner;
+
+//import java.util.Scanner;
+
+
+
+
+public class SingleWildcard {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		Scanner input =new Scanner(System.in);
+		int a = input.nextInt();
+		int b = input.nextInt();
+		char[] s1 =new char[a];
+		s1 = input.next().toCharArray();
+		
+		char[] s2 = new char[b];
+		s2 = input.next().toCharArray();
+	    boolean condition = false;
+	    for(int i=0; i<a;i++){
+	    	if(s1[i]=='*'){
+	    		condition= true;
+	    		break;
+	    	}
+	    }
+	   
+	    if(!condition){
+	    	if(match(s1,s2)){
+	    		System.out.println(""YES"");
+	    		
+	    	}
+	    	else
+	    		System.out.println(""NO"");
+	       return;
+	    }
+	    else{
+	    	int i=0;
+	    	if(s1.length-1>s2.length){
+	    		System.out.println(""NO"");
+	    		return;
+	    	}
+	    	while(i<s1.length && i<s2.length && s1[i]==s2[i]){
+	    		i++;
+	    	}
+	    	int j=s2.length-1;
+	    	int k = s1.length-1;
+	    	while(j>=0 && k>=0 &&  s1[k]==s2[j] && i<=j){
+	    		j--;
+	    		k--;
+	    	}
+	    	//System.out.println(i);
+	    	if(i==k && i>=0 && i<s1.length && s1[i]=='*' ){
+	    		System.out.println(""YES"");
+	    		return;
+	    	}
+	    	System.out.println(""NO"");
+	    }
+		
+		
+	}
+	
+	static boolean match(char[] s1,char[] s2){
+		if(s1.length!=s2.length)return false;
+		for(int i=0; i<s1.length;i++){
+			if(s1[i]!=s2[i])return false;
+		}
+		return true;
+	}
+	
+
+}
+",CorCod,170,170,linear
+"
+// Java program to check if all leaf nodes are at 
+// same level of binary tree 
+import
+java.util.*; 
+
+// User defined node class 
+class
+Node { 
+
+int
+data; 
+
+Node left, right; 
+
+
+// Constructor to create a new tree node 
+
+Node(
+int
+key) { 
+
+int
+data = key; 
+
+left = right = 
+null
+; 
+
+} 
+} 
+
+class
+GFG { 
+
+
+// return true if all leaf nodes are 
+
+// at same level, else false 
+
+static
+boolean
+checkLevelLeafNode(Node root) 
+
+{ 
+
+if
+(root == 
+null
+) 
+
+return
+true
+; 
+
+
+// create a queue for level order traversal 
+
+Queue<Node> q = 
+new
+LinkedList<>(); 
+
+q.add(root); 
+
+
+int
+result = Integer.MAX_VALUE; 
+
+int
+level = 
+0
+; 
+
+
+// traverse until the queue is empty 
+
+while
+(q.size() != 
+0
+) { 
+
+int
+size = q.size(); 
+
+level++; 
+
+
+// traverse for complete level 
+
+while
+(size > 
+0
+) { 
+
+Node temp = q.remove(); 
+
+
+// check for left child 
+
+if
+(temp.left != 
+null
+) { 
+
+q.add(temp.left); 
+
+
+// if its leaf node 
+
+if
+(temp.left.left == 
+null
+&& temp.left.right == 
+null
+) { 
+
+
+// if it's first leaf node, then update result 
+
+if
+(result == Integer.MAX_VALUE) 
+
+result = level; 
+
+
+// if it's not first leaf node, then compare 
+
+// the level with level of previous leaf node. 
+
+else
+if
+(result != level) 
+
+return
+false
+; 
+
+} 
+
+} 
+
+
+// check for right child 
+
+if
+(temp.right != 
+null
+) { 
+
+q.add(temp.right); 
+
+
+// if its leaf node 
+
+if
+(temp.right.left == 
+null
+&& temp.right.right == 
+null
+) { 
+
+
+// if it's first leaf node, then update result 
+
+if
+(result == Integer.MAX_VALUE) 
+
+result = level; 
+
+
+// if it's not first leaf node, then compare 
+
+// the level with level of previous leaf node. 
+
+else
+if
+(result != level) 
+
+return
+false
+; 
+
+} 
+
+} 
+
+size--; 
+
+} 
+
+
+} 
+
+return
+true
+; 
+
+} 
+
+
+// Driver code 
+
+public
+static
+void
+main(String args[]) 
+
+{ 
+
+// construct a tree 
+
+Node root = 
+new
+Node(
+1
+); 
+
+root.left = 
+new
+Node(
+2
+); 
+
+root.right = 
+new
+Node(
+3
+); 
+
+root.left.right = 
+new
+Node(
+4
+); 
+
+root.right.left = 
+new
+Node(
+5
+); 
+
+root.right.right = 
+new
+Node(
+6
+); 
+
+
+boolean
+result = checkLevelLeafNode(root); 
+
+if
+(result == 
+true
+) 
+
+System.out.println(
+""All leaf nodes are at same level""
+); 
+
+else
+
+System.out.println(
+""Leaf nodes not at same level""
+); 
+
+} 
+} 
+// This code is contributed by rachana soma ",CorCod,340,340,linear
+"import java.io.*;
+import java.util.*;
+import java.util.Arrays;
+
+public class Main
+{
+    
+     static void merge(int arr[], int l, int m, int r) 
+    { 
+        // Find sizes of two subarrays to be merged 
+        int n1 = m - l + 1; 
+        int n2 = r - m; 
+  
+        /* Create temp arrays */
+        int L[] = new int [n1]; 
+        int R[] = new int [n2]; 
+  
+        /*Copy data to temp arrays*/
+        for (int i=0; i<n1; ++i) 
+            L[i] = arr[l + i]; 
+        for (int j=0; j<n2; ++j) 
+            R[j] = arr[m + 1+ j]; 
+  
+  
+        /* Merge the temp arrays */
+  
+        // Initial indexes of first and second subarrays 
+        int i = 0, j = 0; 
+  
+        // Initial index of merged subarry array 
+        int k = l; 
+        while (i < n1 && j < n2) 
+        { 
+            if (L[i] <= R[j]) 
+            { 
+                arr[k] = L[i]; 
+                i++; 
+            } 
+            else
+            { 
+                arr[k] = R[j]; 
+                j++; 
+            } 
+            k++; 
+        } 
+  
+        /* Copy remaining elements of L[] if any */
+        while (i < n1) 
+        { 
+            arr[k] = L[i]; 
+            i++; 
+            k++; 
+        } 
+  
+        /* Copy remaining elements of R[] if any */
+        while (j < n2) 
+        { 
+            arr[k] = R[j]; 
+            j++; 
+            k++; 
+        } 
+    } 
+  
+    // Main function that sorts arr[l..r] using 
+    // merge() 
+    static void sort(int arr[], int l, int r) 
+    { 
+        if (l < r) 
+        { 
+            // Find the middle point 
+            int m = (l+r)/2; 
+  
+            // Sort first and second halves 
+            sort(arr, l, m); 
+            sort(arr , m+1, r); 
+  
+            // Merge the sorted halves 
+            merge(arr, l, m, r); 
+        } 
+    } 
+  
+    public static void main(String args[]) throws Exception
+    {
+        Scanner sc=new Scanner(System.in);
+        int q=sc.nextInt();
+        while(q>0)
+        {
+            
+            int n=sc.nextInt();
+            int a[]=new int[n];
+            int i=0;
+            for(i=0;i<n;i++)
+                a[i]=sc.nextInt();
+           sort(a,0,n-1);
+           int p=a[n-2]-1;
+            if(n-2>=p)
+                System.out.println(p);
+            else if (n-2==0)
+            System.out.println(0);
+            else 
+                System.out.println(n-2);
+            q--;
+        }
+        
+    }
+        
+    }",CorCod,729,729,nlogn
+"import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner in = new Scanner(System.in);
+        int n = in.nextInt();
+        int m = in.nextInt();
+        int[] v = new int[n];
+        int[] ans = new int[n];
+        long s = 0;
+        int t;
+        for(int i=0; i<n;i++) {
+            v[i] = in.nextInt();
+            s+=v[i];
+        }
+
+        for(int i=0; i<n-1;i++) {
+            for (int j = i + 1; j < n; j++) {
+                if (v[j] > v[i]) {
+                    t = v[i];
+                    v[i] = v[j];
+                    v[j] = t;
+                }
+            }
+        }
+
+        for(int i=0; i<n-1; i++){
+            if(v[i] > v[i+1]){
+                    ans[i] = v[i]-v[i+1];
+            }
+
+            if(v[i] == v[i+1] && v[i]!=1){
+                ans[i]=1;
+                v[i+1]--;
+            }
+
+            if(v[i] < v[i+1]){
+                ans[i]=1;
+                v[i+1] = v[i]-1;
+                if(v[i+1] == 0){
+                    v[i+1] = 1;
+                }
+            }
+            if(v[i] == 0 || v[i] == 1){
+                ans[i] = 1;
+                v[i] = 1;
+            }
+        }
+        if (v[n-1] > 1){
+            ans[n-1] = v[n-1];
+        }
+        else{
+            ans[n-1] = 1;
+        }
+
+        for (int i=0; i<n; i++){
+                s-=ans[i];
+
+        }
+        System.out.print(s);
+
+
+    }
+}",CorCod,435,435,quadratic
+"
+// Java program to count occurrences 
+// of an element 
+
+class
+Main 
+{ 
+
+// Returns number of times x occurs in arr[0..n-1] 
+
+static
+int
+countOccurrences(
+int
+arr[], 
+int
+n, 
+int
+x) 
+
+{ 
+
+int
+res = 
+0
+; 
+
+for
+(
+int
+i=
+0
+; i<n; i++) 
+
+if
+(x == arr[i]) 
+
+res++; 
+
+return
+res; 
+
+} 
+
+
+public
+static
+void
+main(String args[]) 
+
+{ 
+
+int
+arr[] = {
+1
+, 
+2
+, 
+2
+, 
+2
+, 
+2
+, 
+3
+, 
+4
+, 
+7
+,
+8
+,
+8
+}; 
+
+int
+n = arr.length; 
+
+int
+x = 
+2
+; 
+
+System.out.println(countOccurrences(arr, n, x)); 
+
+} 
+} ",CorCod,374,374,linear
+"import java.io.*;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.math.*;
+
+public class C {
+	public static void main(String[] args) throws IOException {
+
+		/**/
+		Scanner sc = new Scanner(new BufferedReader(new InputStreamReader(System.in)));
+		/*/
+		Scanner sc = new Scanner(new BufferedReader(new InputStreamReader(new FileInputStream(""src/c.in""))));
+		/**/
+		
+		int n = sc.nextInt();
+		int[] counts = new int[60];
+		ArrayList<ArrayDeque<Long>> nums = new ArrayList<>();
+		for (int i = 0; i < 60; i++) {
+			nums.add(new ArrayDeque<>());
+		}
+		for (int i = 0; i < n; i++) {
+			long num = sc.nextLong();
+			for (int j = 1; j <= 60; ++j) {
+				if (num < (1L<<j)) {
+					nums.get(j-1).add(num);
+					++counts[j-1];
+					break;
+				}
+			}
+		}
+		long curr = 0;
+		StringBuilder ans = new StringBuilder();
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j <= 60; ++j) {
+				if (j==60) {
+					System.out.println(""No"");
+					return;
+				}
+				if (counts[j]==0||(curr&(1L<<j))!=0)
+					continue;
+				long num = nums.get(j).removeFirst();
+				--counts[j];
+				curr ^= num;
+				if (i>0)
+					ans.append("" "");
+				ans.append(num);
+				break;
+			}
+		}
+		System.out.println(""Yes"");
+		System.out.println(ans);
+	}
+}
+",CorCod,52,52,linear
+"import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.StringTokenizer;
+import java.io.InputStream ;
+import java.util.InputMismatchException;
+import java.util.ArrayList;
+
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        PrintWriter out = new PrintWriter(System.out);
+        //Scanner sc = new Scanner();
+        Reader in = new Reader();
+        Main solver = new Main();
+        solver.solve(out, in);
+        out.flush();
+        out.close();
+
+    }
+    
+    
+    void solve(PrintWriter out, Reader in) throws IOException{   
+        int n = in.nextInt();
+        int m = in.nextInt();
+        
+        
+        
+        int[] vert = new int[n+1];
+        for(int i=0 ;i<n ;i++) vert[i] = in.nextInt();
+        vert[n] = (int)1e9;
+        
+        int cnt=0,x,y;
+        ArrayList<Integer> arr = new ArrayList<>();
+        for(int i=0 ;i<m ;i++) {
+            x = in.nextInt();
+            y = in.nextInt();
+            in.nextInt();
+            
+            if(x==1) arr.add(y);
+        }
+        
+        horz = new int[arr.size()];
+        for(int i=0 ;i<arr.size();i++) horz[i] = arr.get(i);
+        
+        Arrays.sort(horz);
+        Arrays.sort(vert);
+        
+        int ans = 2*(int)1e5+10;
+        for(int i=0 ;i<=n ;i++){
+            int lesshorz = bs(vert[i],horz.length);
+            ans = Math.min(ans,i+horz.length-lesshorz-1);
+        }
+        out.println(ans);
+    }
+    
+    static int[] horz;
+    
+    static int bs(int num,int m){
+        int mid,lo=0,hi=m-1,r=-1;
+        
+        while(lo<=hi){
+            mid = (lo+hi)/2;
+            if(horz[mid]<num){
+                lo = mid+1;
+                r = mid;
+            }else{
+                hi =mid-1;
+            }
+        }
+        return r;
+    }
+    
+    static class Reader {
+ 
+        private InputStream mIs;
+        private byte[] buf = new byte[1024];
+        private int curChar;
+        private int numChars;
+     
+        public Reader() {
+            this(System.in);
+        }
+     
+        public Reader(InputStream is) {
+            mIs = is;
+        }
+     
+        public int read() {
+            if (numChars == -1) {
+                throw new InputMismatchException();
+        
+        }
+            if (curChar >= numChars) {
+                curChar = 0;
+                try {
+                    numChars = mIs.read(buf);
+                } catch (IOException e) {
+                    throw new InputMismatchException();
+                }
+                if (numChars <= 0) {
+                    return -1;
+                }
+            }
+            return buf[curChar++];
+        }
+     
+        public String nextLine() {
+            int c = read();
+            while (isSpaceChar(c)) {
+                c = read();
+            }
+            StringBuilder res = new StringBuilder();
+            do {
+                res.appendCodePoint(c);
+                c = read();
+            } while (!isEndOfLine(c));
+            return res.toString();
+        }
+     
+        public String next() {
+            int c = read();
+            while (isSpaceChar(c)) {
+                c = read();
+            }
+            StringBuilder res = new StringBuilder();
+            do {
+                res.appendCodePoint(c);
+                c = read();
+            } while (!isSpaceChar(c));
+            return res.toString();
+        }
+     
+        public long nextLong() {
+            int c = read();
+            while (isSpaceChar(c)) {
+                c = read();
+            }
+            int sgn = 1;
+            if (c == '-') {
+                sgn = -1;
+                c = read();
+            }
+            long res = 0;
+            do {
+                if (c < '0' || c > '9') {
+                    throw new InputMismatchException();
+                }
+                res *= 10;
+                res += c - '0';
+                c = read();
+            } while (!isSpaceChar(c));
+            return res * sgn;
+        }
+     
+        public int nextInt() {
+            int c = read();
+            while (isSpaceChar(c)) {
+                c = read();
+            }
+            int sgn = 1;
+            if (c == '-') {
+                sgn = -1;
+                c = read();
+            }
+            int res = 0;
+            do {
+                if (c < '0' || c > '9') {
+                    throw new InputMismatchException();
+                }
+                res *= 10;
+                res += c - '0';
+                c = read();
+            } while (!isSpaceChar(c));
+            return res * sgn;
+        }
+     
+        public boolean isSpaceChar(int c) {
+            return c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == -1;
+        }
+     
+        public boolean isEndOfLine(int c) {
+            return c == '\n' || c == '\r' || c == -1;
+        }
+ 
+    }
+}
+",CorCod,693,693,nlogn
+"
+// Java program to find palindromic substrings of a string 
+
+public
+class
+GFG 
+{ 
+
+// Returns total number of palindrome substring of 
+
+// length greater then equal to 2 
+
+static
+int
+CountPS(
+char
+str[], 
+int
+n) 
+
+{ 
+
+// create empty 2-D matrix that counts all palindrome 
+
+// substring. dp[i][j] stores counts of palindromic 
+
+// substrings in st[i..j] 
+
+int
+dp[][] = 
+new
+int
+[n][n]; 
+
+
+// P[i][j] = true if substring str[i..j] is palindrome, 
+
+// else false 
+
+boolean
+P[][] = 
+new
+boolean
+[n][n]; 
+
+
+// palindrome of single length 
+
+for
+(
+int
+i= 
+0
+; i< n; i++) 
+
+P[i][i] = 
+true
+; 
+
+
+// palindrome of length 2 
+
+for
+(
+int
+i=
+0
+; i<n-
+1
+; i++) 
+
+{ 
+
+if
+(str[i] == str[i+
+1
+]) 
+
+{ 
+
+P[i][i+
+1
+] = 
+true
+; 
+
+dp[i][i+
+1
+] = 
+1
+; 
+
+} 
+
+} 
+
+
+// Palindromes of length more than 2. This loop is similar 
+
+// to Matrix Chain Multiplication. We start with a gap of 
+
+// length 2 and fill the DP table in a way that gap between 
+
+// starting and ending indexes increases one by one by 
+
+// outer loop. 
+
+for
+(
+int
+gap=
+2
+; gap<n; gap++) 
+
+{ 
+
+// Pick starting point for current gap 
+
+for
+(
+int
+i=
+0
+; i<n-gap; i++) 
+
+{ 
+
+// Set ending point 
+
+int
+j = gap + i; 
+
+
+// If current string is palindrome 
+
+if
+(str[i] == str[j] && P[i+
+1
+][j-
+1
+] ) 
+
+P[i][j] = 
+true
+; 
+
+
+// Add current palindrome substring ( + 1) 
+
+// and rest palindrome substring (dp[i][j-1] + dp[i+1][j]) 
+
+// remove common palindrome substrings (- dp[i+1][j-1]) 
+
+if
+(P[i][j] == 
+true
+) 
+
+dp[i][j] = dp[i][j-
+1
+] + dp[i+
+1
+][j] + 
+1
+- dp[i+
+1
+][j-
+1
+]; 
+
+else
+
+dp[i][j] = dp[i][j-
+1
+] + dp[i+
+1
+][j] - dp[i+
+1
+][j-
+1
+]; 
+
+} 
+
+} 
+
+
+// return total palindromic substrings 
+
+return
+dp[
+0
+][n-
+1
+]; 
+
+} 
+
+
+// Driver Method 
+
+public
+static
+void
+main(String[] args) 
+
+{ 
+
+String str = 
+""abaab""
+; 
+
+System.out.println(CountPS(str.toCharArray(), str.length())); 
+
+} 
+} ",CorCod,441,441,quadratic
+"import java.io.*;
+import java.lang.*;
+import java.util.*;
+import static java.lang.Integer.*;
+import static java.lang.Long.*;
+import static java.lang.Math.*;
+import static java.lang.System.*;
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
+
+public class Main {
+
+    Main() throws IOException {
+        String a = nextLine();
+        String b = nextLine();
+        long ans = 0;
+        int s = 0;
+        for (int i = 0; i < b.length() - a.length(); ++i) {
+            s += b.charAt(i) == '1' ? 1 : 0;
+        }
+
+        for (int i = 0; i < a.length(); ++i) {
+            s += b.charAt(i + b.length() - a.length()) == '1' ? 1 : 0;
+            ans += a.charAt(i) == '1' ? b.length() - a.length() + 1 - s : s;
+            s -= b.charAt(i) == '1' ? 1 : 0;
+        }
+        out.println(ans);
+    }
+
+
+    //////////////////////////////
+    PrintWriter out = new PrintWriter(System.out, false);
+    BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    StringTokenizer stok = null;
+    String nextLine() throws IOException {
+        while (stok == null || !stok.hasMoreTokens()) {
+            stok = new StringTokenizer(in.readLine());
+        }
+        return stok.nextToken();
+    }
+
+
+    public static void main(String args[]) throws IOException {
+        if (args.length > 0) {
+            setIn(new FileInputStream(args[0] + "".inp""));
+            setOut(new PrintStream(args[0] + "".out""));
+        }
+        Main solver = new Main();
+        solver.out.flush();  //  could be replace with a method, but nah, this is just competitive programming :p
+    }
+}
+",CorCod,45,45,linear
+"
+// Java program to find efficient 
+// solution for the network 
+import
+java.util.*; 
+
+class
+GFG { 
+
+
+// number of houses and number 
+
+// of pipes 
+
+static
+int
+n, p; 
+
+
+// Array rd stores the 
+
+// ending vertex of pipe 
+
+static
+int
+rd[] = 
+new
+int
+[
+1100
+]; 
+
+
+// Array wd stores the value 
+
+// of diameters between two pipes 
+
+static
+int
+wt[] = 
+new
+int
+[
+1100
+]; 
+
+
+// Array cd stores the 
+
+// starting end of pipe 
+
+static
+int
+cd[] = 
+new
+int
+[
+1100
+]; 
+
+
+// arraylist a, b, c are used 
+
+// to store the final output 
+
+static
+List <Integer> a = 
+
+new
+ArrayList<Integer>(); 
+
+
+static
+List <Integer> b = 
+
+new
+ArrayList<Integer>(); 
+
+
+static
+List <Integer> c = 
+
+new
+ArrayList<Integer>(); 
+
+
+static
+int
+ans; 
+
+
+static
+int
+dfs(
+int
+w) 
+
+{ 
+
+if
+(cd[w] == 
+0
+) 
+
+return
+w; 
+
+if
+(wt[w] < ans) 
+
+ans = wt[w]; 
+
+
+return
+dfs(cd[w]); 
+
+} 
+
+
+// Function to perform calculations. 
+
+static
+void
+solve(
+int
+arr[][]) 
+
+{ 
+
+int
+i = 
+0
+; 
+
+
+while
+(i < p) 
+
+{ 
+
+
+int
+q = arr[i][
+0
+]; 
+
+int
+h = arr[i][
+1
+]; 
+
+int
+t = arr[i][
+2
+]; 
+
+
+cd[q] = h; 
+
+wt[q] = t; 
+
+rd[h] = q; 
+
+i++; 
+
+} 
+
+
+a=
+new
+ArrayList<Integer>(); 
+
+b=
+new
+ArrayList<Integer>(); 
+
+c=
+new
+ArrayList<Integer>(); 
+
+
+for
+(
+int
+j = 
+1
+; j <= n; ++j) 
+
+
+/*If a pipe has no ending vertex 
+
+but has starting vertex i.e is 
+
+an outgoing pipe then we need 
+
+to start DFS with this vertex.*/
+
+if
+(rd[j] == 
+0
+&& cd[j]>
+0
+) { 
+
+ans = 
+1000000000
+; 
+
+int
+w = dfs(j); 
+
+
+// We put the details of 
+
+// component in final output 
+
+// array 
+
+a.add(j); 
+
+b.add(w); 
+
+c.add(ans); 
+
+} 
+
+
+System.out.println(a.size()); 
+
+
+for
+(
+int
+j = 
+0
+; j < a.size(); ++j) 
+
+System.out.println(a.get(j) + 
+"" ""
+
++ b.get(j) + 
+"" ""
++ c.get(j)); 
+
+} 
+
+
+// main function 
+
+public
+static
+void
+main(String args[]) 
+
+{ 
+
+n = 
+9
+; 
+
+p = 
+6
+; 
+
+
+// set the value of the araray 
+
+// to zero 
+
+for
+(
+int
+i = 
+0
+; i < 
+1100
+; i++) 
+
+rd[i] = cd[i] = wt[i] = 
+0
+; 
+
+
+int
+arr[][] = { { 
+7
+, 
+4
+, 
+98
+}, 
+
+{ 
+5
+, 
+9
+, 
+72
+}, 
+
+{ 
+4
+, 
+6
+, 
+10
+}, 
+
+{ 
+2
+, 
+8
+, 
+22
+}, 
+
+{ 
+9
+, 
+7
+, 
+17
+}, 
+
+{ 
+3
+, 
+1
+, 
+66
+} }; 
+
+solve(arr); 
+
+} 
+} 
+
+// This code is contributed by Arnab Kundu ",CorCod,346,346,linear
+"
+// JAVA Code for Minimum number of jumps to reach end 
+class
+GFG{ 
+
+private
+static
+int
+minJumps(
+int
+[] arr, 
+int
+n) { 
+
+int
+jumps[] = 
+new
+int
+[n]; 
+// jumps[n-1] will hold the 
+
+// result 
+
+int
+i, j; 
+
+
+if
+(n == 
+0
+|| arr[
+0
+] == 
+0
+) 
+
+return
+Integer.MAX_VALUE; 
+// if first element is 0, 
+
+// end cannot be reached 
+
+
+jumps[
+0
+] = 
+0
+; 
+
+
+// Find the minimum number of jumps to reach arr[i] 
+
+// from arr[0], and assign this value to jumps[i] 
+
+for
+(i = 
+1
+; i < n; i++) 
+
+{ 
+
+jumps[i] = Integer.MAX_VALUE; 
+
+for
+(j = 
+0
+; j < i; j++) 
+
+{ 
+
+if
+(i <= j + arr[j] && jumps[j] != Integer.MAX_VALUE) 
+
+{ 
+
+jumps[i] = Math.min(jumps[i], jumps[j] + 
+1
+); 
+
+break
+; 
+
+} 
+
+} 
+
+} 
+
+return
+jumps[n-
+1
+]; 
+
+} 
+
+// driver program to test above function 
+public
+static
+void
+main(String[] args) { 
+
+int
+arr[] = {
+1
+, 
+3
+, 
+6
+, 
+1
+, 
+0
+, 
+9
+}; 
+
+
+System.out.println(
+""Minimum number of jumps to reach end is : ""
++ 
+
+minJumps(arr,arr.length)); 
+
+} 
+} 
+
+// This code is contributed by Arnav Kr. Mandal. ",CorCod,538,538,quadratic
+"
+/* Dynamic Programming implementation in Java for longest bitonic 
+
+subsequence problem */
+import
+java.util.*; 
+import
+java.lang.*; 
+import
+java.io.*; 
+
+class
+LBS 
+{ 
+
+/* lbs() returns the length of the Longest Bitonic Subsequence in 
+
+arr[] of size n. The function mainly creates two temporary arrays 
+
+lis[] and lds[] and returns the maximum lis[i] + lds[i] - 1. 
+
+
+lis[i] ==> Longest Increasing subsequence ending with arr[i] 
+
+lds[i] ==> Longest decreasing subsequence starting with arr[i] 
+
+*/
+
+static
+int
+lbs( 
+int
+arr[], 
+int
+n ) 
+
+{ 
+
+int
+i, j; 
+
+
+/* Allocate memory for LIS[] and initialize LIS values as 1 for 
+
+all indexes */
+
+int
+[] lis = 
+new
+int
+[n]; 
+
+for
+(i = 
+0
+; i < n; i++) 
+
+lis[i] = 
+1
+; 
+
+
+/* Compute LIS values from left to right */
+
+for
+(i = 
+1
+; i < n; i++) 
+
+for
+(j = 
+0
+; j < i; j++) 
+
+if
+(arr[i] > arr[j] && lis[i] < lis[j] + 
+1
+) 
+
+lis[i] = lis[j] + 
+1
+; 
+
+
+/* Allocate memory for lds and initialize LDS values for 
+
+all indexes */
+
+int
+[] lds = 
+new
+int
+[n]; 
+
+for
+(i = 
+0
+; i < n; i++) 
+
+lds[i] = 
+1
+; 
+
+
+/* Compute LDS values from right to left */
+
+for
+(i = n-
+2
+; i >= 
+0
+; i--) 
+
+for
+(j = n-
+1
+; j > i; j--) 
+
+if
+(arr[i] > arr[j] && lds[i] < lds[j] + 
+1
+) 
+
+lds[i] = lds[j] + 
+1
+; 
+
+
+
+/* Return the maximum value of lis[i] + lds[i] - 1*/
+
+int
+max = lis[
+0
+] + lds[
+0
+] - 
+1
+; 
+
+for
+(i = 
+1
+; i < n; i++) 
+
+if
+(lis[i] + lds[i] - 
+1
+> max) 
+
+max = lis[i] + lds[i] - 
+1
+; 
+
+
+return
+max; 
+
+} 
+
+
+public
+static
+void
+main (String[] args) 
+
+{ 
+
+int
+arr[] = {
+0
+, 
+8
+, 
+4
+, 
+12
+, 
+2
+, 
+10
+, 
+6
+, 
+14
+, 
+1
+, 
+9
+, 
+5
+, 
+
+13
+, 
+3
+, 
+11
+, 
+7
+, 
+15
+}; 
+
+int
+n = arr.length; 
+
+System.out.println(
+""Length of LBS is ""
++ lbs( arr, n )); 
+
+} 
+} ",CorCod,437,437,quadratic
+"import java.util.Scanner;
+
+public class Piles {
+
+	public static void main(String[] args) {
+		Scanner scan = new Scanner(System.in);
+		int[] a = new int[2]; int x = scan.nextInt();
+		for(int i = 0; i < 2; i++) for(int j = 0; j < x; j++) a[i] += scan.nextInt();
+		System.out.println(a[1] <= a[0] ? ""Yes"" : ""No"");
+
+	}
+
+}
+",CorCod,86,86,linear
+"
+
+import java.util.Scanner;
+public class Stones {
+	public static void main(String[] args)
+	{
+		Scanner input=new Scanner(System.in);
+		int n=input.nextInt();
+		int s1=0;
+		int s2=0;
+		for (int i=0;i<n;++i)
+			s1+=input.nextInt();
+		for (int i=0;i<n;++i)
+			s2+=input.nextInt();
+		if (s1 >= s2)
+			System.out.println(""Yes"");
+		else
+			System.out.println(""No"");
+	}
+}
+",CorCod,369,369,linear
