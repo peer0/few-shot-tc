@@ -109,23 +109,16 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
     # Initialize model & optimizer & lr_scheduler
     # net_arch = 'bert-base-uncased'
-    net_arch1 = 'microsoft/codebert-base'
-    netgroup1 = NetGroup(net_arch1, num_nets, n_classes, device, lr, lr_linear)
-
-    net_arch2 = 'microsoft/unixcoder-base'
-    netgroup2 = NetGroup(net_arch2, num_nets, n_classes, device, lr, lr_linear)
-    
-    net_arch3 = 'Salesforce/codet5p-110m-embedding'
-    netgroup3 = NetGroup(net_arch3, num_nets, n_classes, device, lr, lr_linear)
+    # net_arch = 'microsoft/codebert-base'
+    # net_arch = 'microsoft/unixcoder-base'
+    # net_arch = 'Salesforce/codet5p-110m-embedding'
+    net_arch = ['microsoft/codebert-base','microsoft/unixcoder-base','microsoft/codebert-base']
+    netgroup = NetGroup(net_arch, num_nets, n_classes, device, lr, lr_linear)
     
     # Initialize EMA
-    netgroup1.train()
-    netgroup2.train()
-    netgroup3.train()
+    netgroup.train()
     if ema_mode:
-        netgroup1.init_ema(ema_momentum)
-        netgroup2.init_ema(ema_momentum)
-        netgroup3.init_ema(ema_momentum)
+        netgroup.init_ema(ema_momentum)
 
 
 
@@ -230,227 +223,223 @@ def oneRun(log_dir, output_dir_experiment, **params):
     local_threshold = torch.zeros(n_classes, dtype=int)
 
     # Training
-    for netgroup in [netgroup1, netgroup2, netgroup3]:
-        print(f"========={netgroup}================")
-        netgroup.train()
-        for epoch in range(max_epoch):
-            if step > max_step:
-                break
-            if early_stop_flag:
-                break
-            for batch_label in train_labeled_loader:
-                ## --- Evaluation: Check Performance on Validation set every val_interval batches ---##
-                if step % val_interval == 0:   
-                    print("=======test_loader=======")
-                    acc_test, f1_test, acc_test_cw = evaluation(test_loader)
-                    print("=======dev_loader=======")
-                    acc_val, f1_val, acc_val_cw = evaluation(dev_loader)
-                    print("=======train_labeled_loader=======")
-                    acc_train, f1_train, acc_train_cw = evaluation(train_labeled_loader)
-                    print("=======finish=======")
-                    # print('acc_train_cw:',acc_train_cw)
-                    # evaluation(train_labeled_loader)
-                    # exit()
-                    # restore training mode 
-                    if ema_mode:
-                        netgroup.train_ema()
-                    netgroup.train()
-
-                    print('>>Epoch %d Step %d acc_test %f f1_test %f acc_val %f f1_val %f acc_train %f f1_train %f psl_cor %d psl_totl %d pslt_global %f' % 
-                            (epoch, step, acc_test, f1_test,acc_val, f1_val, acc_train, f1_train, psl_correct_eval, psl_total_eval, pslt_global),
-                            'Tim {:}'.format(format_time(time.time() - t0)))
-                    
-                    # Record all statistics from this evaluation.
-                    acc_psl = (psl_correct_eval/psl_total_eval) if psl_total_eval > 0 else None
-
-                    training_stats.append(
-                        {   'step': step, #배치수
-                            'acc_train': acc_train,#train의 acc
-                            'f1_train': f1_train, #train의 f1
-                            'cw_acc_train': acc_train_cw, #train의 class별 acc
-                            'acc_val': acc_val,#valid의 acc
-                            'f1_val': f1_val, #valid의 f1
-                            'cw_acc_val': acc_val_cw, #valid의 class별 acc
-                            'acc_test': acc_test,#test의 acc
-                            'f1_test': f1_test, #test의 f1
-                            'cw_acc_test': acc_test_cw, #test의 class별 acc
-                            'psl_correct': psl_correct_eval, # 
-                            'psl_total': psl_total_eval,
-                            'acc_psl': acc_psl, 
-                            'pslt_global': pslt_global,  
-                            'cw_avg_prob': cw_avg_prob.tolist(),
-                            'local_threshold': local_threshold.tolist(),
-                            # 'cw_psl_total': cw_psl_total.tolist(),
-                            # 'cw_psl_correct': cw_psl_correct.tolist(),  
-                            'cw_psl_total_eval': cw_psl_total_eval.tolist(),
-                            'cw_psl_correct_eval': cw_psl_correct_eval.tolist(),
-                            'cw_psl_acc_eval': (cw_psl_correct_eval/cw_psl_total_eval).tolist(),
-                            'cw_psl_total_accum': cw_psl_total_accum.tolist(),
-                            'cw_psl_correct_accum': cw_psl_correct_accum.tolist(),
-                            'cw_psl_acc_accum': (cw_psl_correct_accum/cw_psl_total_accum).tolist(),
-                        })
-
-                    # check classwise psl accuracy and total psl accuracy for the current eval
-                    print('acc_train_cw',acc_train_cw)
-                    print('cw_psl_eval: ', cw_psl_total_eval.tolist(), cw_psl_correct_eval.tolist())
-                    print('psl_acc: ', round((psl_correct_eval/psl_total_eval),3), end=' ') if psl_total_eval > 0 else print('psl_acc: None', end=' ')
-                    print('cw_psl_acc: ', (cw_psl_correct_eval/cw_psl_total_eval).tolist())
-
-                    # Early stopping & Save best model
-                    # - best criterion: acc_val 
-                    if acc_val > best_acc:
-                        best_acc = acc_val
-                        best_model_step = step
-                        early_stop_count = 0
-                        netgroup.save_model(output_dir_path, 'model', ema_mode=ema_mode)
-                    else:
-                        early_stop_count+=1
-                        if early_stop_count >= early_stop_tolerance:
-                            early_stop_flag = True
-                            print('Early stopping trigger at step: ', step)
-                            print('Best model at step: ', best_model_step)
-                            break
-
-                    # initialize pseudo labels evaluation
-                    psl_total_eval, psl_correct_eval = 0, 0
-                    cw_psl_total_eval, cw_psl_correct_eval = torch.zeros(n_classes, dtype=int), torch.zeros(n_classes, dtype=int)
-
-
-                ## --- Training --- ##
-                step += 1
-                ## Process Labeled Data
-                x_lb, y_lb = batch_label['x_w'], batch_label['label']
-                # forward pass
-                outs_x_lb = netgroup.forward(x_lb, y_lb.to(device))
-                # compute loss for labeled data
-                sup_loss_nets = [ce_loss(outs_x_lb[i], y_lb.to(device)) for i in range(num_nets)]
-                # update netgorup from loss of labeled data
-                netgroup.update(sup_loss_nets)
+    netgroup.train()
+    for epoch in range(max_epoch):
+        if step > max_step:
+            break
+        if early_stop_flag:
+            break
+        for batch_label in train_labeled_loader:
+            ## --- Evaluation: Check Performance on Validation set every val_interval batches ---##
+            if step % val_interval == 0:   
+                print("=======test_loader=======")
+                acc_test, f1_test, acc_test_cw = evaluation(test_loader)
+                print("=======dev_loader=======")
+                acc_val, f1_val, acc_val_cw = evaluation(dev_loader)
+                print("=======train_labeled_loader=======")
+                acc_train, f1_train, acc_train_cw = evaluation(train_labeled_loader)
+                print("=======finish=======")
+                # print('acc_train_cw:',acc_train_cw)
+                # evaluation(train_labeled_loader)
+                # exit()
+                # restore training mode 
                 if ema_mode:
-                    netgroup.update_ema()
+                    netgroup.train_ema()
+                netgroup.train()
+
+                print('>>Epoch %d Step %d acc_test %f f1_test %f acc_val %f f1_val %f acc_train %f f1_train %f psl_cor %d psl_totl %d pslt_global %f' % 
+                        (epoch, step, acc_test, f1_test,acc_val, f1_val, acc_train, f1_train, psl_correct_eval, psl_total_eval, pslt_global),
+                        'Tim {:}'.format(format_time(time.time() - t0)))
+                
+                # Record all statistics from this evaluation.
+                acc_psl = (psl_correct_eval/psl_total_eval) if psl_total_eval > 0 else None
+
+                training_stats.append(
+                    {   'step': step, #배치수
+                        'acc_train': acc_train,#train의 acc
+                        'f1_train': f1_train, #train의 f1
+                        'cw_acc_train': acc_train_cw, #train의 class별 acc
+                        'acc_val': acc_val,#valid의 acc
+                        'f1_val': f1_val, #valid의 f1
+                        'cw_acc_val': acc_val_cw, #valid의 class별 acc
+                        'acc_test': acc_test,#test의 acc
+                        'f1_test': f1_test, #test의 f1
+                        'cw_acc_test': acc_test_cw, #test의 class별 acc
+                        'psl_correct': psl_correct_eval, # 
+                        'psl_total': psl_total_eval,
+                        'acc_psl': acc_psl, 
+                        'pslt_global': pslt_global,  
+                        'cw_avg_prob': cw_avg_prob.tolist(),
+                        'local_threshold': local_threshold.tolist(),
+                        # 'cw_psl_total': cw_psl_total.tolist(),
+                        # 'cw_psl_correct': cw_psl_correct.tolist(),  
+                        'cw_psl_total_eval': cw_psl_total_eval.tolist(),
+                        'cw_psl_correct_eval': cw_psl_correct_eval.tolist(),
+                        'cw_psl_acc_eval': (cw_psl_correct_eval/cw_psl_total_eval).tolist(),
+                        'cw_psl_total_accum': cw_psl_total_accum.tolist(),
+                        'cw_psl_correct_accum': cw_psl_correct_accum.tolist(),
+                        'cw_psl_acc_accum': (cw_psl_correct_accum/cw_psl_total_accum).tolist(),
+                    })
+
+                # check classwise psl accuracy and total psl accuracy for the current eval
+                print('acc_train_cw',acc_train_cw)
+                print('cw_psl_eval: ', cw_psl_total_eval.tolist(), cw_psl_correct_eval.tolist())
+                print('psl_acc: ', round((psl_correct_eval/psl_total_eval),3), end=' ') if psl_total_eval > 0 else print('psl_acc: None', end=' ')
+                print('cw_psl_acc: ', (cw_psl_correct_eval/cw_psl_total_eval).tolist())
+
+                # Early stopping & Save best model
+                # - best criterion: acc_val 
+                if acc_val > best_acc:
+                    best_acc = acc_val
+                    best_model_step = step
+                    early_stop_count = 0
+                    netgroup.save_model(output_dir_path, 'model', ema_mode=ema_mode)
+                else:
+                    early_stop_count+=1
+                    if early_stop_count >= early_stop_tolerance:
+                        early_stop_flag = True
+                        print('Early stopping trigger at step: ', step)
+                        print('Best model at step: ', best_model_step)
+                        break
+
+                # initialize pseudo labels evaluation
+                psl_total_eval, psl_correct_eval = 0, 0
+                cw_psl_total_eval, cw_psl_correct_eval = torch.zeros(n_classes, dtype=int), torch.zeros(n_classes, dtype=int)
 
 
-                ## Process Unlabeled Data
-                if load_mode == 'semi':
-                    for _ in range(ul_ratio):
-                        # unlabeled data input for each round/batch
-                        try:
-                            batch_unlabel = next(data_iter_unl)
-                        except:
-                            data_iter_unl = iter(train_unlabeled_loader) #unlabel 데이터를 
-                            batch_unlabel = next(data_iter_unl)
-                            
-                        x_ulb_w, x_ulb_s = batch_unlabel['x_w'], batch_unlabel['x_s'] 
+            ## --- Training --- ##
+            step += 1
+            ## Process Labeled Data
+            x_lb, y_lb = batch_label['x_w'], batch_label['label']
+            # forward pass
+            outs_x_lb = netgroup.forward(x_lb, y_lb.to(device))
+            # compute loss for labeled data
+            sup_loss_nets = [ce_loss(outs_x_lb[i], y_lb.to(device)) for i in range(num_nets)]
+            # update netgorup from loss of labeled data
+            netgroup.update(sup_loss_nets)
+            if ema_mode:
+                netgroup.update_ema()
+
+
+            ## Process Unlabeled Data
+            if load_mode == 'semi':
+                for _ in range(ul_ratio):
+                    # unlabeled data input for each round/batch
+                    try:
+                        batch_unlabel = next(data_iter_unl)
+                    except:
+                        data_iter_unl = iter(train_unlabeled_loader) #unlabel 데이터를 
+                        batch_unlabel = next(data_iter_unl)
                         
-                        
-                        
-                        # forward pass
-                        outs_x_ulb_s_nets = netgroup.forward(x_ulb_s)
-                        with torch.no_grad(): # stop gradient for weak augmentation brach
-                            outs_x_ulb_w_nets = netgroup.forward(x_ulb_w) #weak_aug
+                    x_ulb_w, x_ulb_s = batch_unlabel['x_w'], batch_unlabel['x_s'] 
+                    
+                    
+                    
+                    # forward pass
+                    outs_x_ulb_s_nets = netgroup.forward(x_ulb_s)
+                    with torch.no_grad(): # stop gradient for weak augmentation brach
+                        outs_x_ulb_w_nets = netgroup.forward(x_ulb_w) #weak_aug
 
-                        ## Generate pseudo labels and masks for all nets in one batch of unlabeled data
-                        pseudo_labels_nets = []
-                        u_psl_masks_nets = []
+                    ## Generate pseudo labels and masks for all nets in one batch of unlabeled data
+                    pseudo_labels_nets = []
+                    u_psl_masks_nets = []
 
-                        for i in range(num_nets):
-                            ## generate pseudo labels
-                            logits_x_ulb_w = outs_x_ulb_w_nets[i] 
-                            if labeling_mode=='soft': #sudo label이 softmax가 됨 (이걸로 해보기)
-                                pseudo_labels_nets.append(torch.softmax(logits_x_ulb_w, dim=-1))
-                            else: #sudo label이 one hot이 됨
-                                max_idx = torch.argmax(logits_x_ulb_w, dim=-1)
-                                pseudo_labels_nets.append(F.one_hot(max_idx, num_classes=n_classes).to(device))
+                    for i in range(num_nets):
+                        ## generate pseudo labels
+                        logits_x_ulb_w = outs_x_ulb_w_nets[i] 
+                        if labeling_mode=='soft': #sudo label이 softmax가 됨 (이걸로 해보기)
+                            pseudo_labels_nets.append(torch.softmax(logits_x_ulb_w, dim=-1))
+                        else: #sudo label이 one hot이 됨
+                            max_idx = torch.argmax(logits_x_ulb_w, dim=-1)
+                            pseudo_labels_nets.append(F.one_hot(max_idx, num_classes=n_classes).to(device))
 
-                            ## compute mask for pseudo labels
-                            probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
-                            max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
-                            if not adaptive_threshold:      
-                                # fixed hard threshold
-                                pslt_global = psl_threshold_h
-                                u_psl_masks_nets.append(max_probs >= pslt_global)
-                            else:
-                                # adaptive local threshold
-                                pslt_global = psl_threshold_h
-                                cw_avg_prob = cw_avg_prob * ema_momentum + torch.mean(probs_x_ulb_w, dim=0) * (1-ema_momentum)
-                                local_threshold = cw_avg_prob / torch.max(cw_avg_prob,dim=-1)[0]
-                                u_psl_mask = max_probs.ge(pslt_global * local_threshold[max_idx])
-                                u_psl_masks_nets.append(u_psl_mask)
+                        ## compute mask for pseudo labels
+                        probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
+                        max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
+                        if not adaptive_threshold:      
+                            # fixed hard threshold
+                            pslt_global = psl_threshold_h
+                            u_psl_masks_nets.append(max_probs >= pslt_global)
+                        else:
+                            # adaptive local threshold
+                            pslt_global = psl_threshold_h
+                            cw_avg_prob = cw_avg_prob * ema_momentum + torch.mean(probs_x_ulb_w, dim=0) * (1-ema_momentum)
+                            local_threshold = cw_avg_prob / torch.max(cw_avg_prob,dim=-1)[0]
+                            u_psl_mask = max_probs.ge(pslt_global * local_threshold[max_idx])
+                            u_psl_masks_nets.append(u_psl_mask)
 
-                        ## Compute loss for unlabeled data for all nets
-                        total_unsup_loss_nets = []
-                        for i in range(num_nets):
-                            if cross_labeling:
-                                # cross labeling and masking
-                                pseudo_label = pseudo_labels_nets[(i+1)%num_nets]
-                                u_psl_mask = u_psl_masks_nets[(i+1)%num_nets]
-                            else:
-                                # vanilla labeling
-                                pseudo_label = pseudo_labels_nets[i]
-                                u_psl_mask = u_psl_masks_nets[i]
+                    ## Compute loss for unlabeled data for all nets
+                    total_unsup_loss_nets = []
+                    for i in range(num_nets):
+                        if cross_labeling:
+                            # cross labeling and masking
+                            pseudo_label = pseudo_labels_nets[(i+1)%num_nets]
+                            u_psl_mask = u_psl_masks_nets[(i+1)%num_nets]
+                        else:
+                            # vanilla labeling
+                            pseudo_label = pseudo_labels_nets[i]
+                            u_psl_mask = u_psl_masks_nets[i]
 
-                            if weight_disagreement == 'True':
-                                # obtain the mask for disagreement and agreement across nets, note that they are derived from confident pseudo-label mask
-                                # disagree_weight, agree_weight can be a specified scalar or a tensor calculated based on disagreement score
-                                disagree_mask = torch.logical_xor(u_psl_masks_nets[(i)%num_nets], u_psl_masks_nets[(i+1)%num_nets])
-                                agree_mask = torch.logical_and(u_psl_masks_nets[(i)%num_nets], u_psl_masks_nets[(i+1)%num_nets])  
-                                disagree_weight_masked = disagree_weight * disagree_mask + (1-disagree_weight) * agree_mask
-                            elif weight_disagreement == 'ablation_baseline':
-                                disagree_weight = 0.5
-                                disagree_mask = torch.logical_xor(u_psl_masks_nets[(i)%num_nets], u_psl_masks_nets[(i+1)%num_nets])
-                                agree_mask = torch.logical_and(u_psl_masks_nets[(i)%num_nets], u_psl_masks_nets[(i+1)%num_nets])  
-                                disagree_weight_masked = disagree_weight * disagree_mask + (1-disagree_weight) * agree_mask                            
-                            else:
-                                disagree_weight_masked = None
+                        if weight_disagreement == 'True':
+                            # obtain the mask for disagreement and agreement across nets, note that they are derived from confident pseudo-label mask
+                            # disagree_weight, agree_weight can be a specified scalar or a tensor calculated based on disagreement score
+                            disagree_mask = torch.logical_xor(u_psl_masks_nets[(i)%num_nets], u_psl_masks_nets[(i+1)%num_nets])
+                            agree_mask = torch.logical_and(u_psl_masks_nets[(i)%num_nets], u_psl_masks_nets[(i+1)%num_nets])  
+                            disagree_weight_masked = disagree_weight * disagree_mask + (1-disagree_weight) * agree_mask
+                        elif weight_disagreement == 'ablation_baseline':
+                            disagree_weight = 0.5
+                            disagree_mask = torch.logical_xor(u_psl_masks_nets[(i)%num_nets], u_psl_masks_nets[(i+1)%num_nets])
+                            agree_mask = torch.logical_and(u_psl_masks_nets[(i)%num_nets], u_psl_masks_nets[(i+1)%num_nets])  
+                            disagree_weight_masked = disagree_weight * disagree_mask + (1-disagree_weight) * agree_mask                            
+                        else:
+                            disagree_weight_masked = None
 
-                            # compute loss for unlabeled data
-                            unsup_loss = consistency_loss(outs_x_ulb_s_nets[i], pseudo_label, loss_type='ce', mask=u_psl_mask, disagree_weight_masked=disagree_weight_masked)    # loss_type: 'ce' or 'mse'
+                        # compute loss for unlabeled data
+                        unsup_loss = consistency_loss(outs_x_ulb_s_nets[i], pseudo_label, loss_type='ce', mask=u_psl_mask, disagree_weight_masked=disagree_weight_masked)    # loss_type: 'ce' or 'mse'
 
-                            # compute total loss for unlabeled data
-                            total_unsup_loss = weight_u_loss * unsup_loss
-                            total_unsup_loss_nets.append(total_unsup_loss)
+                        # compute total loss for unlabeled data
+                        total_unsup_loss = weight_u_loss * unsup_loss
+                        total_unsup_loss_nets.append(total_unsup_loss)
 
-                        # update netgorup from loss of unlabeled data
-                        netgroup.update(total_unsup_loss_nets)
-                        if ema_mode:
-                            netgroup.update_ema()   
-
-
-
-                        #### -Info: for now we the last net in the group for info
-                        ## Check the total and correct number of pseudo-labels
-                        gt_labels_u = batch_unlabel['label'][u_psl_mask].to(device)
-                        psl_total = torch.sum(u_psl_mask).item()
-
-                        u_label_psl = pseudo_label[u_psl_mask]
-                        u_label_psl_hard = torch.argmax(u_label_psl, dim=-1)
-                        psl_correct = torch.sum(u_label_psl_hard == gt_labels_u).item()
-
-                        psl_total_eval +=  psl_total
-                        psl_correct_eval += psl_correct
-
-                        # Check class-wise total and correct number of pseudo-labels 
-                        cw_psl_total = torch.bincount(u_label_psl_hard, minlength=n_classes).to('cpu')
-                        cw_psl_correct = torch.bincount(u_label_psl_hard[u_label_psl_hard == gt_labels_u], minlength=n_classes).to('cpu')
-
-                        cw_psl_total_eval += cw_psl_total
-                        cw_psl_correct_eval += cw_psl_correct
-
-                        cw_psl_total_accum += cw_psl_total
-                        cw_psl_correct_accum += cw_psl_correct    
+                    # update netgorup from loss of unlabeled data
+                    netgroup.update(total_unsup_loss_nets)
+                    if ema_mode:
+                        netgroup.update_ema()   
 
 
-        print("\nTraining complete!")
-        print("Total training took {:} (h:mm:ss)".format(format_time(time.time()-t0)))
+
+                    #### -Info: for now we the last net in the group for info
+                    ## Check the total and correct number of pseudo-labels
+                    gt_labels_u = batch_unlabel['label'][u_psl_mask].to(device)
+                    psl_total = torch.sum(u_psl_mask).item()
+
+                    u_label_psl = pseudo_label[u_psl_mask]
+                    u_label_psl_hard = torch.argmax(u_label_psl, dim=-1)
+                    psl_correct = torch.sum(u_label_psl_hard == gt_labels_u).item()
+
+                    psl_total_eval +=  psl_total
+                    psl_correct_eval += psl_correct
+
+                    # Check class-wise total and correct number of pseudo-labels 
+                    cw_psl_total = torch.bincount(u_label_psl_hard, minlength=n_classes).to('cpu')
+                    cw_psl_correct = torch.bincount(u_label_psl_hard[u_label_psl_hard == gt_labels_u], minlength=n_classes).to('cpu')
+
+                    cw_psl_total_eval += cw_psl_total
+                    cw_psl_correct_eval += cw_psl_correct
+
+                    cw_psl_total_accum += cw_psl_total
+                    cw_psl_correct_accum += cw_psl_correct    
+
+
+    print("\nTraining complete!")
+    print("Total training took {:} (h:mm:ss)".format(format_time(time.time()-t0)))
 
 
 
 
     ##### Results Summary and Visualization
     # Load the saved best models and evaluate on the test set
-    netgroup1.load_model(output_dir_path, 'model_net0', ema_mode=ema_mode)
-    netgroup2.load_model(output_dir_path, 'model_net1', ema_mode=ema_mode)
-    netgroup3.load_model(output_dir_path, 'model_net2', ema_mode=ema_mode)
+    netgroup.load_model(output_dir_path, 'model', ema_mode=ema_mode)
     acc_test, f1_test, acc_test_cw, confmat_test = evaluation(test_loader, final_eval=True)
 
 

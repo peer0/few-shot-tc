@@ -31,80 +31,52 @@ class NetGroup(nn.Module):
         ##{0: BERTForSequenceClass...}
         ##{1: BERTForSequenceClass...}
         for i in range(num_nets): 
-            self.nets[i] = self.init_net(net_arch) #초기화
+            self.nets[i] = self.init_net(self.net_arch[i]) #초기화
 
         # initialize optimizers for the group of networks
         #신경망 그룹을 위한 옵티마이저 초기화
         self.optimizers = {} #옵티마이저 저장 딕셔너리
         for i in range(num_nets):
-            self.optimizers[i] = self.init_optimizer(self.nets[i], lr, lr_linear)#초기화
+            self.optimizers[i] = self.init_optimizer(self.nets[i],net_arch[i], lr, lr_linear)#초기화
 
 
-
-
- ########## ########## ########## 수정 필요  ########## ########## ##########
     # initialize one network
     def init_net(self, net_arch):
         if net_arch == 'bert-base-uncased':
             net = AutoModelForSequenceClassification.from_pretrained('bert-base-uncased', num_labels = self.n_classes)
 
-        elif net_arch == 'bert-base-uncased-2':
-            net = TextClassifier(num_labels = self.n_classes)
-
         elif net_arch == 'microsoft/codebert-base':
             net =  AutoModelForSequenceClassification.from_pretrained('microsoft/codebert-base', num_labels = self.n_classes)
-
-        #T5, Unicoder 추가
-        elif net_arch == "Salesforce/codet5p-110m-embedding":
-            net =  AutoModel.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
+                
         elif net_arch == "microsoft/unixcoder-base":
             net =  AutoModelForSequenceClassification.from_pretrained("microsoft/unixcoder-base", num_labels = self.n_classes)
+        elif net_arch == "Salesforce/codet5p-110m-embedding":
+            net =  AutoModelForSequenceClassification.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True,num_labels = self.n_classes)
 
         net.to(self.device)
         return net
     
- ########## ########## ########## 수정 필요  ########## ########## ##########
 
-
-
-
- ########## ########## ########## 수정 필요  ########## ########## ##########
     # initialize one optimizer
-    def init_optimizer(self, net, lr, lr_linear):
-        if self.net_arch == 'bert-base-uncased':
+    def init_optimizer(self, net, net_arch, lr, lr_linear):
+        optimizer_net = None
+        if net_arch == 'bert-base-uncased':
             optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
-            print('net_arch: ', self.net_arch, 'lr: ', lr)
+            print('net_arch: ', net_arch, 'lr: ', lr)
 
-        elif self.net_arch == 'bert-base-uncased-2':
-            optimizer_net = AdamW([{"params": net.bert.parameters(), "lr": lr},
-                                   {"params": net.linear.parameters(), "lr": lr_linear}])
-            print('net_arch: ', self.net_arch, 'lr: ', lr, 'lr_linear: ', lr_linear)  
-
-        elif self.net_arch == 'microsoft/codebert-base':
+        elif net_arch == 'microsoft/codebert-base':
             optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
-            print('net_arch: ', self.net_arch, 'lr: ', lr)
+            print('net_arch: ', net_arch, 'lr: ', lr)
 
+        elif net_arch == "microsoft/unixcoder-base":
+            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
+            print('net_arch: ', net_arch, 'lr: ', lr)
 
-        #T5, Unixcoder 추가
         elif self.net_arch == "Salesforce/codet5p-110m-embedding":
             optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
-            print('net_arch: ', self.net_arch, 'lr: ', lr)
-
-        elif self.net_arch == "microsoft/unixcoder-base":
-            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
-            print('net_arch: ', self.net_arch, 'lr: ', lr)
-
-
+            print('net_arch: ', net_arch, 'lr: ', lr)
         return optimizer_net
     
- ########## ########## ########## 수정 필요  ########## ########## ##########
-
-
-
-
-
-
-
 
 
     # EMA initialization
@@ -115,7 +87,6 @@ class NetGroup(nn.Module):
             self.emas[i].register() # 원본 모델의 파라미터를 EMA에 등록
 
     # switch to eval mode with EMA
-    
     def eval_ema(self):
         for i in range(self.num_nets):#
             self.emas[i].apply_shadow() #각 신경망에 대해 모델 파라미터를 EMA 값으로 설정하고, 백업에 현재 파라미터 저장
@@ -136,46 +107,39 @@ class NetGroup(nn.Module):
             self.nets[i].eval()
 
     # forward one network
-    def forward_net(self, net, x, y=None):
-        if self.net_arch == 'bert-base-uncased':
+    def forward_net(self, net, net_arch, x, y=None):
+        logits = 0
+        if net_arch == 'bert-base-uncased':
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
             outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
 
-        elif self.net_arch == 'bert-base-uncased-2':
-            x.to(self.device)
-            outs = net(x)
-
-        elif self.net_arch == 'microsoft/codebert-base':
+        elif net_arch == 'microsoft/codebert-base':
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
-            # outs = net(input_ids, attention_mask=attention_mask, return_dict=True).last_hidden_state
-            outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
+            outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True)
+            logits = outs.logits if hasattr(outs, 'logits') else outs
 
-
-        #T5, Unixcoder 추가
+        elif net_arch == "microsoft/unixcoder-base":
+            input_ids = x['input_ids'].to(self.device)
+            attention_mask = x['attention_mask'].to(self.device)
+            outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True)
+            logits = outs.logits if hasattr(outs, 'logits') else outs
+        
         elif self.net_arch == "Salesforce/codet5p-110m-embedding":
             input_ids = x['input_ids'].to(self.device)
-            print("netgroupy.py 의 input_ids##########################")
-            print("input_ids : ",input_ids, "\n") # 추가
             attention_mask = x['attention_mask'].to(self.device)
-            # outs = net(input_ids, attention_mask=attention_mask, return_dict=True).last_hidden_state
-            outs = net(input_ids, attention_mask=attention_mask, return_dict=True).logits
-
-        elif self.net_arch == "microsoft/unixcoder-base":
-            input_ids = x['input_ids'].to(self.device)
-            attention_mask = x['attention_mask'].to(self.device)
-            # outs = net(input_ids, attention_mask=attention_mask, return_dict=True).last_hidden_state
-            outs = net(input_ids, attention_mask=attention_mask, return_dict=True).logits
-
-        return outs
+            outs = net(input_ids, attention_mask=attention_mask, return_dict=True)
+            logits = outs.logits if hasattr(outs, 'logits') else outs
+            
+        return logits
 
 
     # forward the group of networks from the same batch input
     def forward(self, x, y=None):
         outs = []
         for i in range(self.num_nets):
-            outs.append(self.forward_net(self.nets[i], x, y))
+            outs.append(self.forward_net(self.nets[i], self.net_arch[i], x, y))
         return outs
     
     # update one network
