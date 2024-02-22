@@ -20,6 +20,11 @@ early_stop_tolerance = 10
 max_step = 100000    
 seeds_list = [0] #2024-01-29추가
 labeling_mode = 'soft' #2024-01-30추가
+# 2024-02-21추가
+# net_arch = 'microsoft/codebert-base'
+# net_arch = 'microsoft/unixcoder-base'
+# net_arch = 'Salesforce/codet5p-110m-embedding'
+net_arch = ['microsoft/codebert-base','microsoft/codebert-base','microsoft/unixcoder-base']
 
 device_idx = 0
 experiment_home = './experiment/cc_java_triple'
@@ -39,7 +44,7 @@ multiRun(device_idx=device_idx, experiment_home=experiment_home, dataset=dataset
         weight_disagreement=weight_disagreement, disagree_weight=disagree_weight,
         ema_mode=ema_mode, ema_momentum=ema_momentum,
         val_interval=val_interval, early_stop_tolerance=early_stop_tolerance, max_step=max_step,
-        seeds_list=seeds_list,labeling_mode=labeling_mode)
+        seeds_list=seeds_list,labeling_mode=labeling_mode,net_arch=net_arch)
 
 
 #for test
