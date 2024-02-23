@@ -110,8 +110,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
     # Initialize model & optimizer & lr_scheduler
     # net_arch = 'bert-base-uncased'
     #net_arch = 'microsoft/codebert-base'
-    net_arch = "Salesforce/codet5p-110m-embedding"
-    #net_arch = "microsoft/unixcoder-base"
+    #net_arch = "Salesforce/codet5p-110m-embedding"
+    net_arch = "microsoft/unixcoder-base"
 
     print("#########################################")
     print("#####모델",net_arch)

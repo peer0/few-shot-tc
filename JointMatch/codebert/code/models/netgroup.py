@@ -15,8 +15,7 @@ from models.model import TextClassifier
 
 from transformers import PreTrainedModel, AutoModel
 
-
-
+# change
 class CustomModel(nn.Module):
     def __init__(self, transformer_model_name, n_classes=7):
         super(CustomModel, self).__init__()
@@ -30,6 +29,7 @@ class CustomModel(nn.Module):
         self.linear_layer = nn.Linear(config.embed_dim, n_classes)
 
     def forward(self, input_ids, attention_mask=None, labels=None):  # Add 'labels' argument
+
         # Obtain transformer output
         # import pdb; pdb.set_trace()
         # transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask, labels=labels).last_hidden_state.mean(dim=1)

@@ -15,6 +15,7 @@ ema_mode = False
 ema_momentum = 0.9
 val_interval = 25 
 early_stop_tolerance = 10
+p_tolerance = 10
 max_step = 100000   
 
 device_idx = 0
