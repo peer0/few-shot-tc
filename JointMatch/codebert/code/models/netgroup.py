@@ -15,6 +15,8 @@ from models.model import TextClassifier
 
 from transformers import PreTrainedModel, AutoModel
 
+#변경작업이 왜 안되지?
+
 # change
 class CustomModel(nn.Module):
     def __init__(self, transformer_model_name, n_classes=7):
