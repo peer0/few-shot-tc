@@ -13,6 +13,31 @@ from transformers import AutoConfig, AutoModelForSequenceClassification, AutoMod
 from utils.ema import EMA
 from models.model import TextClassifier
 
+from transformers import PreTrainedModel, AutoModel
+
+
+
+class CustomModel(nn.Module):
+    def __init__(self, transformer_model_name, n_classes=7):
+        super(CustomModel, self).__init__()
+
+        # Load the transformer model without the classification head
+        config = AutoConfig.from_pretrained(transformer_model_name,  trust_remote_code=True)
+        self.text_transformer = AutoModel.from_pretrained(transformer_model_name,  trust_remote_code=True)
+
+        # Linear layer for classification
+        # self.linear_layer = nn.Linear(config.hidden_size, n_classes)
+        self.linear_layer = nn.Linear(config.embed_dim, n_classes)
+
+    def forward(self, input_ids, attention_mask=None, labels=None):  # Add 'labels' argument
+        # Obtain transformer output
+        # import pdb; pdb.set_trace()
+        # transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask, labels=labels).last_hidden_state.mean(dim=1)
+        transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask)
+        # Pass through the linear layer for classification
+        logits = self.linear_layer(transformer_output)
+
+        return logits
 
 
 class NetGroup(nn.Module):
@@ -56,10 +81,14 @@ class NetGroup(nn.Module):
 
         #T5, Unicoder 추가
         elif net_arch == "Salesforce/codet5p-110m-embedding":
-            net =  AutoModel.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True, num_labels = self.n_classes)
+            model = CustomModel("Salesforce/codet5p-110m-embedding")
+            net = model
+            #net = AutoModel.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True, num_labels = self.n_classes)
+
+           
         elif net_arch == "microsoft/unixcoder-base":
             net =  AutoModelForSequenceClassification.from_pretrained("microsoft/unixcoder-base", num_labels = self.n_classes)
-
+        
         net.to(self.device)
         return net
     
@@ -86,7 +115,7 @@ class NetGroup(nn.Module):
 
 
         #T5, Unixcoder 추가
-        elif self.net_arch == "Salesforce/codet5p-110m-embedding":
+        elif self.net_arch =="Salesforce/codet5p-110m-embedding":
             optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
             print('net_arch: ', self.net_arch, 'lr: ', lr)
 
@@ -155,15 +184,14 @@ class NetGroup(nn.Module):
             # outs = net(input_ids, attention_mask=attention_mask, return_dict=True).last_hidden_state
             outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
 
-
         #T5, Unixcoder 추가
         elif self.net_arch == "Salesforce/codet5p-110m-embedding":
+            # import pdb;pdb.set_trace()
             input_ids = x['input_ids'].to(self.device)
-            #print("netgroupy.py 의 input_ids##########################")
-            #print("input_ids : ",input_ids, "\n") # 추가
             attention_mask = x['attention_mask'].to(self.device)
             # outs = net(input_ids, attention_mask=attention_mask, return_dict=True).last_hidden_state
-            outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
+            outs = net(input_ids, attention_mask=attention_mask, labels=y)
+            # outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
 
         elif self.net_arch == "microsoft/unixcoder-base":
             input_ids = x['input_ids'].to(self.device)
@@ -179,10 +207,14 @@ class NetGroup(nn.Module):
 
     # forward the group of networks from the same batch input
     def forward(self, x, y=None):
+        # import pdb;pdb.set_trace()
         outs = []
         for i in range(self.num_nets):
             outs.append(self.forward_net(self.nets[i], x, y))
         return outs
+    
+
+
     
     # update one network
     def update_net(self, net, optimizer, loss):

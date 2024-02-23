@@ -152,7 +152,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
         netgroup.eval()
         if ema_mode: # use ema model for evaluation
             netgroup.eval_ema()
-
+        
         # Tracking variables
         preds_all = []
         target_all = []
@@ -160,6 +160,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
         # Evaluate data for one epoch
         for batch in loader:
             b_labels = batch['label'].to(device)
+            # import pdb;pdb.set_trace()
             # forward pass
             outs = netgroup.forward(batch['x'], b_labels)
     
