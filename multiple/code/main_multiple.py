@@ -104,14 +104,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
 
     ##### Model & Optimizer & Learning Rate Scheduler #####
-    from models.netgroup import NetGroup
+    from models.netgroup_multiple import NetGroup
 
-    # Initialize model & optimizer & lr_scheduler
-    # net_arch = 'bert-base-uncased'
-    # net_arch = 'microsoft/codebert-base'
-    # net_arch = 'microsoft/unixcoder-base'
-    # net_arch = 'Salesforce/codet5p-110m-embedding'
-    # net_arch = ['microsoft/unixcoder-base','microsoft/unixcoder-base']
     net_arch = params['net_arch']
     netgroup = NetGroup(net_arch, num_nets, n_classes, device, lr, lr_linear)
     
@@ -161,7 +155,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
         for batch in loader:
             b_labels = batch['label'].to(device)
             # forward pass
-            outs = netgroup.forward(batch['x'], b_labels)
+            outs = netgroup.forward(net_arch,batch['x'], b_labels)
 
             # take average probs from all nets
             probs = torch.mean(torch.softmax(torch.stack(outs), dim=2), dim=0)
@@ -218,7 +212,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
         # Evaluate data for one epoch
         b_labels = batch_label['label'].to(device)
         # forward pass
-        outs = netgroup.forward(batch_label['x'], b_labels)
+        outs = netgroup.forward(net_arch,batch_label['x'], b_labels)
 
         # take average probs from all nets
         probs = torch.mean(torch.softmax(torch.stack(outs), dim=2), dim=0)
@@ -368,7 +362,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
             ## Process Labeled Data
             x_lb, y_lb = batch_label['x_w'], batch_label['label']
             #1.배치 데이터를 모델에 전달하여 예측을 생성합니다(forward pass)
-            outs_x_lb = netgroup.forward(x_lb, y_lb.to(device))
+            outs_x_lb = netgroup.forward(net_arch,x_lb, y_lb.to(device))
             # 2.예측과 실제 레이블을 비교하여 손실을 계산합니다(compute loss for labeled data)
             sup_loss_nets = [ce_loss(outs_x_lb[i], y_lb.to(device)) for i in range(num_nets)]
             # 3.손실에 대한 그래디언트를 계산합니다(update netgorup from loss of labeled data)
@@ -393,9 +387,9 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     x_ulb_w, x_ulb_s = batch_unlabel['x_w'], batch_unlabel['x_s']
 
                     # forward pass
-                    outs_x_ulb_s_nets = netgroup.forward(x_ulb_s)
+                    outs_x_ulb_s_nets = netgroup.forward(net_arch,x_ulb_s)
                     with torch.no_grad(): # stop gradient for weak augmentation brach
-                        outs_x_ulb_w_nets = netgroup.forward(x_ulb_w)
+                        outs_x_ulb_w_nets = netgroup.forward(net_arch,x_ulb_w)
 
                     ## Generate pseudo labels and masks for all nets in one batch of unlabeled data
                     pseudo_labels_nets = []

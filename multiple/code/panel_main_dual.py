@@ -1,6 +1,6 @@
 #main_v2.py
 #1.seed_list 추가 : 0만
-from main_dual import multiRun
+from main_multiple import multiRun
 # ## code_complex
 n_labeled_per_class = 10
 bs = 7  # 4, 8
@@ -24,11 +24,11 @@ labeling_mode = 'soft' #2024-01-30추가
 # net_arch = 'microsoft/codebert-base'
 # net_arch = 'microsoft/unixcoder-base'
 # net_arch = 'Salesforce/codet5p-110m-embedding'
-net_arch = ['microsoft/unixcoder-base','microsoft/unixcoder-base']
+net_arch = ['Salesforce/codet5p-110m-embedding','Salesforce/codet5p-110m-embedding']
 
 device_idx = 0
 experiment_home = './experiment/cc_java_dual'
-dataset = 'code_complex/java_extended_data' 
+dataset = 'code_complex/random_split/java_extended_data' 
 
 # JointMatch
 num_runs = 1
