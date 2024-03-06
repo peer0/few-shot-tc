@@ -47,7 +47,7 @@ class NetGroup(nn.Module):
         super(NetGroup, self).__init__()
         # parameters
         self.net_arch = net_arch #신경망 아키텍처
-        self.num_nets = num_nets #신경망 개수
+        self.num_nets = num_nets #신경망 개수  # 변경!!!! ######################################################## 1로 대입
         self.n_classes = n_classes #클래스 개수
         self.device = device #디바이스
         self.lr = lr #lr

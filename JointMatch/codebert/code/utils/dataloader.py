@@ -128,6 +128,8 @@ def train_split(labels, n_labeled_per_class, unlabeled_per_class=None):
 
     return train_labeled_idxs, train_unlabeled_idxs
 
+
+##############################################################################################################################
 def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
     
     ################수정############################################
@@ -182,6 +184,22 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
         #2024-01-26
         # sampler = BalancedBatchSampler(train_dataset_u,bs)
         # train_loader_u = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=sampler,collate_fn=MyCollator(tokenizer))
+    
+    ######### SSL실험 추가
+    elif load_mode == 'semi_SSL':
+        if 'yahoo' in data_path:
+            bt_df = pd.read_csv(os.path.join(data_path, 'bt_train.csv'))
+            bt_l_df, bt_u_df = bt_df.iloc[train_labeled_idxs].reset_index(drop=True), bt_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
+            train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), bt_l_df['back_translation'], labels=train_l_df['label'].to_list())
+            train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), bt_u_df['back_translation'], labels=train_u_df['label'].to_list())
+        else:
+            train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['back_translation'], labels=train_l_df['label'].to_list())
+            train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['back_translation'], labels=train_u_df['label'].to_list())
+        
+        
+        train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator(tokenizer))    
+    
+    
     
     ##load_mode == 'sup_baseline'는 sup_baseline class실행->content와 label만
     elif load_mode == 'sup_baseline':

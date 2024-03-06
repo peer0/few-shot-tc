@@ -22,6 +22,7 @@ sys.path.append(root_code)
 print('current work directory: ', os.getcwd())
 
 
+# 학습 부분
 def oneRun(log_dir, output_dir_experiment, **params):
     """ Run one experiment """
     ##### Default Setting #####
@@ -518,6 +519,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
     return best_data
 
 
+
+#출력하는 부분, 학습 횟수
 ##### multiRun ######
 def multiRun(experiment_home=None, num_runs=3, unit_test_mode=False, **params):
     import statistics
