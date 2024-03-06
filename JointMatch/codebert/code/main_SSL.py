@@ -370,7 +370,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                             local_threshold = cw_avg_prob / torch.max(cw_avg_prob,dim=-1)[0]
                             u_psl_mask = max_probs.ge(pslt_global * local_threshold[max_idx])
                             u_psl_masks_nets.append(u_psl_mask)
-
+#####
                     ## Compute loss for unlabeled data for all nets
                     total_unsup_loss_nets = []
                     for i in range(num_nets):
@@ -592,4 +592,3 @@ def multiRun(experiment_home=None, num_runs=3, unit_test_mode=False, **params):
     csv_path = log_root + 'summary_avgrun.csv'
     df.to_csv(csv_path, mode='a', index=False, header=True)
     print('\nSave best record in: ', csv_path)
-
