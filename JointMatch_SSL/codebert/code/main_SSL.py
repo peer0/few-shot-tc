@@ -46,7 +46,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
     # - semi-supervised 
     weight_u_loss =0.1              if 'weight_u_loss' not in params else params['weight_u_loss']
-    load_mode = 'semi'              if 'load_mode' not in params else params['load_mode'] # semi, sup_baseline
+    load_mode = 'semi_SSL'          if 'load_mode' not in params else params['load_mode'] # semi, sup_baseline
 
     # - pseudo-labeling
     psl_threshold_h = 0.98          if 'psl_threshold_h' not in params else params['psl_threshold_h']   # original: 0.75
@@ -236,6 +236,11 @@ def oneRun(log_dir, output_dir_experiment, **params):
             break
         if early_stop_flag:
             break
+       
+       
+        import pdb
+        pdb.set_trace()
+        print(train_labeled_loader)
         for batch_label in train_labeled_loader:
             ## --- Evaluation: Check Performance on Validation set every val_interval batches ---##
             if step % val_interval == 0:   
@@ -329,7 +334,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
 
             ## Process Unlabeled Data
-            if load_mode == 'semi':
+            #if load_mode == 'semi':
+            if load_mode == 'semi_SSL': # SSL 수정
                 for _ in range(ul_ratio):
                     # unlabeled data input for each round/batch
                     try:

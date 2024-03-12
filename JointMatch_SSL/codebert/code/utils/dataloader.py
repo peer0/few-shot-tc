@@ -21,6 +21,17 @@ class SEMIDataset(Dataset):
     def __getitem__(self, idx):
         return self.sents[idx], self.sents_aug1[idx], self.sents_aug2[idx], self.labels[idx]
 
+class SEMI_SSL_Dataset(Dataset):
+    def __init__(self, sents, sents_aug2, labels=None):
+        self.sents = sents
+        self.sents_aug2 = sents_aug2
+        self.labels = labels
+
+    def __len__(self):
+        return len(self.labels)
+    
+    def __getitem__(self, idx):
+        return self.sents[idx], self.sents_aug2[idx], self.labels[idx]
 
 class SEMINoAugDataset(Dataset):
     def __init__(self, sents, labels=None):
@@ -71,6 +82,37 @@ class MyCollator(object):
         # return tokenized, tokenized_aug1, 
             tokenized_aug2, labels
         return {'x': tokenized, 'x_w': tokenized_aug1,'x_s': tokenized_aug2, 'label': labels}
+    
+    
+class MyCollator_SSL(object): # 추가 SSL
+    def __init__(self, tokenizer):
+        self.tokenizer = tokenizer
+
+    def __call__(self, batch):
+        sents, sents_aug2 = [], []
+        labels = []
+        for sample in batch:
+            if len(sample) == 2:
+                sents.append(sample[0])
+                labels.append(sample[1])
+                sents_aug2 = None
+            elif len(sample) == 4:
+                sents.append(sample[0])
+                sents_aug2.append(sample[2])
+                labels.append(sample[3])
+    
+        tokenized = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=255, return_tensors='pt')
+        labels = torch.LongTensor(labels) - 1
+                    
+        if sents_aug2 is not None: 
+            # further add stochastic synoym replacement augmentation
+            sents_aug2 = [naw.SynonymAug(aug_src='wordnet', aug_p=0.05).augment(sent)[0] for sent in sents_aug2]
+            tokenized_aug2 = self.tokenizer(sents_aug2, padding=True, truncation='longest_first', max_length=255, return_tensors='pt')
+        else:
+            tokenized_aug2 = None
+        # return tokenized, tokenized_aug1, 
+            tokenized_aug2, labels
+        return {'x': tokenized,'x_s': tokenized_aug2, 'label': labels}
 
 
 class BalancedBatchSampler(torch.utils.data.sampler.Sampler):
@@ -130,8 +172,9 @@ def train_split(labels, n_labeled_per_class, unlabeled_per_class=None):
 
 
 ##############################################################################################################################
-def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
-    
+#def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
+def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
+        
     ################수정############################################
     #tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
@@ -185,19 +228,21 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
         # sampler = BalancedBatchSampler(train_dataset_u,bs)
         # train_loader_u = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=sampler,collate_fn=MyCollator(tokenizer))
     
+    
     ######### SSL실험 추가
     elif load_mode == 'semi_SSL':
         if 'yahoo' in data_path:
             bt_df = pd.read_csv(os.path.join(data_path, 'bt_train.csv'))
             bt_l_df, bt_u_df = bt_df.iloc[train_labeled_idxs].reset_index(drop=True), bt_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
-            train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), bt_l_df['back_translation'], labels=train_l_df['label'].to_list())
-            train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), bt_u_df['back_translation'], labels=train_u_df['label'].to_list())
+            train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), bt_l_df['back_translation'], labels=train_l_df['label'].to_list())
+            train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), bt_u_df['back_translation'], labels=train_u_df['label'].to_list())
         else:
-            train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['back_translation'], labels=train_l_df['label'].to_list())
-            train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['back_translation'], labels=train_u_df['label'].to_list())
+            train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), train_l_df['back_translation'], labels=train_l_df['label'].to_list())
+            train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), train_u_df['back_translation'], labels=train_u_df['label'].to_list())
+    
         
         
-        train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator(tokenizer))    
+        train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator_SSL(tokenizer))    
     
     
     

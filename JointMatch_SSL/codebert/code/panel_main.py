@@ -1,4 +1,4 @@
-from main import multiRun
+from main_SSL import multiRun
 # ## code_complex
 n_labeled_per_class = 10 #few shot 수
 bs = 7  # 4, 8 # batch size
@@ -7,7 +7,8 @@ lr = 1e-5  #
 weight_u_loss = 1
 psl_threshold_h = 0.98 
 adaptive_threshold = True
-num_nets = 2 # joint match이기에 2개의 model을 이용해서 2.
+#num_nets = 2 # joint match이기에 2개의 model을 이용해서 2. 
+num_nets = 1 # 여기에서는 SSL을 위한 실험이기에 1개의 모델만 이용함.
 cross_labeling  = True
 weight_disagreement = True
 disagree_weight = 0.9 
@@ -25,7 +26,9 @@ dataset = '../data_split'   # 'ag_news', 'yahoo', 'imdb', 'empatheticdialogues',
 
 # JointMatch
 num_runs = 1 # 같은 실험
-num_nets = 2 # model 수.
+#num_nets = 2 # model 수.
+num_nets = 1 # model 수. # 여기에서는 SSL을 위한 실험이기에 1개의 모델만 이용함.
+
 cross_labeling = True
 adaptive_threshold = True
 weight_disagreement = 'True'
