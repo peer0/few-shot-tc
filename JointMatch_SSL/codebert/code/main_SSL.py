@@ -238,9 +238,11 @@ def oneRun(log_dir, output_dir_experiment, **params):
             break
        
        
-        import pdb
-        pdb.set_trace()
-        print(train_labeled_loader)
+        #import pdb
+        #pdb.set_trace()
+        #print(train_labeled_loader)
+        
+        
         for batch_label in train_labeled_loader:
             ## --- Evaluation: Check Performance on Validation set every val_interval batches ---##
             if step % val_interval == 0:   

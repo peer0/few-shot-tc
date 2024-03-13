@@ -22,16 +22,15 @@ class SEMIDataset(Dataset):
         return self.sents[idx], self.sents_aug1[idx], self.sents_aug2[idx], self.labels[idx]
 
 class SEMI_SSL_Dataset(Dataset):
-    def __init__(self, sents, sents_aug2, labels=None):
+    def __init__(self, sents, labels=None):
         self.sents = sents
-        self.sents_aug2 = sents_aug2
         self.labels = labels
 
     def __len__(self):
         return len(self.labels)
     
     def __getitem__(self, idx):
-        return self.sents[idx], self.sents_aug2[idx], self.labels[idx]
+        return self.sents[idx], self.labels[idx]
 
 class SEMINoAugDataset(Dataset):
     def __init__(self, sents, labels=None):
@@ -231,14 +230,27 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
     
     ######### SSL실험 추가
     elif load_mode == 'semi_SSL':
+        
+        # import pdb
+        # pdb.set_trace()
+        
+        # if 'yahoo' in data_path:
+        #     bt_df = pd.read_csv(os.path.join(data_path, 'bt_train.csv'))
+        #     bt_l_df, bt_u_df = bt_df.iloc[train_labeled_idxs].reset_index(drop=True), bt_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
+        #     train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), bt_l_df['back_translation'], labels=train_l_df['label'].to_list())
+        #     train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), bt_u_df['back_translation'], labels=train_u_df['label'].to_list())
+        # else:
+        #     train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), train_l_df['back_translation'], labels=train_l_df['label'].to_list())
+        #     train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), train_u_df['back_translation'], labels=train_u_df['label'].to_list())
+
         if 'yahoo' in data_path:
             bt_df = pd.read_csv(os.path.join(data_path, 'bt_train.csv'))
             bt_l_df, bt_u_df = bt_df.iloc[train_labeled_idxs].reset_index(drop=True), bt_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
-            train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), bt_l_df['back_translation'], labels=train_l_df['label'].to_list())
-            train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), bt_u_df['back_translation'], labels=train_u_df['label'].to_list())
+            train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
+            train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
         else:
-            train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), train_l_df['back_translation'], labels=train_l_df['label'].to_list())
-            train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), train_u_df['back_translation'], labels=train_u_df['label'].to_list())
+            train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
+            train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
     
         
         
