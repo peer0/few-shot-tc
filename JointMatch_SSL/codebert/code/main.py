@@ -330,6 +330,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
             if load_mode == 'semi':
                 for _ in range(ul_ratio):
                     # unlabeled data input for each round/batch
+                    import pdb; pdb.set_trace()
                     try:
                         batch_unlabel = next(data_iter_unl)
                     except:

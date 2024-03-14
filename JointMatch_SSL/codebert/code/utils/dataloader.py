@@ -175,8 +175,8 @@ def train_split(labels, n_labeled_per_class, unlabeled_per_class=None):
 def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
         
     ################수정############################################
-    #tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
+    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    #tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
     #tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
 
     ################수정############################################
@@ -279,6 +279,11 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
     dev_loader = DataLoader(dataset=dev_dataset, batch_size=2*bs, shuffle=False, collate_fn=MyCollator(tokenizer))
     test_loader = DataLoader(dataset=test_dataset, batch_size=2*bs, shuffle=False, collate_fn=MyCollator(tokenizer))
 
+    
+    
+    
+    
+    
     return train_loader_l, train_loader_u, dev_loader, test_loader, num_class
 
 

@@ -233,6 +233,12 @@ def oneRun(log_dir, output_dir_experiment, **params):
             break
         if early_stop_flag:
             break
+        
+        
+        #import pdb
+        #pdb.set_trace()
+        print(train_labeled_loader)
+        
         for batch_label in train_labeled_loader:
             ## --- Evaluation: Check Performance on Validation set every val_interval batches ---##
             if step % val_interval == 0:   
@@ -329,11 +335,16 @@ def oneRun(log_dir, output_dir_experiment, **params):
             if load_mode == 'semi':
                 for _ in range(ul_ratio):
                     # unlabeled data input for each round/batch
+                    #import pdb; pdb.set_trace()
                     try:
                         batch_unlabel = next(data_iter_unl)
                     except:
                         data_iter_unl = iter(train_unlabeled_loader)
                         batch_unlabel = next(data_iter_unl)
+                        
+                        
+                    for key, value in batch_unlabel.items():
+                        print(f'Key: {key}, Value: {value}')
                         
                     x_ulb_w, x_ulb_s = batch_unlabel['x_w'], batch_unlabel['x_s']
 

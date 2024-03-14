@@ -2,14 +2,17 @@ from main_SSL import multiRun
 # ## code_complex
 n_labeled_per_class = 10 #few shot 수
 bs = 7  # 4, 8 # batch size
-ul_ratio = 10 #
+ul_ratio = 10 # unlabel data 비율
 lr = 1e-5  # 
 weight_u_loss = 1
 psl_threshold_h = 0.98 
 adaptive_threshold = True
+
 #num_nets = 2 # joint match이기에 2개의 model을 이용해서 2. 
 num_nets = 1 # 여기에서는 SSL을 위한 실험이기에 1개의 모델만 이용함.
-cross_labeling  = True
+#cross_labeling  = True
+cross_labeling  = False # 여기에서는 SSL을 위한 실험이기에 FALSE 이용함.
+
 weight_disagreement = True
 disagree_weight = 0.9 
 ema_mode = False 
