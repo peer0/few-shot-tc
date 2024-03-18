@@ -1,6 +1,6 @@
 from main_SSL import multiRun
 # ## code_complex
-n_labeled_per_class = 1 #few shot 수
+n_labeled_per_class = 10 #few shot 수
 bs = 7  # 4, 8 # batch size
 ul_ratio = 10 # unlabel data 비율
 lr = 1e-5  # 
