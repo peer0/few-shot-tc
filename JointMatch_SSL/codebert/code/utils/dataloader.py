@@ -296,9 +296,10 @@ if __name__ == '__main__':
     print('current work directory: ', os.getcwd())
 
     n_labeled_per_class = 10
-    bs = 32
+    bs = 32 #batch size
     data_path_list = ['ag_news', 'yahoo', 'imdb']
-    load_mode_list = ['semi'] # ['semi', 'baseline']
+    #load_mode_list = ['semi'] # ['semi', 'baseline']
+    load_mode_list = ['semi_SSL'] # ['semi', 'baseline']
 
     for data_path in data_path_list:
         for load_mode in load_mode_list:

@@ -110,8 +110,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
     # Initialize model & optimizer & lr_scheduler
     # net_arch = 'bert-base-uncased'
-    #net_arch = 'microsoft/codebert-base'
-    net_arch = "Salesforce/codet5p-110m-embedding"
+    net_arch = 'microsoft/codebert-base'
+    #net_arch = "Salesforce/codet5p-110m-embedding"
     #net_arch = "microsoft/unixcoder-base"
 
     #print("#########################################")
@@ -360,6 +360,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     x_ulb_s = batch_unlabel['x']
 
                     # Forward pass for the self-supervised task using weak augmentation
+                    # SSL 체크부분
                     with torch.no_grad():
                         outs_x_ulb_w_nets = netgroup.forward(x_ulb_s)
 
@@ -367,6 +368,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     pseudo_labels_nets = []
                     u_psl_masks_nets = []
 
+                    #import pdb; pdb.set_trace()
                     for i in range(num_nets):
                         # Generate pseudo labels
                         logits_x_ulb_w = outs_x_ulb_w_nets[i]
@@ -378,6 +380,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
                         # Compute mask for pseudo labels
                         probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
+                        #import pdb; pdb.set_trace()
+                        #print(probs_x_ulb_w )
                         max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
                         if not adaptive_threshold:
                             # Fixed hard threshold
@@ -424,12 +428,20 @@ def oneRun(log_dir, output_dir_experiment, **params):
                         netgroup.update_ema()
 
                     # Additional Evaluation Metrics
+                    
+                    #import pdb; pdb.set_trace()
+                    
                     gt_labels_u = batch_unlabel['label'][u_psl_mask].to(device)
+                    
                     psl_total = torch.sum(u_psl_mask).item()
+                    #print("psl_total =", psl_total)
 
                     u_label_psl = pseudo_label[u_psl_mask]
                     u_label_psl_hard = torch.argmax(u_label_psl, dim=-1)
+                    
+                    # SSL 확인해야힘.###############################################################
                     psl_correct = torch.sum(u_label_psl_hard == gt_labels_u).item()
+                    #print("psl_correct = ", psl_correct)
 
                     psl_total_eval += psl_total
                     psl_correct_eval += psl_correct

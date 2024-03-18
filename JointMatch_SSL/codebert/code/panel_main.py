@@ -1,11 +1,12 @@
 from main_SSL import multiRun
 # ## code_complex
-n_labeled_per_class = 10 #few shot 수
+n_labeled_per_class = 1 #few shot 수
 bs = 7  # 4, 8 # batch size
 ul_ratio = 10 # unlabel data 비율
 lr = 1e-5  # 
 weight_u_loss = 1
-psl_threshold_h = 0.98 
+psl_threshold_h = 0.98
+#psl_threshold_h = 7
 adaptive_threshold = True
 
 #num_nets = 2 # joint match이기에 2개의 model을 이용해서 2. 
@@ -26,7 +27,6 @@ device_idx = 0
 experiment_home = './experiment/test'  #저장소 path
 dataset = '../data_split'   # 'ag_news', 'yahoo', 'imdb', 'empatheticdialogues', 'threecrises', 'goemotions'
 # seeds_list = [0]
-
 # JointMatch
 num_runs = 1 # 같은 실험
 #num_nets = 2 # model 수.
