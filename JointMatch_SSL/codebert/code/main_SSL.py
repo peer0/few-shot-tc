@@ -231,6 +231,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     # Training
     netgroup.train()
     for epoch in range(max_epoch):
+        print(len(train_labeled_loader))
         if step > max_step:
             break
         if early_stop_flag:
@@ -338,15 +339,23 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
 
 
-
+            #import pdb; pdb.set_trace()
             # Process Unlabeled Data
             if load_mode == 'semi_SSL':
+                #print("ul_ratio ->", ul_ratio)
+                # print(ul_ratio)
+                # input()
                 for _ in range(ul_ratio):
-                    # import pdb; pdb.set_trace()
+                    #import pdb; pdb.set_trace()
                     try:
                         batch_unlabel = next(data_iter_unl)
+                        # print(batch_unlabel.values())
+                        # help(batch_unlabel)
+                        # input()
                     #except StopIteration:
                     except :
+                        #print("trian_unlabeled_loader ->", train_unlabeled_loader)
+                        #print("len(trian_unlabeled_loader) ->", len(train_unlabeled_loader))
                         data_iter_unl = iter(train_unlabeled_loader)
                         batch_unlabel = next(data_iter_unl)
                     
@@ -364,7 +373,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     with torch.no_grad():
                         outs_x_ulb_w_nets = netgroup.forward(x_ulb_s)
 
-                    # Generate pseudo labels and masnks for all nets in one batch of unlabeled data
+                    # Generate pseudo labels and masks for all nets in one batch of unlabeled data
                     pseudo_labels_nets = []
                     u_psl_masks_nets = []
 
@@ -423,7 +432,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                         total_unsup_loss_nets.append(total_unsup_loss)
 
                     # Update netgroup from loss of unlabeled data
-                    netgroup.update(total_unsup_loss_nets)
+                    # netgroup.update(total_unsup_loss_nets)
                     if ema_mode:
                         netgroup.update_ema()
 
@@ -439,7 +448,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     u_label_psl = pseudo_label[u_psl_mask]
                     u_label_psl_hard = torch.argmax(u_label_psl, dim=-1)
                     
-                    # SSL 확인해야힘.###############################################################
+                    # SSL 확인해야함.###############################################################
                     psl_correct = torch.sum(u_label_psl_hard == gt_labels_u).item()
                     #print("psl_correct = ", psl_correct)
 

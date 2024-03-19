@@ -1,11 +1,12 @@
 from main_SSL import multiRun
 # ## code_complex
-n_labeled_per_class = 10 #few shot 수
+n_labeled_per_class = 5 #few shot 수
 bs = 7  # 4, 8 # batch size
-ul_ratio = 10 # unlabel data 비율
+ul_ratio = 5 # 10shot 이면 549 , 5shot이면 554, 1shot이면 558
+
 lr = 1e-5  # 
 weight_u_loss = 1
-psl_threshold_h = 0.98
+psl_threshold_h = 0.98 # ul의 predict의 임계값
 #psl_threshold_h = 7
 adaptive_threshold = True
 
@@ -18,7 +19,7 @@ weight_disagreement = True
 disagree_weight = 0.9 
 ema_mode = False 
 ema_momentum = 0.9
-val_interval = 25 
+val_interval = 25  # 몇번째 만큼 검증을 하고 모델이 어떤지 파악하는 parameter
 early_stop_tolerance = 10
 p_tolerance = 10
 max_step = 100000   
@@ -32,7 +33,7 @@ num_runs = 1 # 같은 실험
 #num_nets = 2 # model 수.
 num_nets = 1 # model 수. # 여기에서는 SSL을 위한 실험이기에 1개의 모델만 이용함.
 
-cross_labeling = True
+#cross_labeling = True
 adaptive_threshold = True
 weight_disagreement = 'True'
 

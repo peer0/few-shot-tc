@@ -139,7 +139,7 @@ class BalancedBatchSampler(torch.utils.data.sampler.Sampler):
         return len(self.dataset)
 
 
-def train_split(labels, n_labeled_per_class, unlabeled_per_class=None):
+def train_split(labels, n_labeled_per_class, unlabeled_per_class=None): #unlabeled_per_class를 이용해서 ul_data를 설정 가능 현재는 전체.
     """Split the dataset into labeled and unlabeled subsets.
     Args:
         labels: labels of the training data
@@ -231,18 +231,6 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
     ######### SSL실험 추가
     elif load_mode == 'semi_SSL':
         
-        # import pdb
-        # pdb.set_trace()
-        
-        # if 'yahoo' in data_path:
-        #     bt_df = pd.read_csv(os.path.join(data_path, 'bt_train.csv'))
-        #     bt_l_df, bt_u_df = bt_df.iloc[train_labeled_idxs].reset_index(drop=True), bt_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
-        #     train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), bt_l_df['back_translation'], labels=train_l_df['label'].to_list())
-        #     train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), bt_u_df['back_translation'], labels=train_u_df['label'].to_list())
-        # else:
-        #     train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), train_l_df['back_translation'], labels=train_l_df['label'].to_list())
-        #     train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), train_u_df['back_translation'], labels=train_u_df['label'].to_list())
-
         if 'yahoo' in data_path:
             bt_df = pd.read_csv(os.path.join(data_path, 'bt_train.csv'))
             bt_l_df, bt_u_df = bt_df.iloc[train_labeled_idxs].reset_index(drop=True), bt_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
@@ -252,7 +240,6 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
             train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
             train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
     
-        
         
         train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator_SSL(tokenizer))    
     
