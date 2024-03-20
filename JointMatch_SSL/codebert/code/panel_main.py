@@ -1,4 +1,5 @@
-from main_SSL import multiRun
+#from main_SSL import multiRun
+from test.main_SSL import multiRun
 # ## code_complex
 n_labeled_per_class = 5 #few shot 수
 bs = 7  # 4, 8 # batch size

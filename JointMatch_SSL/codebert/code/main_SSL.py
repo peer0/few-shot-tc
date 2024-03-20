@@ -231,6 +231,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     # Training
     netgroup.train()
     for epoch in range(max_epoch):
+        print("epoch", epoch)
         print(len(train_labeled_loader))
         if step > max_step:
             break
@@ -342,128 +343,127 @@ def oneRun(log_dir, output_dir_experiment, **params):
             #import pdb; pdb.set_trace()
             # Process Unlabeled Data
             if load_mode == 'semi_SSL':
-                #print("ul_ratio ->", ul_ratio)
-                # print(ul_ratio)
-                # input()
-                for _ in range(ul_ratio):
+                #for _ in range(ul_ratio):
+                #import pdb; pdb.set_trace()
+                try:
+                    batch_unlabel = next(data_iter_unl)
+                    # print(batch_unlabel.values())
+                    # help(batch_unlabel)
+                    # input()
+                #except StopIteration:
+                except :
+                    #print("trian_unlabeled_loader ->", train_unlabeled_loader)
+                    #print("len(trian_unlabeled_loader) ->", len(train_unlabeled_loader))
+                    data_iter_unl = iter(train_unlabeled_loader)
+                    batch_unlabel = next(data_iter_unl)
+                
+                
+                
+                #for key, value in batch_unlabel.items():
+                #    print(f'Key: {key}, Value: {value}')
+                
+                
+                
+                x_ulb_s = batch_unlabel['x']
+
+                # Forward pass for the self-supervised task using weak augmentation
+                # SSL 체크부분
+                with torch.no_grad():
+                    outs_x_ulb_w_nets = netgroup.forward(x_ulb_s)
+
+                # Generate pseudo labels and masks for all nets in one batch of unlabeled data
+                pseudo_labels_nets = []
+                u_psl_masks_nets = []
+
+                #import pdb; pdb.set_trace()
+                for i in range(num_nets):
+                    # Generate pseudo labels
+                    logits_x_ulb_w = outs_x_ulb_w_nets[i]
+                    if labeling_mode == 'soft':
+                        pseudo_labels_nets.append(torch.softmax(logits_x_ulb_w, dim=-1))
+                    else:
+                        max_idx = torch.argmax(logits_x_ulb_w, dim=-1)
+                        pseudo_labels_nets.append(F.one_hot(max_idx, num_classes=n_classes).to(device))
+
+                    # Compute mask for pseudo labels
+                    probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
                     #import pdb; pdb.set_trace()
-                    try:
-                        batch_unlabel = next(data_iter_unl)
-                        # print(batch_unlabel.values())
-                        # help(batch_unlabel)
-                        # input()
-                    #except StopIteration:
-                    except :
-                        #print("trian_unlabeled_loader ->", train_unlabeled_loader)
-                        #print("len(trian_unlabeled_loader) ->", len(train_unlabeled_loader))
-                        data_iter_unl = iter(train_unlabeled_loader)
-                        batch_unlabel = next(data_iter_unl)
-                    
-                    
-                    
-                    #for key, value in batch_unlabel.items():
-                    #    print(f'Key: {key}, Value: {value}')
-                    
-                    
-                    
-                    x_ulb_s = batch_unlabel['x']
+                    #print(probs_x_ulb_w )
+                    max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
+                    if not adaptive_threshold:
+                        # Fixed hard threshold
+                        pslt_global = psl_threshold_h
+                        u_psl_masks_nets.append(max_probs >= pslt_global)
+                    else:
+                        # Adaptive local threshold
+                        pslt_global = psl_threshold_h
+                        cw_avg_prob = cw_avg_prob * ema_momentum + torch.mean(probs_x_ulb_w, dim=0) * (1 - ema_momentum)
+                        local_threshold = cw_avg_prob / torch.max(cw_avg_prob, dim=-1)[0]
+                        u_psl_mask = max_probs.ge(pslt_global * local_threshold[max_idx])
+                        u_psl_masks_nets.append(u_psl_mask)
 
-                    # Forward pass for the self-supervised task using weak augmentation
-                    # SSL 체크부분
-                    with torch.no_grad():
-                        outs_x_ulb_w_nets = netgroup.forward(x_ulb_s)
+                # Compute loss for unlabeled data for all nets
+                total_unsup_loss_nets = []
+                for i in range(num_nets):
+                    pseudo_label = pseudo_labels_nets[i]
+                    u_psl_mask = u_psl_masks_nets[i]
 
-                    # Generate pseudo labels and masks for all nets in one batch of unlabeled data
-                    pseudo_labels_nets = []
-                    u_psl_masks_nets = []
+                    if weight_disagreement == 'True':
+                        # Obtain the mask for disagreement and agreement across nets
+                        disagree_mask = torch.logical_xor(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
+                        agree_mask = torch.logical_and(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
+                        disagree_weight_masked = disagree_weight * disagree_mask + (1 - disagree_weight) * agree_mask
+                    elif weight_disagreement == 'ablation_baseline':
+                        disagree_weight = 0.5
+                        disagree_mask = torch.logical_xor(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
+                        agree_mask = torch.logical_and(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
+                        disagree_weight_masked = disagree_weight * disagree_mask + (1 - disagree_weight) * agree_mask
+                    else:
+                        disagree_weight_masked = None
 
-                    #import pdb; pdb.set_trace()
-                    for i in range(num_nets):
-                        # Generate pseudo labels
-                        logits_x_ulb_w = outs_x_ulb_w_nets[i]
-                        if labeling_mode == 'soft':
-                            pseudo_labels_nets.append(torch.softmax(logits_x_ulb_w, dim=-1))
-                        else:
-                            max_idx = torch.argmax(logits_x_ulb_w, dim=-1)
-                            pseudo_labels_nets.append(F.one_hot(max_idx, num_classes=n_classes).to(device))
+                    # Compute loss for unlabeled data
+                    unsup_loss = consistency_loss(outs_x_ulb_w_nets[i], pseudo_label, loss_type='ce', mask=u_psl_mask,
+                                                disagree_weight_masked=disagree_weight_masked)
 
-                        # Compute mask for pseudo labels
-                        probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
-                        #import pdb; pdb.set_trace()
-                        #print(probs_x_ulb_w )
-                        max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
-                        if not adaptive_threshold:
-                            # Fixed hard threshold
-                            pslt_global = psl_threshold_h
-                            u_psl_masks_nets.append(max_probs >= pslt_global)
-                        else:
-                            # Adaptive local threshold
-                            pslt_global = psl_threshold_h
-                            cw_avg_prob = cw_avg_prob * ema_momentum + torch.mean(probs_x_ulb_w, dim=0) * (1 - ema_momentum)
-                            local_threshold = cw_avg_prob / torch.max(cw_avg_prob, dim=-1)[0]
-                            u_psl_mask = max_probs.ge(pslt_global * local_threshold[max_idx])
-                            u_psl_masks_nets.append(u_psl_mask)
+                    # Compute total loss for unlabeled data
+                    total_unsup_loss = weight_u_loss * unsup_loss
+                    total_unsup_loss_nets.append(total_unsup_loss)
 
-                    # Compute loss for unlabeled data for all nets
-                    total_unsup_loss_nets = []
-                    for i in range(num_nets):
-                        pseudo_label = pseudo_labels_nets[i]
-                        u_psl_mask = u_psl_masks_nets[i]
+                # Update netgroup from loss of unlabeled data
+                # netgroup.update(total_unsup_loss_nets)
+                if ema_mode:
+                    netgroup.update_ema()
 
-                        if weight_disagreement == 'True':
-                            # Obtain the mask for disagreement and agreement across nets
-                            disagree_mask = torch.logical_xor(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
-                            agree_mask = torch.logical_and(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
-                            disagree_weight_masked = disagree_weight * disagree_mask + (1 - disagree_weight) * agree_mask
-                        elif weight_disagreement == 'ablation_baseline':
-                            disagree_weight = 0.5
-                            disagree_mask = torch.logical_xor(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
-                            agree_mask = torch.logical_and(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
-                            disagree_weight_masked = disagree_weight * disagree_mask + (1 - disagree_weight) * agree_mask
-                        else:
-                            disagree_weight_masked = None
+                # Additional Evaluation Metrics
+                
+                #import pdb; pdb.set_trace()
+                
+                gt_labels_u = batch_unlabel['label'][u_psl_mask].to(device)
+                #print("line 442, gt_labels_u:{}".format(gt_labels_u))
+                
+                psl_total = torch.sum(u_psl_mask).item()
+                #print("psl_total =", psl_total)
 
-                        # Compute loss for unlabeled data
-                        unsup_loss = consistency_loss(outs_x_ulb_w_nets[i], pseudo_label, loss_type='ce', mask=u_psl_mask,
-                                                    disagree_weight_masked=disagree_weight_masked)
+                u_label_psl = pseudo_label[u_psl_mask]
+                #print("line 448, u_label_psl:{}".format(u_label_psl))
+                u_label_psl_hard = torch.argmax(u_label_psl, dim=-1)
+                
+                # SSL 확인해야함.###############################################################
+                psl_correct = torch.sum(u_label_psl_hard == gt_labels_u).item()
+                #print("psl_correct = ", psl_correct)
 
-                        # Compute total loss for unlabeled data
-                        total_unsup_loss = weight_u_loss * unsup_loss
-                        total_unsup_loss_nets.append(total_unsup_loss)
+                psl_total_eval += psl_total
+                psl_correct_eval += psl_correct
 
-                    # Update netgroup from loss of unlabeled data
-                    # netgroup.update(total_unsup_loss_nets)
-                    if ema_mode:
-                        netgroup.update_ema()
+                # Class-wise total and correct number of pseudo-labels
+                cw_psl_total = torch.bincount(u_label_psl_hard, minlength=n_classes).to('cpu')
+                cw_psl_correct = torch.bincount(u_label_psl_hard[u_label_psl_hard == gt_labels_u], minlength=n_classes).to('cpu')
 
-                    # Additional Evaluation Metrics
-                    
-                    #import pdb; pdb.set_trace()
-                    
-                    gt_labels_u = batch_unlabel['label'][u_psl_mask].to(device)
-                    
-                    psl_total = torch.sum(u_psl_mask).item()
-                    #print("psl_total =", psl_total)
+                cw_psl_total_eval += cw_psl_total
+                cw_psl_correct_eval += cw_psl_correct
 
-                    u_label_psl = pseudo_label[u_psl_mask]
-                    u_label_psl_hard = torch.argmax(u_label_psl, dim=-1)
-                    
-                    # SSL 확인해야함.###############################################################
-                    psl_correct = torch.sum(u_label_psl_hard == gt_labels_u).item()
-                    #print("psl_correct = ", psl_correct)
-
-                    psl_total_eval += psl_total
-                    psl_correct_eval += psl_correct
-
-                    # Class-wise total and correct number of pseudo-labels
-                    cw_psl_total = torch.bincount(u_label_psl_hard, minlength=n_classes).to('cpu')
-                    cw_psl_correct = torch.bincount(u_label_psl_hard[u_label_psl_hard == gt_labels_u], minlength=n_classes).to('cpu')
-
-                    cw_psl_total_eval += cw_psl_total
-                    cw_psl_correct_eval += cw_psl_correct
-
-                    cw_psl_total_accum += cw_psl_total
-                    cw_psl_correct_accum += cw_psl_correct
+                cw_psl_total_accum += cw_psl_total
+                cw_psl_correct_accum += cw_psl_correct
 
 
 
