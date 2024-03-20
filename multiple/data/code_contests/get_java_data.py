@@ -2,10 +2,10 @@ import os
 import pandas as pd
 
 # CSV 파일이 있는 경로
-path = "/home/inistory/workspace/JointMatch/multiple/data/code_contests"
+path = "/home/jungin/workspace/JointMatch/multiple/data/code_contests"
 
 # 경로에서 CSV 파일 목록 가져오기
-csv_files = [f for f in os.listdir(path) if f.endswith('.csv')]
+csv_files = [f for f in os.listdir(path) if f.endswith('.csv')and f.startswith('train-')]
 
 # 각 CSV 파일을 로드하고, language가 4인 행만 필터링
 dataframes = []
