@@ -4,7 +4,7 @@ import torch
 import pandas as pd
 import numpy as np
 import nlpaug.augmenter.word as naw
-from transformers import BertTokenizer
+from transformers import BertTokenizer, RobertaTokenizer, RobertaConfig, RobertaModel
 from torch.utils.data import Dataset, DataLoader, Sampler
 
 
@@ -119,7 +119,8 @@ def train_split(labels):
     return train_labeled_idxs
 
 def get_dataloader(data_path, ul_data_path, n_labeled_per_class, bs, load_mode='semi'):
-    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    # tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    # tokenizer = RobertaTokenizer.from_pretrained("microsoft/codebert-base")
     
     
     train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
