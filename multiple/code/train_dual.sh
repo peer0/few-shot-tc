@@ -9,9 +9,9 @@ source  ~/.bashrc
 conda activate jointmatch
  
 # cuda 11.0 환경 구성. 
-ml unload cuda/11.2 nccl/2.8.4/cuda11.2 
-ml load cuda/11.0 nccl/2.8.4/cuda11.0 
-ml list 
+# ml unload cuda/11.2 nccl/2.8.4/cuda11.2 
+# ml load cuda/11.0 nccl/2.8.4/cuda11.0 
+# ml list 
  
 cd /home/jungin/workspace/JointMatch/multiple/code
  
