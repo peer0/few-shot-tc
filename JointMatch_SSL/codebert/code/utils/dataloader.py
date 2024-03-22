@@ -31,6 +31,22 @@ class SEMI_SSL_Dataset(Dataset):
     
     def __getitem__(self, idx):
         return self.sents[idx], self.labels[idx]
+    
+
+
+    def add_data(self, new_sent, new_label):
+        if new_sent in self.sents:
+            # 해당 데이터가 이미 존재하는 경우 레이블을 업데이트합니다.
+            idx = self.sents.index(new_sent)
+            self.labels[idx] = new_label
+        else:
+            # 새로운 데이터인 경우 데이터와 레이블을 추가합니다.
+            self.sents.append(new_sent)
+            self.labels.append(new_label)
+            
+
+
+
 
 class SEMINoAugDataset(Dataset):
     def __init__(self, sents, labels=None):
@@ -88,32 +104,24 @@ class MyCollator_SSL(object): # 추가 SSL
         self.tokenizer = tokenizer
 
     def __call__(self, batch):
-        sents, sents_aug2 = [], []
+        sents = []
         labels = []
         for sample in batch:
+            #import pdb; pdb.set_trace()
+            #print('line120')
             if len(sample) == 2:
                 sents.append(sample[0])
                 labels.append(sample[1])
-                sents_aug2 = None
-            elif len(sample) == 4:
-                sents.append(sample[0])
-                sents_aug2.append(sample[2])
-                labels.append(sample[3])
+
     
         tokenized = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=255, return_tensors='pt')
         labels = torch.LongTensor(labels) - 1
                     
-        if sents_aug2 is not None: 
-            # further add stochastic synoym replacement augmentation
-            sents_aug2 = [naw.SynonymAug(aug_src='wordnet', aug_p=0.05).augment(sent)[0] for sent in sents_aug2]
-            tokenized_aug2 = self.tokenizer(sents_aug2, padding=True, truncation='longest_first', max_length=255, return_tensors='pt')
-        else:
-            tokenized_aug2 = None
-        # return tokenized, tokenized_aug1, 
-            tokenized_aug2, labels
-        return {'x': tokenized,'x_s': tokenized_aug2, 'label': labels}
+
+        return {'x': tokenized,'label': labels}
 
 
+# data를 각 bs에 맞게 나눔. data가 딱 떨어지지않으면 남김.
 class BalancedBatchSampler(torch.utils.data.sampler.Sampler):
     def __init__(self, dataset, batch_size):
         self.dataset = dataset
@@ -140,6 +148,7 @@ class BalancedBatchSampler(torch.utils.data.sampler.Sampler):
 
 
 def train_split(labels, n_labeled_per_class, unlabeled_per_class=None): #unlabeled_per_class를 이용해서 ul_data를 설정 가능 현재는 전체.
+    #import pdb; pdb.set_trace()
     """Split the dataset into labeled and unlabeled subsets.
     Args:
         labels: labels of the training data
@@ -174,13 +183,9 @@ def train_split(labels, n_labeled_per_class, unlabeled_per_class=None): #unlabel
 #def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
 def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
         
-    ################수정############################################
     tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     #tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
     #tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
-
-    ################수정############################################
-
 
 
     train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
@@ -195,66 +200,95 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
     labels = list(train_df["label"])
     num_class = len(set(labels))
     train_labeled_idxs, train_unlabeled_idxs = train_split(labels, n_labeled_per_class)
+    
+    #import pdb; pdb.set_trace()
+    
     train_l_df, train_u_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True), train_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
-    if 'imdb' in data_path:
-        train_l_df = pd.read_csv(os.path.join(data_path,'train_{}.csv'.format(n_labeled_per_class)))
-        print('In this settting, we directly load the same labeled data split as in the SAT paper for fair comparison.')
+    
+    # if 'imdb' in data_path:
+    #     train_l_df = pd.read_csv(os.path.join(data_path,'train_{}.csv'.format(n_labeled_per_class)))
+    #     print('In this settting, we directly load the same labeled data split as in the SAT paper for fair comparison.')
         
-    # check statistics info
-    print('n_labeled_per_class: ', n_labeled_per_class)
-    print('train_df samples: %d' % (train_df.shape[0]))
-    print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
-    print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
+    # # check statistics info
+    # print('n_labeled_per_class: ', n_labeled_per_class)
+    # print('train_df samples: %d' % (train_df.shape[0]))
+    # print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
+    # print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
 
-    print('Check n_smaples_per_class in the original training set: ', train_df['label'].value_counts().sort_index().to_dict())
-    print('Check n_smaples_per_class in the labeled training set: ', train_l_df['label'].value_counts().sort_index().to_dict())
-    print('Check n_smaples_per_class in the unlabeled training set: ', train_u_df['label'].value_counts().sort_index().to_dict())
+    # print('Check n_smaples_per_class in the original training set: ', train_df['label'].value_counts().sort_index().to_dict())
+    # print('Check n_smaples_per_class in the labeled training set: ', train_l_df['label'].value_counts().sort_index().to_dict())
+    # print('Check n_smaples_per_class in the unlabeled training set: ', train_u_df['label'].value_counts().sort_index().to_dict())
 
-    ##load_mode == 'semi'때는 SEMIDataset class 실행 -> synonym_aug와back_translation데이터 가져옴
-    if load_mode == 'semi':
-        if 'yahoo' in data_path:
-            bt_df = pd.read_csv(os.path.join(data_path, 'bt_train.csv'))
-            bt_l_df, bt_u_df = bt_df.iloc[train_labeled_idxs].reset_index(drop=True), bt_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
-            train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['synonym_aug'].to_list(), bt_l_df['back_translation'], labels=train_l_df['label'].to_list())
-            train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['synonym_aug'].to_list(), bt_u_df['back_translation'], labels=train_u_df['label'].to_list())
-        else:
-            train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['synonym_aug'].to_list(), train_l_df['back_translation'], labels=train_l_df['label'].to_list())
-            train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['synonym_aug'].to_list(), train_u_df['back_translation'], labels=train_u_df['label'].to_list())
+    # ##load_mode == 'semi'때는 SEMIDataset class 실행 -> synonym_aug와back_translation데이터 가져옴
+    # if load_mode == 'semi':
+    #     if 'yahoo' in data_path:
+    #         bt_df = pd.read_csv(os.path.join(data_path, 'bt_train.csv'))
+    #         bt_l_df, bt_u_df = bt_df.iloc[train_labeled_idxs].reset_index(drop=True), bt_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
+    #         train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['synonym_aug'].to_list(), bt_l_df['back_translation'], labels=train_l_df['label'].to_list())
+    #         train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['synonym_aug'].to_list(), bt_u_df['back_translation'], labels=train_u_df['label'].to_list())
+    #     else:
+    #         train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['synonym_aug'].to_list(), train_l_df['back_translation'], labels=train_l_df['label'].to_list())
+    #         train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['synonym_aug'].to_list(), train_u_df['back_translation'], labels=train_u_df['label'].to_list())
         
         
-        train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator(tokenizer))
-        #2024-01-26
-        # sampler = BalancedBatchSampler(train_dataset_u,bs)
-        # train_loader_u = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=sampler,collate_fn=MyCollator(tokenizer))
+    #     train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator(tokenizer))
+    #     #2024-01-26
+    #     # sampler = BalancedBatchSampler(train_dataset_u,bs)
+    #     # train_loader_u = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=sampler,collate_fn=MyCollator(tokenizer))
     
     
     ######### SSL실험 추가
-    elif load_mode == 'semi_SSL':
+    #elif load_mode == 'semi_SSL':
+    if load_mode == 'semi_SSL':
         
-        if 'yahoo' in data_path:
-            bt_df = pd.read_csv(os.path.join(data_path, 'bt_train.csv'))
-            bt_l_df, bt_u_df = bt_df.iloc[train_labeled_idxs].reset_index(drop=True), bt_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
-            train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
-            train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
-        else:
-            train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
-            train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
-    
+        # if 'yahoo' in data_path:
+        #     bt_df = pd.read_csv(os.path.join(data_path, 'bt_train.csv'))
+        #     bt_l_df, bt_u_df = bt_df.iloc[train_labeled_idxs].reset_index(drop=True), bt_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
+        #     train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
+        #     train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
+        # else:
+            # train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
+            # train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
         
-        train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator_SSL(tokenizer))    
+        #print('line266')
+        #import pdb; pdb.set_trace()
+        
+        # content와 label만 뽑아내게 바꿈.
+        train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
+        train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
+         
+        
+        # unlabel data 셔플이 일어남   
+        #print("line 253")
+        shuffled_indices = torch.randperm(len(train_dataset_u))
+        shuffled_train_dataset_u = torch.utils.data.Subset(train_dataset_u, shuffled_indices)
+
+        #train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator_SSL(tokenizer))
+        train_loader_u = DataLoader(dataset=shuffled_train_dataset_u, batch_size=bs, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
+        # import pd/b; pdb.set_trace()
+        # shuffled_unlabeled_sets = []
+        # for i in shuffled_train_dataset_u:
+        #     temp_unlabeled = []
+        #     for j in range(7): temp_unlabeled.append(i)
+        
+        # shuffled_train_dataset_u = [shuffled_train_dataset_u[i:min(i+bs,len(shuffled_train_dataset_u))] \
+        #  for i in range(0,len(shuffled_train_dataset_u),bs)]
     
+    # ##load_mode == 'sup_baseline'는 sup_baseline class실행->content와 label만
+    # elif load_mode == 'sup_baseline':
+    #     train_dataset_l = SEMINoAugDataset(train_l_df['content'].to_list(), train_l_df['label'].to_list())
+    #     train_loader_u = None
     
-    
-    ##load_mode == 'sup_baseline'는 sup_baseline class실행->content와 label만
-    elif load_mode == 'sup_baseline':
-        train_dataset_l = SEMINoAugDataset(train_l_df['content'].to_list(), train_l_df['label'].to_list())
-        train_loader_u = None
+    #print("line 265")
+    #import pdb; pdb.set_trace()
     
     ##2024-01-26
     train_sampler = BalancedBatchSampler(train_dataset_l,bs)
-    train_loader_l = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=train_sampler,collate_fn=MyCollator(tokenizer))
+    
+    # train 셔플 일어남
+    train_loader_l = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=train_sampler,collate_fn=MyCollator_SSL(tokenizer))
+    
     # train_loa
-    er_l = DataLoader(dataset=train_dataset_l, batch_size=bs, shuffle=True, collate_fn=MyCollator(tokenizer))    
     dev_dataset = SEMINoAugDataset(dev_df['content'].to_list(), labels=dev_df['label'].to_list())
     test_dataset = SEMINoAugDataset(test_df['content'].to_list(), labels=test_df['label'].to_list())
     ##shuffle=False로 하면 일관된 평가가 가능 : 주로 valid,test단계에서사용
@@ -263,15 +297,17 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
     # dev_sampler = BalancedBatchSampler(dev_dataset,bs)
     # dev_loader = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=dev_sampler,collate_fn=MyCollator(tokenizer))
 
-    dev_loader = DataLoader(dataset=dev_dataset, batch_size=2*bs, shuffle=False, collate_fn=MyCollator(tokenizer))
-    test_loader = DataLoader(dataset=test_dataset, batch_size=2*bs, shuffle=False, collate_fn=MyCollator(tokenizer))
+    dev_loader = DataLoader(dataset=dev_dataset, batch_size=2*bs, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
+    test_loader = DataLoader(dataset=test_dataset, batch_size=2*bs, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
+    
+
 
     
     
     
     
     
-    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class
+    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, shuffled_train_dataset_u, load_mode
 
 
 

@@ -21,6 +21,55 @@ sys.path.append(root_code)
 print('current work directory: ', os.getcwd())
 
 
+
+## psudolabel data추가하는 함수.
+# train, unlabel, mask_list,
+#unlabel에 mask_list에 해당하는 train을 여기에 넣어준다. 그리고 Dataloader돌림.
+def get_pseudo_labeled_dataloader(train_labeled_dataset, ul_data, ul_list, max_idx, index, bs=7):
+    # from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
+    # from transformers import BertTokenizer
+    # from torch.utils.data import Dataset, DataLoader, Sampler
+    # tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    
+    total = len(train_labeled_dataset)
+        
+    batch_unlabeled = []
+    for batch_index in range(index*bs, index*bs+bs):
+        batch_unlabeled.append(ul_data[batch_index])
+
+    k = 0
+    for i in range(0, bs):  # 현재 배치에 대해 반복
+        mask = ul_list[0][k]
+        idx = max_idx[k]
+        if mask.item():   # 해당 label이 pseudo-label 목록에 있는지 확인
+            # pseudo-labeled 데이터를 데이터셋에 추가
+            train_labeled_dataset.add_data(batch_unlabeled[i][0],idx.item()+1)  # 데이터 추가
+        k += 1
+        
+        
+        
+    
+    if len(train_labeled_dataset) > total: 
+        print("line 48 -> pseudo-label 이후 train_labeled_dataset" , len(train_labeled_dataset))
+    else :
+        print("Dataset중복으로 업데이트 됨")       
+    # import pdb; pdb.set_trace()
+
+    # # 결합된 데이터에 대한 DataLoader 생성
+    # train_sampler = BalancedBatchSampler(train_labeled_dataset,bs)
+    # combined_loader = DataLoader(dataset=train_labeled_dataset, batch_size=bs, shuffle= train_sampler, collate_fn=MyCollator_SSL(tokenizer))
+    # #input("데이터 추가 체크")
+
+    
+    return train_labeled_dataset
+
+
+
+
+
+
+
+
 # 학습 부분
 def oneRun(log_dir, output_dir_experiment, **params):
     """ Run one experiment """
@@ -97,8 +146,12 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
     #### Load Data ####
     from utils.dataloader import get_dataloader
-    train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes = get_dataloader(data_path, n_labeled_per_class, bs, load_mode)
+    
+    train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u, c_load_mode = get_dataloader(data_path, n_labeled_per_class, bs, load_mode)
+   
     print('n_classes: ', n_classes)
+    print(c_load_mode)
+    #print('line 152')
     # # used for degugging
     # sys.exit()
 
@@ -115,7 +168,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     #net_arch = "microsoft/unixcoder-base"
 
     #print("#########################################")
-    print("#####모델",net_arch)
+    print("line 147 모델 => ",net_arch)
     #print("#########################################")
 
     netgroup = NetGroup(net_arch, num_nets, n_classes, device, lr, lr_linear)
@@ -124,6 +177,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     netgroup.train()
     if ema_mode:
         netgroup.init_ema(ema_momentum)
+
 
 
 
@@ -161,7 +215,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
         # Evaluate data for one epoch
         for batch in loader:
             b_labels = batch['label'].to(device)
-            # import pdb;pdb.set_trace()
+
             # forward pass
             outs = netgroup.forward(batch['x'], b_labels)
     
@@ -228,25 +282,47 @@ def oneRun(log_dir, output_dir_experiment, **params):
     cw_avg_prob = (torch.ones(n_classes) / n_classes).to(device)    # estimate learning stauts of each class
     local_threshold = torch.zeros(n_classes, dtype=int)
 
+
+
+
+    from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
+    from transformers import BertTokenizer
+    from torch.utils.data import Dataset, DataLoader, Sampler
     # Training
     netgroup.train()
     for epoch in range(max_epoch):
-        print("epoch", epoch)
-        print(len(train_labeled_loader))
         if step > max_step:
+            print(step > max_step)
             break
         if early_stop_flag:
             break
-       
-       
-        #import pdb
-        #pdb.set_trace()
-        #print(train_labeled_loader)
+        
+        k = epoch #epoch마다 print를 위해서 대입
         
         
-        for batch_label in train_labeled_loader:
-            ## --- Evaluation: Check Performance on Validation set every val_interval batches ---##
-            if step % val_interval == 0:   
+        # 결합된 데이터에 대한 DataLoader 생성
+
+        tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        train_sampler = BalancedBatchSampler(train_dataset_l,bs)
+        train_labeled_loader = DataLoader(dataset=train_dataset_l, batch_size=bs, shuffle= train_sampler, collate_fn=MyCollator_SSL(tokenizer))
+        #input("데이터 추가 체크")
+        
+        
+        print("\nline 257 => epoch", epoch)
+        print('line 303 => train data수', len(train_dataset_l))
+        print("line 258 => 인스턴스 수" , len(iter(train_labeled_loader)))
+
+        #import pdb; pdb.set_trace()
+        
+        #if k == 2:
+            #import pdb; pdb.set_trace()
+        
+        for batch_label in iter(train_labeled_loader):
+            #print(batch_label)
+            # --- Evaluation: Check Performance on Validation set every val_interval batches ---##
+            #print("k = " , k)
+            if epoch == k :
+                k += 1      
                 print("=======test_loader=======")
                 acc_test, f1_test, acc_test_cw = evaluation(test_loader)
                 print("=======dev_loader=======")
@@ -262,7 +338,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     netgroup.train_ema()
                 netgroup.train()
 
-                print('>>Epoch %d Step %d acc_test %f f1_test %f acc_val %f f1_val %f acc_train %f f1_train %f psl_cor %d psl_totl %d pslt_global %f' % 
+                print('>>Epoch %d Step %d acc_test %f f1_test %f acc_val %f f1_val %f acc_train %f f1_train %f psl_cor %d psl_totl %d pslt_global %f '% 
                         (epoch, step, acc_test, f1_test,acc_val, f1_val, acc_train, f1_train, psl_correct_eval, psl_total_eval, pslt_global),
                         'Tim {:}'.format(format_time(time.time() - t0)))
                 
@@ -304,6 +380,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
                 # Early stopping & Save best model
                 # - best criterion: acc_val 
+                # 검증 val보다 best acc가 높아서 조기 종료가 됨.
                 if acc_val > best_acc:
                     best_acc = acc_val
                     best_model_step = step
@@ -322,60 +399,75 @@ def oneRun(log_dir, output_dir_experiment, **params):
                 cw_psl_total_eval, cw_psl_correct_eval = torch.zeros(n_classes, dtype=int), torch.zeros(n_classes, dtype=int)
 
 
+
+
+
+
             ## --- Training --- ##
             step += 1
             ## Process Labeled Data
-            x_lb, y_lb = batch_label['x_w'], batch_label['label']
-            # forward pass
-            outs_x_lb = netgroup.forward(x_lb, y_lb.to(device))
-            # compute loss for labeled data
-            sup_loss_nets = [ce_loss(outs_x_lb[i], y_lb.to(device)) for i in range(num_nets)]
-            # update netgorup from loss of labeled data
-            netgroup.update(sup_loss_nets)
-            if ema_mode:
-                netgroup.update_ema()
+            #x_lb, y_lb = batch_label['x_w'], batch_label['label']
+            x_lb, y_lb = batch_label['x'], batch_label['label']
+            
+            if len(y_lb) == bs :
+                # forward pass
+                outs_x_lb = netgroup.forward(x_lb, y_lb.to(device))
+                # compute loss for labeled data
+                sup_loss_nets = [ce_loss(outs_x_lb[i], y_lb.to(device)) for i in range(num_nets)]
+                # update netgorup from loss of labeled data
+                netgroup.update(sup_loss_nets)
+                if ema_mode:
+                    netgroup.update_ema()
+                    
+            
+            else : 
+                print('인스턴스가 7개가 아니여서 pass')
+                    
+                
+        
 
 
 
-
-
-
-            #import pdb; pdb.set_trace()
-            # Process Unlabeled Data
-            if load_mode == 'semi_SSL':
-                #for _ in range(ul_ratio):
-                #import pdb; pdb.set_trace()
+        # Process Unlabeled Data
+        if load_mode == 'semi_SSL':
+            #print("line 493 => SSL 시작됨(출력 구분 ====================================)")
+            
+            for i in range(ul_ratio):
+                #print(i)
                 try:
                     batch_unlabel = next(data_iter_unl)
-                    # print(batch_unlabel.values())
-                    # help(batch_unlabel)
-                    # input()
+
                 #except StopIteration:
                 except :
                     #print("trian_unlabeled_loader ->", train_unlabeled_loader)
                     #print("len(trian_unlabeled_loader) ->", len(train_unlabeled_loader))
                     data_iter_unl = iter(train_unlabeled_loader)
-                    batch_unlabel = next(data_iter_unl)
+                    batch_unlabel = next(data_iter_unl) # data_iter_unl은 7개의 ul_data가 잇음
                 
                 
                 
                 #for key, value in batch_unlabel.items():
-                #    print(f'Key: {key}, Value: {value}')
+                    #print(f'Key: {key},\n Value: {value}')
                 
                 
-                
+                # unlabel data 가져오기
                 x_ulb_s = batch_unlabel['x']
+
 
                 # Forward pass for the self-supervised task using weak augmentation
                 # SSL 체크부분
                 with torch.no_grad():
+                    # unlabel data의 예측값
                     outs_x_ulb_w_nets = netgroup.forward(x_ulb_s)
+                    #print("line 405")
+                    #print(outs_x_ulb_w_nets)
+                    #input()
 
                 # Generate pseudo labels and masks for all nets in one batch of unlabeled data
                 pseudo_labels_nets = []
                 u_psl_masks_nets = []
+                
 
-                #import pdb; pdb.set_trace()
                 for i in range(num_nets):
                     # Generate pseudo labels
                     logits_x_ulb_w = outs_x_ulb_w_nets[i]
@@ -385,15 +477,22 @@ def oneRun(log_dir, output_dir_experiment, **params):
                         max_idx = torch.argmax(logits_x_ulb_w, dim=-1)
                         pseudo_labels_nets.append(F.one_hot(max_idx, num_classes=n_classes).to(device))
 
+
+                    ########################################################################################################
                     # Compute mask for pseudo labels
                     probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
-                    #import pdb; pdb.set_trace()
-                    #print(probs_x_ulb_w )
+
                     max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
+                    #print(max_probs)
+                    # if not adaptive_threshold:
+                    #     # Fixed hard threshold
+                    #     pslt_global = psl_threshold_h
+                    #     u_psl_masks_nets.append(max_probs >= pslt_global)
                     if not adaptive_threshold:
                         # Fixed hard threshold
                         pslt_global = psl_threshold_h
-                        u_psl_masks_nets.append(max_probs >= pslt_global)
+                        u_psl_masks_nets.append(max_probs >= pslt_global)                    
+                    
                     else:
                         # Adaptive local threshold
                         pslt_global = psl_threshold_h
@@ -404,12 +503,30 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
                 # Compute loss for unlabeled data for all nets
                 total_unsup_loss_nets = []
+                
+                #import pdb; pdb.set_trace()
+                #print(u_psl_masks_nets)
+                #print(max_idx) 
+                #print(x_ulb_s['input_ids'])
+                #input()
+                # train data += unlabel datap
+                if any(any(item) for item in u_psl_masks_nets):
+                    #print("리스트에 True가 포함 O")
+                    
+                    train_dataset_l = get_pseudo_labeled_dataloader(train_dataset_l, shuffled_train_dataset_u, u_psl_masks_nets, max_idx, i, bs)
+                    
+                #else:
+                    #print("리스트에 True가 포함 X")
+                    
+                    
+                
+
+
                 for i in range(num_nets):
                     pseudo_label = pseudo_labels_nets[i]
                     u_psl_mask = u_psl_masks_nets[i]
-
-                    if weight_disagreement == 'True':
-                        # Obtain the mask for disagreement and agreement across nets
+                    
+                    if weight_disagreement:
                         disagree_mask = torch.logical_xor(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
                         agree_mask = torch.logical_and(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
                         disagree_weight_masked = disagree_weight * disagree_mask + (1 - disagree_weight) * agree_mask
@@ -422,12 +539,12 @@ def oneRun(log_dir, output_dir_experiment, **params):
                         disagree_weight_masked = None
 
                     # Compute loss for unlabeled data
-                    unsup_loss = consistency_loss(outs_x_ulb_w_nets[i], pseudo_label, loss_type='ce', mask=u_psl_mask,
-                                                disagree_weight_masked=disagree_weight_masked)
-
-                    # Compute total loss for unlabeled data
+                    unsup_loss = consistency_loss(outs_x_ulb_w_nets[i], pseudo_label, loss_type='ce', mask=u_psl_mask, disagree_weight_masked=disagree_weight_masked)
                     total_unsup_loss = weight_u_loss * unsup_loss
-                    total_unsup_loss_nets.append(total_unsup_loss)
+                    total_unsup_loss_nets.append(total_unsup_loss)                
+
+
+
 
                 # Update netgroup from loss of unlabeled data
                 # netgroup.update(total_unsup_loss_nets)
@@ -436,7 +553,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
                 # Additional Evaluation Metrics
                 
-                #import pdb; pdb.set_trace()
                 
                 gt_labels_u = batch_unlabel['label'][u_psl_mask].to(device)
                 #print("line 442, gt_labels_u:{}".format(gt_labels_u))
@@ -464,6 +580,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
                 cw_psl_total_accum += cw_psl_total
                 cw_psl_correct_accum += cw_psl_correct
+            
 
 
 
