@@ -25,34 +25,49 @@ print('current work directory: ', os.getcwd())
 ## psudolabel data추가하는 함수.
 # train, unlabel, mask_list,
 #unlabel에 mask_list에 해당하는 train을 여기에 넣어준다. 그리고 Dataloader돌림.
-def get_pseudo_labeled_dataloader(train_labeled_dataset, ul_data, ul_list, max_idx, index, bs=7):
+def get_pseudo_labeled_dataloader(train_labeled_dataset, ul_data, ul_list, max_idx, index, bs):
     # from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
     # from transformers import BertTokenizer
     # from torch.utils.data import Dataset, DataLoader, Sampler
     # tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+
+    if len(ul_list[0]) != bs:
+        print("**bs에 맞지않음!!!!!**\n")
+        return train_labeled_dataset 
+    #else:
+        #print('**bs맞음**\n')   
     
-    total = len(train_labeled_dataset)
-        
+
+    #print(len(ul_list[0]))
+    #import pdb; pdb.set_trace()    
     batch_unlabeled = []
     for batch_index in range(index*bs, index*bs+bs):
         batch_unlabeled.append(ul_data[batch_index])
+        
 
-    k = 0
+    total = len(train_labeled_dataset)
+    
+    #import pdb; pdb.set_trace()    
     for i in range(0, bs):  # 현재 배치에 대해 반복
-        mask = ul_list[0][k]
-        idx = max_idx[k]
+        #print(i,'번째의 배치의 추가')
+        #import pdb; pdb.set_trace()
+        mask = ul_list[0][i]
+        idx = max_idx[i]
         if mask.item():   # 해당 label이 pseudo-label 목록에 있는지 확인
             # pseudo-labeled 데이터를 데이터셋에 추가
+            
             train_labeled_dataset.add_data(batch_unlabeled[i][0],idx.item()+1)  # 데이터 추가
-        k += 1
+            
+            
+            if len(train_labeled_dataset) > total: 
+                print("line 48 -> pseudo-label 이후 train_labeled_dataset" , len(train_labeled_dataset))
+            #else :
+            #    print("Dataset중복으로 업데이트 됨")   
         
         
         
     
-    if len(train_labeled_dataset) > total: 
-        print("line 48 -> pseudo-label 이후 train_labeled_dataset" , len(train_labeled_dataset))
-    else :
-        print("Dataset중복으로 업데이트 됨")       
+    
     # import pdb; pdb.set_trace()
 
     # # 결합된 데이터에 대한 DataLoader 생성
@@ -72,6 +87,7 @@ def get_pseudo_labeled_dataloader(train_labeled_dataset, ul_data, ul_list, max_i
 
 # 학습 부분
 def oneRun(log_dir, output_dir_experiment, **params):
+    
     """ Run one experiment """
     ##### Default Setting #####
     ## Set input data path
@@ -147,10 +163,9 @@ def oneRun(log_dir, output_dir_experiment, **params):
     #### Load Data ####
     from utils.dataloader import get_dataloader
     
-    train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u, c_load_mode = get_dataloader(data_path, n_labeled_per_class, bs, load_mode)
+    train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u = get_dataloader(data_path, n_labeled_per_class, bs, load_mode)
    
     print('n_classes: ', n_classes)
-    print(c_load_mode)
     #print('line 152')
     # # used for degugging
     # sys.exit()
@@ -292,9 +307,12 @@ def oneRun(log_dir, output_dir_experiment, **params):
     netgroup.train()
     for epoch in range(max_epoch):
         if step > max_step:
-            print(step > max_step)
+            print("조기종료 step > max step =>", step > max_step)
             break
         if early_stop_flag:
+            #import pdb; pdb.set_trace()
+            print("종료된 epoch시점 : ", epoch, '(epoch - 10에서부터 acc_val증가 안됨.)')
+            print("조기종료 early_stop_flag ")
             break
         
         k = epoch #epoch마다 print를 위해서 대입
@@ -390,12 +408,16 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     early_stop_count+=1
                     if early_stop_count >= early_stop_tolerance:
                         early_stop_flag = True
+                        #import pdb; pdb.set_trace()
+                        #print("종료된 epoch시점 : ", epoch)
                         print('Early stopping trigger at step: ', step)
                         print('Best model at step: ', best_model_step)
+                        print("**조기종료됨**")
                         break
 
                 # initialize pseudo labels evaluation
-                psl_total_eval, psl_correct_eval = 0, 0
+                #psl_total_eval, psl_correct_eval = 0, 0
+                psl_correct_eval = 0
                 cw_psl_total_eval, cw_psl_correct_eval = torch.zeros(n_classes, dtype=int), torch.zeros(n_classes, dtype=int)
 
 
@@ -421,7 +443,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     
             
             else : 
-                print('인스턴스가 7개가 아니여서 pass')
+                print('train batch instace수가 7안됨 pass')
                     
                 
         
@@ -431,8 +453,11 @@ def oneRun(log_dir, output_dir_experiment, **params):
         # Process Unlabeled Data
         if load_mode == 'semi_SSL':
             #print("line 493 => SSL 시작됨(출력 구분 ====================================)")
+            #import pdb; pdb.set_trace()
+            ul_ratio = len(train_unlabeled_loader)
+
             
-            for i in range(ul_ratio):
+            for ratio in range(ul_ratio):
                 #print(i)
                 try:
                     batch_unlabel = next(data_iter_unl)
@@ -512,9 +537,9 @@ def oneRun(log_dir, output_dir_experiment, **params):
                 # train data += unlabel datap
                 if any(any(item) for item in u_psl_masks_nets):
                     #print("리스트에 True가 포함 O")
-                    
-                    train_dataset_l = get_pseudo_labeled_dataloader(train_dataset_l, shuffled_train_dataset_u, u_psl_masks_nets, max_idx, i, bs)
-                    
+                    #print("ratio - > ",ratio)
+                    train_dataset_l =  get_pseudo_labeled_dataloader(train_dataset_l, shuffled_train_dataset_u, u_psl_masks_nets, max_idx, ratio, bs)
+
                 #else:
                     #print("리스트에 True가 포함 X")
                     

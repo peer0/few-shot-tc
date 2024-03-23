@@ -37,13 +37,49 @@ class SEMI_SSL_Dataset(Dataset):
     def add_data(self, new_sent, new_label):
         if new_sent in self.sents:
             # 해당 데이터가 이미 존재하는 경우 레이블을 업데이트합니다.
+            #import pdb; pdb.set_trace()
+            #print("**동일 데이터 업데이트")
             idx = self.sents.index(new_sent)
             self.labels[idx] = new_label
         else:
             # 새로운 데이터인 경우 데이터와 레이블을 추가합니다.
+            #print("*추가 데이터 업데이트")
             self.sents.append(new_sent)
             self.labels.append(new_label)
             
+# 셔플 추가 코드            
+# class SEMI_SSL_Dataset(Dataset):
+#     def __init__(self, sents, labels=None, shuffle=False):
+#         self.shuffle = shuffle
+#         if shuffle:
+#             self.indices = torch.randperm(len(sents))
+#         else:
+#             self.indices = torch.arange(len(sents))
+        
+#         self.sents = [sents[i] for i in self.indices]
+        
+#         if labels is not None:
+#             self.labels = [labels[i] for i in self.indices]
+#         else:
+#             self.labels = None
+
+#     def __len__(self):
+#         return len(self.indices)
+    
+#     def __getitem__(self, idx):
+#         return self.sents[idx], self.labels[idx] if self.labels is not None else None
+    
+#     def add_data(self, new_sent, new_label):
+#         if new_sent in self.sents:
+#             # 해당 데이터가 이미 존재하는 경우 레이블을 업데이트합니다.
+#             idx = self.sents.index(new_sent)
+#             self.labels[idx] = new_label
+#         else:
+#             # 새로운 데이터인 경우 데이터와 레이블을 추가합니다.
+#             print("추가 데이터 업데이트")
+#             self.sents.append(new_sent)
+#             self.labels.append(new_label)
+
 
 
 
@@ -210,10 +246,10 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
     #     print('In this settting, we directly load the same labeled data split as in the SAT paper for fair comparison.')
         
     # # check statistics info
-    # print('n_labeled_per_class: ', n_labeled_per_class)
-    # print('train_df samples: %d' % (train_df.shape[0]))
-    # print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
-    # print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
+    print('n_labeled_per_class: ', n_labeled_per_class)
+    print('train_df samples: %d' % (train_df.shape[0]))
+    print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
+    print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
 
     # print('Check n_smaples_per_class in the original training set: ', train_df['label'].value_counts().sort_index().to_dict())
     # print('Check n_smaples_per_class in the labeled training set: ', train_l_df['label'].value_counts().sort_index().to_dict())
@@ -251,21 +287,22 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
             # train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
         
         #print('line266')
-        #import pdb; pdb.set_trace()
+        
         
         # content와 label만 뽑아내게 바꿈.
         train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
-        train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
-         
         
+        train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
+        
+        #shuffled_train_dataset_u = train_dataset_u
         # unlabel data 셔플이 일어남   
         #print("line 253")
         shuffled_indices = torch.randperm(len(train_dataset_u))
         shuffled_train_dataset_u = torch.utils.data.Subset(train_dataset_u, shuffled_indices)
-
         #train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator_SSL(tokenizer))
         train_loader_u = DataLoader(dataset=shuffled_train_dataset_u, batch_size=bs, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
-        # import pd/b; pdb.set_trace()
+        #train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
+        # import pdb; pdb.set_trace() 
         # shuffled_unlabeled_sets = []
         # for i in shuffled_train_dataset_u:
         #     temp_unlabeled = []
@@ -307,7 +344,7 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
     
     
     
-    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, shuffled_train_dataset_u, load_mode
+    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, shuffled_train_dataset_u
 
 
 
