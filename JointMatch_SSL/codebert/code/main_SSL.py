@@ -93,7 +93,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     ## Set input data path
     try:
         data_path = root + 'data/' + params['dataset']
-        print('\ndata_path: ', data_path)
+        print('\n**data_path**: ', data_path)
     except:
         data_path = root + 'data/ag_news'
         print('\ndata_path is not specified, use default path: ', data_path)
@@ -177,13 +177,13 @@ def oneRun(log_dir, output_dir_experiment, **params):
     from models.netgroup import NetGroup
 
     # Initialize model & optimizer & lr_scheduler
-    # net_arch = 'bert-base-uncased'
-    net_arch = 'microsoft/codebert-base'
+    #net_arch = 'bert-base-uncased'
+    #net_arch = 'microsoft/codebert-base'
     #net_arch = "Salesforce/codet5p-110m-embedding"
-    #net_arch = "microsoft/unixcoder-base"
+    net_arch = "microsoft/unixcoder-base"
 
     #print("#########################################")
-    print("line 147 모델 => ",net_arch)
+    print("**line 147 모델** => ",net_arch)
     #print("#########################################")
 
     netgroup = NetGroup(net_arch, num_nets, n_classes, device, lr, lr_linear)
@@ -301,7 +301,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
 
     from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
-    from transformers import BertTokenizer
+    from transformers import BertTokenizer, AutoTokenizer
     from torch.utils.data import Dataset, DataLoader, Sampler
     # Training
     netgroup.train()
@@ -320,7 +320,12 @@ def oneRun(log_dir, output_dir_experiment, **params):
         
         # 결합된 데이터에 대한 DataLoader 생성
 
-        tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        #tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
+        print("\ntokenizer", tokenizer, '\n')
+
+        
+        
         train_sampler = BalancedBatchSampler(train_dataset_l,bs)
         train_labeled_loader = DataLoader(dataset=train_dataset_l, batch_size=bs, shuffle= train_sampler, collate_fn=MyCollator_SSL(tokenizer))
         #input("데이터 추가 체크")

@@ -219,9 +219,9 @@ def train_split(labels, n_labeled_per_class, unlabeled_per_class=None): #unlabel
 #def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
 def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
         
-    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    #tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     #tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
-    #tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
+    tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
 
 
     train_df = pd.read_csv(os.path.join(data_path,'train.csv'))

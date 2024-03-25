@@ -1,6 +1,6 @@
 from main_SSL import multiRun
 # ## code_complex
-n_labeled_per_class = 10 #few shot 수
+n_labeled_per_class = 5 #few shot 수
 bs = 7  # 4, 8 # batch size
 #ul_ratio = 554            # 10shot 이면 549 , 5shot이면 554, 1shot이면 558 # 현재 전체 데이터로 자동으로 설정됨
 
@@ -9,7 +9,7 @@ bs = 7  # 4, 8 # batch size
 
 lr = 1e-5  # 
 weight_u_loss = 1
-psl_threshold_h = 0.7 # ul의 predict의 임계값
+psl_threshold_h = 0.98 # ul의 predict의 임계값
 #psl_threshold_h = 7
 adaptive_threshold = True
 
@@ -33,7 +33,7 @@ max_step = 100000
 
 device_idx = 0
 experiment_home = './experiment/test'  #저장소 path
-dataset = '../data_split'   # 'ag_news', 'yahoo', 'imdb', 'empatheticdialogues', 'threecrises', 'goemotions'
+dataset = '../data_split(java)'   # 'ag_news', 'yahoo', 'imdb', 'empatheticdialogues', 'threecrises', 'goemotions'
 # seeds_list = [0]
 # JointMatch
 num_runs = 1 # 같은 실험
