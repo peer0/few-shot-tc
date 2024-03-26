@@ -218,15 +218,23 @@ def train_split(labels, n_labeled_per_class, unlabeled_per_class=None): #unlabel
 ##############################################################################################################################
 #def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
 def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
-        
-    #tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+
+
+    #변경 필요
+    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     #tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
-    tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
+    #tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
+    #print("line227 -> tokenizer = ", tokenizer)
+
+
 
 
     train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
     dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
     test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
+    
+    #import pdb; pdb.set_trace()
+    
     
     #ihc
     # train_df = pd.read_csv(os.path.join(data_path,'train.tsv'), sep='\t')
@@ -294,9 +302,11 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
         
         train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
         
+        #import pdb; pdb.set_trace()
         #shuffled_train_dataset_u = train_dataset_u
         # unlabel data 셔플이 일어남   
         #print("line 253")
+        
         shuffled_indices = torch.randperm(len(train_dataset_u))
         shuffled_train_dataset_u = torch.utils.data.Subset(train_dataset_u, shuffled_indices)
         #train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator_SSL(tokenizer))
@@ -334,8 +344,8 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
     # dev_sampler = BalancedBatchSampler(dev_dataset,bs)
     # dev_loader = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=dev_sampler,collate_fn=MyCollator(tokenizer))
 
-    dev_loader = DataLoader(dataset=dev_dataset, batch_size=2*bs, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
-    test_loader = DataLoader(dataset=test_dataset, batch_size=2*bs, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
+    dev_loader = DataLoader(dataset=dev_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
+    test_loader = DataLoader(dataset=test_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
     
 
 

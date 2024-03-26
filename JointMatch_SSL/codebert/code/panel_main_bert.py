@@ -1,4 +1,4 @@
-from main_SSL import multiRun
+from main_SSL_bert import multiRun
 #from main_SSL_bert import multiRun
 #from main_SSL import multiRun
 # ## code_complex
@@ -11,7 +11,7 @@ bs = 7  # 4, 8 # batch size
 
 lr = 1e-5  # 
 weight_u_loss = 1
-psl_threshold_h = 0 # ul의 predict의 임계값
+psl_threshold_h = 0.7 # ul의 predict의 임계값
 #psl_threshold_h = 7
 adaptive_threshold = True
 
@@ -25,7 +25,7 @@ cross_labeling  = False # 여기에서는 SSL을 위한 실험이기에 FALSE �
 weight_disagreement = True
 disagree_weight = 0.9 
 
-ema_mode = True
+ema_mode = False
 
 ema_momentum = 0.9
 val_interval = 25  # 몇번째 만큼 검증을 하고 모델이 어떤지 파악하는 parameter
