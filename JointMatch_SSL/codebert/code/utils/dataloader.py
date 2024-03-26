@@ -217,11 +217,25 @@ def train_split(labels, n_labeled_per_class, unlabeled_per_class=None): #unlabel
 
 ##############################################################################################################################
 #def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
-def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL'):
-
+def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', token = None):
 
     #변경 필요
-    tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    if token == "microsoft/codebert-base":
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
+        
+    elif token == "Salesforce/codet5p-110m-embedding":
+        tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
+        
+    elif token == "microsoft/unixcoder-base":
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
+    
+    else:
+        print("token no name = error")
+
+        
+    #tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+    
+    #tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
     #tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
     #tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
     #print("line227 -> tokenizer = ", tokenizer)
