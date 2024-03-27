@@ -404,8 +404,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
                         break
 
                 # initialize pseudo labels evaluation
-                #psl_total_eval, psl_correct_eval = 0, 0
-                psl_correct_eval = 0
+                psl_total_eval, psl_correct_eval = 0, 0
+                #psl_correct_eval = 0
                 cw_psl_total_eval, cw_psl_correct_eval = torch.zeros(n_classes, dtype=int), torch.zeros(n_classes, dtype=int)
 
 

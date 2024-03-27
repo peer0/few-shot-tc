@@ -6,20 +6,20 @@ from main_SSL_load import multiRun
 # token, net_arch만 변경해서 이용하면됨.
 
 ### code_complex
-n_labeled_per_class = 10 #few shot 수
+n_labeled_per_class = 1 #few shot 수
 bs = 7  # 4, 8 # batch size
 #ul_ratio = 554            # 10shot 이면 549 , 5shot이면 554, 1shot이면 558 # 현재 전체 데이터로 자동으로 설정됨
 
 
 #token = "microsoft/codebert-base"
-#token = "microsoft/unixcoder-base"
-token = "Salesforce/codet5p-110m-embedding"
+token = "microsoft/unixcoder-base"
+#token = "Salesforce/codet5p-110m-embedding"
 
 #net_arch = 'microsoft/codebert-base'
-#net_arch = "microsoft/unixcoder-base"
-net_arch = "Salesforce/codet5p-110m-embedding"
+net_arch = "microsoft/unixcoder-base"
+#net_arch = "Salesforce/codet5p-110m-embedding"
 
-labeling_mode = 'soft'
+labeling_mode = 'hard'
 
 lr = 1e-5  # 
 weight_u_loss = 1
@@ -46,14 +46,20 @@ max_step = 100000
 
 device_idx = 0
 experiment_home = './experiment/few_shot'  #저장소 path
-dataset = '../codecomplex_java'   # 'ag_news', 'yahoo', 'imdb', 'empatheticdialogues', 'threecrises', 'goemotions'
-# seeds_list = [0]
+
+# 'ag_news', 'yahoo', 'imdb', 'empatheticdialogues', 'threecrises', 'goemotions'
+dataset = '../data/problem_based_split/java_extended_data' 
+#dataset = '../data/problem_based_split/python_extended_data' 
+#dataset = '../data/problem_based_split/corcod.index' 
+
+
+seeds_list = [0]
 # JointMatch
 num_runs = 1 # 같은 실험
 #num_nets = 2 # model 수.
 num_nets = 1 # model 수. # 여기에서는 SSL을 위한 실험이기에 1개의 모델만 이용함.
 
-save_name = "{}_{}_{}_{}".format(dataset.split('/')[1],net_arch.split('/')[1],n_labeled_per_class,psl_threshold_h)
+save_name = "{}_{}_{}_{}".format(dataset.split('/')[3],net_arch.split('/')[1],n_labeled_per_class,psl_threshold_h)
 
 #cross_labeling = True
 adaptive_threshold = True

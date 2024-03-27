@@ -234,11 +234,9 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
 
         
     #tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    
     #tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
     #tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
     #tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
-    #print("line227 -> tokenizer = ", tokenizer)
 
 
 
@@ -246,8 +244,6 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
     dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
     test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
-    
-    #import pdb; pdb.set_trace()
     
     
     #ihc
@@ -258,8 +254,7 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     labels = list(train_df["label"])
     num_class = len(set(labels))
     train_labeled_idxs, train_unlabeled_idxs = train_split(labels, n_labeled_per_class)
-    
-    #import pdb; pdb.set_trace()
+
     
     train_l_df, train_u_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True), train_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
     
