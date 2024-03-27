@@ -2,21 +2,24 @@ from main_SSL_load import multiRun
 ########################################중요 model이름 매번 바꿔서 넣어야함.
 
 
+
+# token, net_arch만 변경해서 이용하면됨.
+
 ### code_complex
-n_labeled_per_class = 5 #few shot 수
+n_labeled_per_class = 10 #few shot 수
 bs = 7  # 4, 8 # batch size
 #ul_ratio = 554            # 10shot 이면 549 , 5shot이면 554, 1shot이면 558 # 현재 전체 데이터로 자동으로 설정됨
 
-#max_epoch = 20 #원래 설정 안함.
 
-token = "microsoft/codebert-base"
-#token = "Salesforce/codet5p-110m-embedding"
+#token = "microsoft/codebert-base"
 #token = "microsoft/unixcoder-base"
+token = "Salesforce/codet5p-110m-embedding"
 
-net_arch = 'microsoft/codebert-base'
-# net_arch = "Salesforce/codet5p-110m-embedding"
-# net_arch = "microsoft/unixcoder-base"
+#net_arch = 'microsoft/codebert-base'
+#net_arch = "microsoft/unixcoder-base"
+net_arch = "Salesforce/codet5p-110m-embedding"
 
+labeling_mode = 'soft'
 
 lr = 1e-5  # 
 weight_u_loss = 1
@@ -27,7 +30,7 @@ max_epoch = 100
 
 #num_nets = 2 # joint match이기에 2개의 model을 이용해서 2. 
 num_nets = 1 # 여기에서는 SSL을 위한 실험이기에 1개의 모델만 이용함.
-#cross_labeling  = Tr
+
 cross_labeling  = False # 여기에서는 SSL을 위한 실험이기에 FALSE 이용함.
 
 weight_disagreement = True
@@ -63,4 +66,4 @@ multiRun(device_idx=device_idx, experiment_home=experiment_home, dataset=dataset
         weight_disagreement=weight_disagreement, disagree_weight=disagree_weight,
         ema_mode=ema_mode, ema_momentum=ema_momentum,
         val_interval=val_interval, early_stop_tolerance=early_stop_tolerance, max_step=max_step, 
-        max_epoch = max_epoch, save_name = save_name, token = token) # ul_ratio 자동 설정으로 뺌
+        max_epoch = max_epoch, save_name = save_name, token = token, net_arch = net_arch, labeling_mode = labeling_mode) # ul_ratio 자동 설정으로 뺌

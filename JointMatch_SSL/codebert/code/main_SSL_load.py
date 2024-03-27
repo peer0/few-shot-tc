@@ -39,7 +39,6 @@ def get_pseudo_labeled_dataloader(train_labeled_dataset, ul_data, ul_list, max_i
     
 
     #print(len(ul_list[0]))
-    #import pdb; pdb.set_trace()    
     batch_unlabeled = []
     for batch_index in range(index*bs, index*bs+bs):
         batch_unlabeled.append(ul_data[batch_index])
@@ -47,10 +46,9 @@ def get_pseudo_labeled_dataloader(train_labeled_dataset, ul_data, ul_list, max_i
 
     total = len(train_labeled_dataset)
     
-    #import pdb; pdb.set_trace()    
+
     for i in range(0, bs):  # 현재 배치에 대해 반복
         #print(i,'번째의 배치의 추가')
-        #import pdb; pdb.set_trace()
         mask = ul_list[0][i]
         idx = max_idx[i]
         if mask.item():   # 해당 label이 pseudo-label 목록에 있는지 확인
@@ -64,16 +62,6 @@ def get_pseudo_labeled_dataloader(train_labeled_dataset, ul_data, ul_list, max_i
             #else :
             #    print("Dataset중복으로 업데이트 됨")   
         
-        
-        
-    
-    
-    # import pdb; pdb.set_trace()
-
-    # # 결합된 데이터에 대한 DataLoader 생성
-    # train_sampler = BalancedBatchSampler(train_labeled_dataset,bs)
-    # combined_loader = DataLoader(dataset=train_labeled_dataset, batch_size=bs, shuffle= train_sampler, collate_fn=MyCollator_SSL(tokenizer))
-    # #input("데이터 추가 체크")
 
     
     return train_labeled_dataset
@@ -119,7 +107,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
     adaptive_threshold = False      if 'adaptive_threshold' not in params else params['adaptive_threshold'] # True, False
 
     # - ensemble
-    #num_nets = 2                    if 'num_nets' not in params else params['num_nets']
     num_nets = 1                    if 'num_nets' not in params else params['num_nets'] #SSL을 위한 추가
     cross_labeling = False          if 'cross_labeling' not in params else params['cross_labeling'] # True, False
 
@@ -141,21 +128,20 @@ def oneRun(log_dir, output_dir_experiment, **params):
     
     # Initialize model & optimizer & lr_scheduler
     net_arch = 'microsoft/codebert-base'  if 'net_arch' not in params else params['net_arch']
-    # net_arch = 'bert-base-uncased'
-    # net_arch = 'microsoft/codebert-base'
+    #net_arch = 'bert-base-uncased'
+    #net_arch = 'microsoft/codebert-base'
     #net_arch = "Salesforce/codet5p-110m-embedding"
     #net_arch = "microsoft/unixcoder-base"
 
     token = "microsoft/codebert-base" if 'token' not in params else params['token']
     #tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    
     #tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
     #tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
     #tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
     
     # save name
     save_name = 'pls_save_name'       if 'save_name' not in params else params['save_name']       
-
+    
     ## Set random seed and device
     # Fix random seed
     import torch
@@ -320,11 +306,11 @@ def oneRun(log_dir, output_dir_experiment, **params):
     # Training
     netgroup.train()
     for epoch in range(max_epoch):
+        epoch += 1
         if step > max_step:
             print("조기종료 step > max step =>", step > max_step)
             break
         if early_stop_flag:
-            #import pdb; pdb.set_trace()
             print("종료된 epoch시점 : ", epoch, '(epoch - 11에서부터 acc_val증가 안됨.)')
             print("조기종료 early_stop_flag ")
             break
@@ -333,15 +319,11 @@ def oneRun(log_dir, output_dir_experiment, **params):
         
         
         # 결합된 데이터에 대한 DataLoader 생성
-
         tokenizer = AutoTokenizer.from_pretrained(token)
         train_sampler = BalancedBatchSampler(train_dataset_l,bs)
         train_labeled_loader = DataLoader(dataset=train_dataset_l, batch_size=bs, shuffle= train_sampler, collate_fn=MyCollator_SSL(tokenizer))
-        #input("데이터 추가 체크")
         
-        
-        print("\nline 257 => epoch", epoch)
-        print('line 303 => train data수', len(train_dataset_l))
+        print('\nline 303 => train data수', len(train_dataset_l))
         print("line 258 => 인스턴스 수" , len(iter(train_labeled_loader)))
 
 
@@ -416,8 +398,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     early_stop_count+=1
                     if early_stop_count >= early_stop_tolerance:
                         early_stop_flag = True
-                        #import pdb; pdb.set_trace()
-                        #print("종료된 epoch시점 : ", epoch)
                         print('Early stopping trigger at step: ', step)
                         print('Best model at step: ', best_model_step)
                         print("**조기종료됨**")
@@ -460,27 +440,17 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
         # Process Unlabeled Data
         if load_mode == 'semi_SSL':
-            #print("line 493 => SSL 시작됨(출력 구분 ====================================)")
-            #import pdb; pdb.set_trace()
             ul_ratio = len(train_unlabeled_loader)
 
-            
             for ratio in range(ul_ratio):
-                #print(i)
                 try:
                     batch_unlabel = next(data_iter_unl)
 
                 #except StopIteration:
                 except :
-                    #print("trian_unlabeled_loader ->", train_unlabeled_loader)
-                    #print("len(trian_unlabeled_loader) ->", len(train_unlabeled_loader))
                     data_iter_unl = iter(train_unlabeled_loader)
                     batch_unlabel = next(data_iter_unl) # data_iter_unl은 7개의 ul_data가 잇음
                 
-                
-                
-                #for key, value in batch_unlabel.items():
-                    #print(f'Key: {key},\n Value: {value}')
                 
                 
                 # unlabel data 가져오기
@@ -492,14 +462,13 @@ def oneRun(log_dir, output_dir_experiment, **params):
                 with torch.no_grad():
                     # unlabel data의 예측값
                     outs_x_ulb_w_nets = netgroup.forward(x_ulb_s)
-                    #print("line 405")
-                    #print(outs_x_ulb_w_nets)
-                    #input()
 
                 # Generate pseudo labels and masks for all nets in one batch of unlabeled data
                 pseudo_labels_nets = []
                 u_psl_masks_nets = []
                 
+                
+                import pdb; pdb.set_trace
 
                 for i in range(num_nets):
                     # Generate pseudo labels
@@ -511,16 +480,15 @@ def oneRun(log_dir, output_dir_experiment, **params):
                         pseudo_labels_nets.append(F.one_hot(max_idx, num_classes=n_classes).to(device))
 
 
-                    ########################################################################################################
+  
                     # Compute mask for pseudo labels
                     probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
+                    
 
+                    
                     max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
-                    #print(max_probs)
-                    # if not adaptive_threshold:
-                    #     # Fixed hard threshold
-                    #     pslt_global = psl_threshold_h
-                    #     u_psl_masks_nets.append(max_probs >= pslt_global)
+
+                    
                     if not adaptive_threshold:
                         # Fixed hard threshold
                         pslt_global = psl_threshold_h
@@ -537,20 +505,9 @@ def oneRun(log_dir, output_dir_experiment, **params):
                 # Compute loss for unlabeled data for all nets
                 total_unsup_loss_nets = []
                 
-                #import pdb; pdb.set_trace()
-                #print(u_psl_masks_nets)
-                #print(max_idx) 
-                #print(x_ulb_s['input_ids'])
-                #input()
-                # train data += unlabel datap
                 if any(any(item) for item in u_psl_masks_nets):
-                    #print("리스트에 True가 포함 O")
-                    #print("ratio - > ",ratio)
                     train_dataset_l =  get_pseudo_labeled_dataloader(train_dataset_l, shuffled_train_dataset_u, u_psl_masks_nets, max_idx, ratio, bs)
 
-                #else:
-                    #print("리스트에 True가 포함 X")
-                    
                     
                 
 
@@ -735,7 +692,7 @@ def multiRun(experiment_home=None, num_runs=3, unit_test_mode=False, **params):
 
     # create folders for each run
     for i in range(num_runs):
-        log_dir = log_dir_multiRun + str(seeds_list[i]) + '/'
+        log_dir = log_dir_multiRun + str(seeds_list[i]) + '/' + params['save_name']
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
 
