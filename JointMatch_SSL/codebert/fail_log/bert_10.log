@@ -1,0 +1,49 @@
+current work directory:  /home/imsuhan22/few-shot-tc/JointMatch_SSL/codebert/code
+
+data_path:  ../data/../data_split(java)
+
+There are 1 GPU(s) available.
+We will use the GPU- 0 NVIDIA GeForce RTX 3090
+n_labeled_per_class:  5
+train_df samples: 3911
+train_labeled_df samples: 35
+train_unlabeled_df samples: 3876
+n_classes:  7
+line 147 모델 =>  Salesforce/codet5p-110m-embedding
+net_arch:  Salesforce/codet5p-110m-embedding lr:  1e-05
+
+line 257 => epoch 0
+line 303 => train data수 35
+line 258 => 인스턴스 수 5
+=======test_loader=======
+=======dev_loader=======
+=======train_labeled_loader=======
+=======finish=======
+>>Epoch 0 Step 0 acc_test 0.159509 f1_test 0.088757 acc_val 0.188139 f1_val 0.104547 acc_train 0.171429 f1_train 0.101553 psl_cor 0 psl_totl 0 pslt_global 0.000000  Tim 0:00:19
+acc_train_cw [0.2, 0.4, 0.0, 0.0, 0.0, 0.6, 0.0]
+cw_psl_eval:  [0, 0, 0, 0, 0, 0, 0] [0, 0, 0, 0, 0, 0, 0]
+psl_acc: None cw_psl_acc:  [nan, nan, nan, nan, nan, nan, nan]
+Save model to ./experiment/test/output/
+> /home/imsuhan22/few-shot-tc/JointMatch_SSL/codebert/code/main_SSL_codet5.py(545)oneRun()
+-> if any(any(item) for item in u_psl_masks_nets):
+(Pdb) [tensor([False, False, False, False, False, False, False], device='cuda:0')]
+(Pdb) tensor([4, 4, 5, 1, 5, 1, 4], device='cuda:0')
+(Pdb) tensor([[-0.0510, -0.0045, -0.0775, -0.0801,  0.0018, -0.0222, -0.0819],
+        [-0.0391, -0.0208, -0.0751, -0.0509, -0.0010, -0.0117, -0.0619],
+        [-0.0291, -0.0028, -0.0602, -0.0797,  0.0019,  0.0035, -0.0698],
+        [-0.0378,  0.0150, -0.0619, -0.1007, -0.0298, -0.0171, -0.0780],
+        [-0.0129, -0.0464, -0.0671, -0.0933, -0.0254,  0.0002, -0.0804],
+        [-0.0165,  0.0134, -0.0948, -0.0762, -0.0116, -0.0213, -0.0731],
+        [-0.0454, -0.0400, -0.0801, -0.0474,  0.0047, -0.0171, -0.0701]],
+       device='cuda:0')
+(Pdb) tensor([[-0.0510, -0.0045, -0.0775, -0.0801,  0.0018, -0.0222, -0.0819],
+        [-0.0391, -0.0208, -0.0751, -0.0509, -0.0010, -0.0117, -0.0619],
+        [-0.0291, -0.0028, -0.0602, -0.0797,  0.0019,  0.0035, -0.0698],
+        [-0.0378,  0.0150, -0.0619, -0.1007, -0.0298, -0.0171, -0.0780],
+        [-0.0129, -0.0464, -0.0671, -0.0933, -0.0254,  0.0002, -0.0804],
+        [-0.0165,  0.0134, -0.0948, -0.0762, -0.0116, -0.0213, -0.0731],
+        [-0.0454, -0.0400, -0.0801, -0.0474,  0.0047, -0.0171, -0.0701]],
+       device='cuda:0')
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) 

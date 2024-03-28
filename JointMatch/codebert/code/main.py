@@ -179,7 +179,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
             class_counts = dict(zip(unique.cpu().numpy(), counts.cpu().numpy()))
             # Sort the dictionary by keys (class labels)
             class_counts = {k: v for k, v in sorted(class_counts.items())}
-            print(f"Batch class counts: {class_counts}")
+            #print(f"Batch class counts: {class_counts}")
             
         # Calculate acc and macro-F1
         # print('preds_all', preds_all)
