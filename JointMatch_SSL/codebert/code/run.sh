@@ -8,6 +8,7 @@ for nshot in 1 5 10; do
 					for tolerence in 10 20 30; do
 						echo "python3 panel_main_load.py ${nshot} ${model} ${lr} ${thres} ${tolerence} ../data/problem_based_split/${language}_extended_data > ../result_log/${nshot}_${model}_${lr}_${thres}_${tolerence}_${language}.log" 
 						python3 panel_main_load.py ${nshot} ${model} ${lr} ${thres} ${tolerence} ../data/problem_based_split/${language}_extended_data > ../result_log/${nshot}_${model}_${lr}_${thres}_${tolerence}_${language}.log 
+
 					done
 				done
 			done
