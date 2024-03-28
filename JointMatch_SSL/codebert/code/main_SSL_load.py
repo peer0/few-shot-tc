@@ -26,11 +26,6 @@ print('current work directory: ', os.getcwd())
 # train, unlabel, mask_list,
 #unlabel에 mask_list에 해당하는 train을 여기에 넣어준다. 그리고 Dataloader돌림.
 def get_pseudo_labeled_dataloader(train_labeled_dataset, ul_data, ul_list, max_idx, index, bs):
-    # from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
-    # from transformers import BertTokenizer
-    # from torch.utils.data import Dataset, DataLoader, Sampler
-    # tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-
     if len(ul_list[0]) != bs:
         print("**bs에 맞지않음!!!!!**\n")
         return train_labeled_dataset 
@@ -57,8 +52,9 @@ def get_pseudo_labeled_dataloader(train_labeled_dataset, ul_data, ul_list, max_i
             train_labeled_dataset.add_data(batch_unlabeled[i][0],idx.item()+1)  # 데이터 추가
             
             
-            #if len(train_labeled_dataset) > total: 
-            #    print("line 48 -> pseudo-label 이후 train_labeled_dataset" , len(train_labeled_dataset))
+            # if len(train_labeled_dataset) > total:
+            #     total = len(train_labeled_dataset) 
+            #     print("line 48 -> pseudo-label 이후 train_labeled_dataset" , len(train_labeled_dataset))
             #else :
             #    print("Dataset중복으로 업데이트 됨")   
         
@@ -127,7 +123,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     max_step = 100000               if 'max_step' not in params else params['max_step'] # 100000, 200000
     
     # Initialize model & optimizer & lr_scheduler
-    net_arch = 'microsoft/codebert-base'  if 'net_arch' not in params else params['net_arch']
+    net_arch = params['net_arch']
     #net_arch = 'bert-base-uncased'
     #net_arch = 'microsoft/codebert-base'
     #net_arch = "Salesforce/codet5p-110m-embedding"
@@ -257,6 +253,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
         # print('target_all', target_all)
         preds_all = torch.cat(preds_all).detach().cpu()
         target_all = torch.cat(target_all).detach().cpu()
+        
+        
         
         # print('preds_all', preds_all)
         # print('target_all', target_all)
@@ -484,10 +482,12 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     # Compute mask for pseudo labels
                     probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
                     
+                    
 
                     
                     max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
-
+                    #print(max_probs)
+                    #print(max_idx)
                     
                     if not adaptive_threshold:
                         # Fixed hard threshold
