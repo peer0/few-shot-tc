@@ -9,7 +9,8 @@ from torch.utils.data import Dataset, DataLoader, Sampler
 
 
 
- # ** data augmentation은 밑에 넣어서 이용하면 될듯 합ㄴ다. 
+ # ** data augmentation을 밑에를 바탕으로 새로운 class선언을 해서 이용합니다 체크. 
+ 
 class SEMIDataset(Dataset):
     def __init__(self, sents, sents_aug1, sents_aug2, labels=None):
         self.sents = sents
@@ -280,7 +281,7 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
 
 
 
-    # data augmentation 이용하려면 load mode추가.
+    # data augmentation 이용하려면 load mode추가해서 밑에와 같이 사용할 수 있는지 체크.
     
     ##load_mode == 'semi'때는 SEMIDataset class 실행 -> synonym_aug와back_translation데이터 가져옴
     if load_mode == 'semi':
