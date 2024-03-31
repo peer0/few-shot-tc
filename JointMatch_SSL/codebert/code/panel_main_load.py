@@ -17,7 +17,6 @@ bs = 7  # 4, 8 # batch size
 #ul_ratio = 554            # 10shot 이면 549 , 5shot이면 554, 1shot이면 558 # 현재 전체 데이터로 자동으로 설정됨
 
 
-
 model_name = sys.argv[2]
 if model_name=='codebert':
         token = "microsoft/codebert-base"

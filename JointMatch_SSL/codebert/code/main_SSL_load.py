@@ -319,6 +319,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
         # 결합된 데이터에 대한 DataLoader 생성
         tokenizer = AutoTokenizer.from_pretrained(token)
         train_sampler = BalancedBatchSampler(train_dataset_l,bs)
+        
+        # MyCollator_SSL은 기존의 MyCollator는 data를 augmentation을 함.
         train_labeled_loader = DataLoader(dataset=train_dataset_l, batch_size=bs, shuffle= train_sampler, collate_fn=MyCollator_SSL(tokenizer))
         
         print('\nline 303 => train data수', len(train_dataset_l))
@@ -459,6 +461,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
                 # SSL 체크부분
                 with torch.no_grad():
                     # unlabel data의 예측값
+                    
+                    # symbolic-based pseudo-label 모듈 사용할 부분 .forward 대신에 netgroup.py에서 symbolic-based pseudo-label 모듈 호출후 process_code이용하면 될거라고 생각함.#################################### 
                     outs_x_ulb_w_nets = netgroup.forward(x_ulb_s)
 
                 # Generate pseudo labels and masks for all nets in one batch of unlabeled data

@@ -8,6 +8,8 @@ from transformers import BertTokenizer, AutoTokenizer
 from torch.utils.data import Dataset, DataLoader, Sampler
 
 
+
+
 class SEMIDataset(Dataset):
     def __init__(self, sents, sents_aug1, sents_aug2, labels=None):
         self.sents = sents
@@ -95,6 +97,8 @@ class SEMINoAugDataset(Dataset):
     def __getitem__(self, idx):
         return self.sents[idx], self.labels[idx]
 
+
+    # ** data augmentation은 밑에 data를 append 하는 부분을 변경해서 넣어서 이용하면 될듯 합ㄴ다. 
 class MyCollator(object):
     def __init__(self, tokenizer):
         self.tokenizer = tokenizer
@@ -239,12 +243,10 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     #tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
 
 
-
-
+    # ** data augmentation을 밑에 넣어서 이용하면 될듯합니다. train_df에 합쳐서 이용하면 될 것 같습니다############################################################################################################## 
     train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
     dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
     test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
-    
     
     #ihc
     # train_df = pd.read_csv(os.path.join(data_path,'train.tsv'), sep='\t')
@@ -257,6 +259,10 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
 
     
     train_l_df, train_u_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True), train_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
+
+    
+    
+    
     
     # if 'imdb' in data_path:
     #     train_l_df = pd.read_csv(os.path.join(data_path,'train_{}.csv'.format(n_labeled_per_class)))
@@ -272,22 +278,25 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     # print('Check n_smaples_per_class in the labeled training set: ', train_l_df['label'].value_counts().sort_index().to_dict())
     # print('Check n_smaples_per_class in the unlabeled training set: ', train_u_df['label'].value_counts().sort_index().to_dict())
 
-    # ##load_mode == 'semi'때는 SEMIDataset class 실행 -> synonym_aug와back_translation데이터 가져옴
-    # if load_mode == 'semi':
-    #     if 'yahoo' in data_path:
-    #         bt_df = pd.read_csv(os.path.join(data_path, 'bt_train.csv'))
-    #         bt_l_df, bt_u_df = bt_df.iloc[train_labeled_idxs].reset_index(drop=True), bt_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
-    #         train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['synonym_aug'].to_list(), bt_l_df['back_translation'], labels=train_l_df['label'].to_list())
-    #         train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['synonym_aug'].to_list(), bt_u_df['back_translation'], labels=train_u_df['label'].to_list())
-    #     else:
-    #         train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['synonym_aug'].to_list(), train_l_df['back_translation'], labels=train_l_df['label'].to_list())
-    #         train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['synonym_aug'].to_list(), train_u_df['back_translation'], labels=train_u_df['label'].to_list())
+
+
+
+    ##load_mode == 'semi'때는 SEMIDataset class 실행 -> synonym_aug와back_translation데이터 가져옴
+    if load_mode == 'semi':
+        if 'yahoo' in data_path:
+            bt_df = pd.read_csv(os.path.join(data_path, 'bt_train.csv'))
+            bt_l_df, bt_u_df = bt_df.iloc[train_labeled_idxs].reset_index(drop=True), bt_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
+            train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['synonym_aug'].to_list(), bt_l_df['back_translation'], labels=train_l_df['label'].to_list())
+            train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['synonym_aug'].to_list(), bt_u_df['back_translation'], labels=train_u_df['label'].to_list())
+        else:
+            train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['synonym_aug'].to_list(), train_l_df['back_translation'], labels=train_l_df['label'].to_list())
+            train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['synonym_aug'].to_list(), train_u_df['back_translation'], labels=train_u_df['label'].to_list())
         
         
-    #     train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator(tokenizer))
-    #     #2024-01-26
-    #     # sampler = BalancedBatchSampler(train_dataset_u,bs)
-    #     # train_loader_u = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=sampler,collate_fn=MyCollator(tokenizer))
+        train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator(tokenizer))
+        #2024-01-26
+        # sampler = BalancedBatchSampler(train_dataset_u,bs)
+        # train_loader_u = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=sampler,collate_fn=MyCollator(tokenizer))
     
     
     ######### SSL실험 추가
@@ -311,16 +320,15 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
         
         train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
         
-        #import pdb; pdb.set_trace()
         #shuffled_train_dataset_u = train_dataset_u
         # unlabel data 셔플이 일어남   
-        #print("line 253")
-        
         shuffled_indices = torch.randperm(len(train_dataset_u))
         shuffled_train_dataset_u = torch.utils.data.Subset(train_dataset_u, shuffled_indices)
+        
         #train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator_SSL(tokenizer))
         train_loader_u = DataLoader(dataset=shuffled_train_dataset_u, batch_size=bs, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
         #train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
+        
         # import pdb; pdb.set_trace() 
         # shuffled_unlabeled_sets = []
         # for i in shuffled_train_dataset_u:

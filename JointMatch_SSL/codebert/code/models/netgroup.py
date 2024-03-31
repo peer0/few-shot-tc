@@ -204,7 +204,7 @@ class NetGroup(nn.Module):
         return outs
  ########## ########## ########## 수정 필요  ########## ########## ##########
 
-
+      
 
 
     # forward the group of networks from the same batch input
@@ -287,3 +287,9 @@ class NetGroup(nn.Module):
                 ema_model[i].load_state_dict(checkpoint['ema_model'])
                 self.emas[i].load(ema_model[i])
             print('Load model from {}'.format(filename))
+            
+            
+            
+            
+
+# Cass symbolic-based pseudo-label 모듈을 여기에 추가해서 main_SSL_load.py에서 호출.
