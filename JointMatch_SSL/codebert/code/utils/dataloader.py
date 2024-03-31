@@ -9,7 +9,7 @@ from torch.utils.data import Dataset, DataLoader, Sampler
 
 
 
-
+ # ** data augmentation은 밑에 넣어서 이용하면 될듯 합ㄴ다. 
 class SEMIDataset(Dataset):
     def __init__(self, sents, sents_aug1, sents_aug2, labels=None):
         self.sents = sents
@@ -98,7 +98,7 @@ class SEMINoAugDataset(Dataset):
         return self.sents[idx], self.labels[idx]
 
 
-    # ** data augmentation은 밑에 data를 append 하는 부분을 변경해서 넣어서 이용하면 될듯 합ㄴ다. 
+   
 class MyCollator(object):
     def __init__(self, tokenizer):
         self.tokenizer = tokenizer
@@ -243,7 +243,7 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     #tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
 
 
-    # ** data augmentation을 밑에 넣어서 이용하면 될듯합니다. train_df에 합쳐서 이용하면 될 것 같습니다############################################################################################################## 
+    
     train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
     dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
     test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
@@ -280,7 +280,8 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
 
 
 
-
+    # data augmentation 이용하려면 load mode추가.
+    
     ##load_mode == 'semi'때는 SEMIDataset class 실행 -> synonym_aug와back_translation데이터 가져옴
     if load_mode == 'semi':
         if 'yahoo' in data_path:

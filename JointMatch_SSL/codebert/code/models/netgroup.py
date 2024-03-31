@@ -42,6 +42,7 @@ class CustomModel(nn.Module):
         return logits
 
 
+# symbolic-based pesudo-label 모듈을 밑에 추가해서 train() 대신에 호출하기.##############################################
 class NetGroup(nn.Module):
     def __init__(self, net_arch, num_nets, n_classes, device, lr, lr_linear=1e-3):
         super(NetGroup, self).__init__()
