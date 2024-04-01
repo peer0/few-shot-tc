@@ -16,3 +16,5 @@ for nshot in 10; do
 done
 
 # 10_codebert - 1e-5 0.7 20 오류뜸
+
+#panel_main_load.py 10 unixcoder 1e-4 0.8 20 오류
