@@ -1,6 +1,7 @@
 import os
 import random
 import sys
+from tqdm import tqdm
 
 import numpy as np
 import pandas as pd
@@ -140,10 +141,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
     
     ## Set random seed and device
     # Fix random seed
-    import torch
-    random.seed(seed)
-    torch.manual_seed(seed)
-    np.random.seed(seed)
     cudnn.deterministic = True
     cudnn.benchmark = True
 
@@ -287,6 +284,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     pslt_global = 0
     psl_total_eval = 0
     psl_correct_eval = 0
+    early_stop_count = 0
     cw_psl_total, cw_psl_correct = torch.zeros(n_classes, dtype=int), torch.zeros(n_classes, dtype=int)
     cw_psl_total_eval, cw_psl_correct_eval = torch.zeros(n_classes, dtype=int), torch.zeros(n_classes, dtype=int)
     cw_psl_total_accum, cw_psl_correct_accum = torch.zeros(n_classes, dtype=int), torch.zeros(n_classes, dtype=int)
@@ -302,6 +300,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     from transformers import AutoTokenizer
     from torch.utils.data import Dataset, DataLoader, Sampler
     # Training
+    pbar = tqdm(total=max_step,desc="{} training".format(net_arch))
     netgroup.train()
     for epoch in range(max_epoch):
         epoch += 1
@@ -570,6 +569,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
                 cw_psl_total_accum += cw_psl_total
                 cw_psl_correct_accum += cw_psl_correct
+
+        pbar.update(1)
             
 
 

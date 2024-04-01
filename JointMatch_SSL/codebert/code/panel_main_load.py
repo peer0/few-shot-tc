@@ -82,7 +82,7 @@ dataset = sys.argv[6]
 #dataset = '../data/problem_based_split/corcod.index' 
 
 
-seeds_list = [42]
+seeds_list = [43]
 # JointMatch
 num_runs = 1 # 같은 실험
 #num_nets = 2 # model 수.
