@@ -24,6 +24,8 @@ class SEMIDataset(Dataset):
     def __getitem__(self, idx):
         return self.sents[idx], self.sents_aug1[idx], self.sents_aug2[idx], self.labels[idx]
 
+
+
 class SEMI_SSL_Dataset(Dataset):
     def __init__(self, sents, labels=None):
         self.sents = sents
