@@ -47,7 +47,7 @@ for filename in os.listdir('.'):
                 best_epoch, best_test_acc, best_test_f1, acc_val = result
 
 
-                results.append((modelname,nshot,learning_rate,threshold,tolerence,acc_val, best_test_acc, best_test_f1, best_epoch))
+                results.append((datasetname,modelname,nshot,learning_rate,threshold,tolerence,acc_val, best_test_acc, best_test_f1, best_epoch))
                 #print(results)
                 #best_step, best_test_acc, best_test_f1, acc_val = result
                 #print("File:", filename)
@@ -65,7 +65,7 @@ for filename in os.listdir('.'):
 csv_filename = 'extracted_results.csv'
 with open(csv_filename, 'w', newline='') as csvfile:
     csv_writer = csv.writer(csvfile)
-    csv_writer.writerow(['modelname', 'nshot', 'learning_rate', 'threshold', 'tolerence', 'acc_val', 'test_acc', 'test_f1', 'best_epoch'])
+    csv_writer.writerow(['language','modelname', 'nshot', 'learning_rate', 'threshold', 'tolerence', 'acc_val', 'test_acc', 'test_f1', 'best_epoch'])
     for result in results:
         csv_writer.writerow(result)
 
