@@ -1,0 +1,302 @@
+current work directory:  /home/imsuhan22/few-shot-tc/JointMatch_SSL/codebert/code
+python_extended_data
+save_name: 5_codebert-base_0.0001_0.7_10_python_extended_data
+
+data_path:  ../data/../data/problem_based_split/python_extended_data
+
+There are 1 GPU(s) available.
+We will use the GPU- 0 NVIDIA GeForce RTX 3090
+
+**line 147 모델 =>  microsoft/codebert-base
+**tokenizer type =  microsoft/codebert-base 
+
+n_labeled_per_class:  5
+train_df samples: 3974
+train_labeled_df samples: 35
+train_unlabeled_df samples: 3939
+n_classes:  7 
+
+net_arch:  microsoft/codebert-base lr:  0.0001
+
+line 303 => train data수 35
+line 258 => 인스턴스 수 5
+=======test_loader=======
+=======dev_loader=======
+=======train_labeled_loader=======
+=======finish=======
+>>Epoch 1 Step 0 acc_test 0.122951 f1_test 0.031283 acc_val 0.228013 f1_val 0.053050 acc_train 0.142857 f1_train 0.035714 psl_cor 0 psl_totl 0 pslt_global 0.000000  Tim 0:00:14
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+Save model to ./experiment/few_shot/output/
+tensor([[0.1426, 0.1333, 0.1192, 0.1699, 0.1441, 0.1600, 0.1310],
+        [0.1370, 0.1377, 0.1071, 0.1574, 0.1516, 0.1939, 0.1154],
+        [0.1276, 0.1241, 0.1593, 0.1742, 0.1205, 0.1656, 0.1287],
+        [0.1988, 0.1498, 0.0859, 0.1209, 0.1726, 0.1592, 0.1128],
+        [0.1879, 0.1120, 0.1362, 0.1396, 0.1384, 0.1625, 0.1235],
+        [0.1856, 0.1202, 0.1322, 0.1614, 0.1370, 0.1450, 0.1187],
+        [0.1469, 0.1294, 0.1428, 0.1574, 0.1475, 0.1560, 0.1200]],
+       device='cuda:0')
+
+line 303 => train data수 35
+line 258 => 인스턴스 수 5
+=======test_loader=======
+=======dev_loader=======
+=======train_labeled_loader=======
+=======finish=======
+>>Epoch 2 Step 5 acc_test 0.245902 f1_test 0.133426 acc_val 0.100977 f1_val 0.038106 acc_train 0.257143 f1_train 0.139881 psl_cor 0 psl_totl 0 pslt_global 0.700000  Tim 0:00:57
+acc_train_cw(현재 train의 class별 acc) [1.0, 0.0, 0.0, 0.0, 0.0, 0.8, 0.0]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+tensor([[0.1377, 0.1496, 0.1530, 0.0973, 0.1299, 0.1801, 0.1525],
+        [0.1231, 0.1292, 0.1719, 0.1108, 0.1259, 0.1761, 0.1630],
+        [0.1249, 0.1327, 0.1816, 0.1586, 0.1125, 0.1472, 0.1425],
+        [0.1249, 0.1356, 0.1700, 0.1339, 0.1062, 0.1588, 0.1705],
+        [0.1435, 0.1335, 0.1646, 0.1437, 0.1059, 0.1750, 0.1339],
+        [0.1262, 0.1197, 0.1733, 0.1190, 0.1151, 0.1747, 0.1720],
+        [0.1311, 0.1399, 0.1666, 0.1210, 0.1110, 0.1798, 0.1506]],
+       device='cuda:0')
+
+line 303 => train data수 35
+line 258 => 인스턴스 수 5
+=======test_loader=======
+=======dev_loader=======
+=======train_labeled_loader=======
+=======finish=======
+>>Epoch 3 Step 10 acc_test 0.317623 f1_test 0.122731 acc_val 0.123779 f1_val 0.054458 acc_train 0.285714 f1_train 0.127047 psl_cor 0 psl_totl 0 pslt_global 0.700000  Tim 0:01:41
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+tensor([[0.1350, 0.1238, 0.1694, 0.1672, 0.1285, 0.1237, 0.1524],
+        [0.1245, 0.1312, 0.1671, 0.1228, 0.1374, 0.1382, 0.1788],
+        [0.1374, 0.1352, 0.1945, 0.1644, 0.1296, 0.1182, 0.1208],
+        [0.1382, 0.1286, 0.1700, 0.1694, 0.1220, 0.1317, 0.1402],
+        [0.1387, 0.1362, 0.1684, 0.1721, 0.1179, 0.1239, 0.1428],
+        [0.1353, 0.1375, 0.1755, 0.1627, 0.1208, 0.1352, 0.1330],
+        [0.1591, 0.1643, 0.1064, 0.1113, 0.1492, 0.1547, 0.1549]],
+       device='cuda:0')
+
+line 303 => train data수 35
+line 258 => 인스턴스 수 5
+=======test_loader=======
+=======dev_loader=======
+=======train_labeled_loader=======
+=======finish=======
+>>Epoch 4 Step 15 acc_test 0.125000 f1_test 0.074240 acc_val 0.302932 f1_val 0.153211 acc_train 0.371429 f1_train 0.227368 psl_cor 0 psl_totl 0 pslt_global 0.700000  Tim 0:02:25
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 1.0, 0.8, 0.0, 0.0, 0.8]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+Save model to ./experiment/few_shot/output/
+tensor([[0.1386, 0.1206, 0.1719, 0.1486, 0.1202, 0.1567, 0.1433],
+        [0.1178, 0.1339, 0.1135, 0.1643, 0.1916, 0.1344, 0.1445],
+        [0.1474, 0.1294, 0.1751, 0.2105, 0.1180, 0.1119, 0.1078],
+        [0.1530, 0.1202, 0.1626, 0.1497, 0.1295, 0.1325, 0.1524],
+        [0.1451, 0.1298, 0.1613, 0.1905, 0.1128, 0.1200, 0.1405],
+        [0.0874, 0.0891, 0.2004, 0.1327, 0.2339, 0.1300, 0.1265],
+        [0.0947, 0.1579, 0.0958, 0.1044, 0.1525, 0.2050, 0.1898]],
+       device='cuda:0')
+
+line 303 => train data수 35
+line 258 => 인스턴스 수 5
+=======test_loader=======
+=======dev_loader=======
+=======train_labeled_loader=======
+=======finish=======
+>>Epoch 5 Step 20 acc_test 0.280738 f1_test 0.159673 acc_val 0.280130 f1_val 0.170177 acc_train 0.428571 f1_train 0.378048 psl_cor 0 psl_totl 0 pslt_global 0.700000  Tim 0:03:14
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.2, 0.2, 1.0, 0.4, 0.8, 0.4]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+tensor([[0.0657, 0.0534, 0.1043, 0.0395, 0.3081, 0.2203, 0.2086],
+        [0.0959, 0.0696, 0.0784, 0.0339, 0.2969, 0.2318, 0.1936],
+        [0.1440, 0.1175, 0.2821, 0.2388, 0.0840, 0.0573, 0.0762],
+        [0.0638, 0.0603, 0.1172, 0.0362, 0.2939, 0.1903, 0.2384],
+        [0.0922, 0.0472, 0.1562, 0.0484, 0.3152, 0.1336, 0.2073],
+        [0.1505, 0.1062, 0.2293, 0.2028, 0.1175, 0.0808, 0.1129],
+        [0.0603, 0.0554, 0.0864, 0.0304, 0.3028, 0.2365, 0.2282]],
+       device='cuda:0')
+
+line 303 => train data수 56
+line 258 => 인스턴스 수 8
+=======test_loader=======
+=======dev_loader=======
+=======train_labeled_loader=======
+=======finish=======
+>>Epoch 6 Step 25 acc_test 0.102459 f1_test 0.090131 acc_val 0.250814 f1_val 0.131003 acc_train 0.464286 f1_train 0.426438 psl_cor 4 psl_totl 21 pslt_global 0.700000  Tim 0:03:59
+acc_train_cw(현재 train의 class별 acc) [0.4, 0.071, 0.0, 0.824, 0.8, 0.6, 0.4]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 9, 0, 12, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 4, 0, 0, 0, 0, 0]
+psl_acc(이전 PSL 평가에서의 정확도):  0.19 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, 0.4444444477558136, nan, 0.0, nan, nan, nan]
+tensor([[0.1084, 0.2768, 0.0601, 0.4303, 0.0351, 0.0412, 0.0482],
+        [0.0605, 0.4999, 0.0146, 0.0584, 0.0238, 0.0910, 0.2517],
+        [0.1242, 0.1853, 0.0810, 0.5354, 0.0330, 0.0227, 0.0185],
+        [0.1007, 0.3918, 0.0468, 0.2556, 0.0398, 0.0678, 0.0974],
+        [0.1028, 0.4291, 0.0358, 0.1561, 0.0431, 0.0704, 0.1627],
+        [0.0955, 0.3489, 0.0485, 0.3671, 0.0332, 0.0503, 0.0565],
+        [0.0698, 0.4998, 0.0146, 0.0666, 0.0398, 0.0931, 0.2163]],
+       device='cuda:0')
+**bs에 맞지않음!!!!!**
+
+
+line 303 => train data수 782
+line 258 => 인스턴스 수 112
+=======test_loader=======
+=======dev_loader=======
+=======train_labeled_loader=======
+=======finish=======
+>>Epoch 7 Step 33 acc_test 0.272541 f1_test 0.104643 acc_val 0.091205 f1_val 0.044244 acc_train 0.897698 f1_train 0.184537 psl_cor 126 psl_totl 741 pslt_global 0.700000  Tim 0:04:50
+acc_train_cw(현재 train의 class별 acc) [0.0, 1.0, 0.0, 0.926, 0.0, 0.0, 0.0]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 6, 0, 735, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 126, 0, 0, 0]
+psl_acc(이전 PSL 평가에서의 정확도):  0.17 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, 0.0, nan, 0.17142857611179352, nan, nan, nan]
+train batch instace수가 7안됨 pass
+tensor([[0.0129, 0.0515, 0.0203, 0.8712, 0.0085, 0.0175, 0.0181],
+        [0.0103, 0.0542, 0.0153, 0.8843, 0.0063, 0.0145, 0.0150],
+        [0.0142, 0.0510, 0.0174, 0.8828, 0.0064, 0.0128, 0.0155],
+        [0.0133, 0.0681, 0.0224, 0.8448, 0.0099, 0.0206, 0.0209],
+        [0.0123, 0.0557, 0.0177, 0.8731, 0.0080, 0.0147, 0.0186],
+        [0.0124, 0.0609, 0.0150, 0.8752, 0.0066, 0.0145, 0.0154],
+        [0.0106, 0.0431, 0.0177, 0.8892, 0.0082, 0.0153, 0.0160]],
+       device='cuda:0')
+**bs에 맞지않음!!!!!**
+
+
+line 303 => train data수 3902
+line 258 => 인스턴스 수 558
+=======test_loader=======
+=======dev_loader=======
+=======train_labeled_loader=======
+=======finish=======
+>>Epoch 8 Step 145 acc_test 0.161885 f1_test 0.039809 acc_val 0.387622 f1_val 0.079812 acc_train 0.992568 f1_train 0.142324 psl_cor 580 psl_totl 3939 pslt_global 0.700000  Tim 0:06:17
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 3939, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 580, 0, 0, 0]
+psl_acc(이전 PSL 평가에서의 정확도):  0.147 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, 0.14724549651145935, nan, nan, nan]
+Save model to ./experiment/few_shot/output/
+train batch instace수가 7안됨 pass
+tensor([[8.3789e-04, 1.6289e-03, 1.1822e-03, 9.9406e-01, 7.2270e-04, 1.0424e-03,
+         5.2735e-04],
+        [1.4200e-03, 1.5412e-03, 1.0652e-03, 9.9313e-01, 8.4893e-04, 1.4362e-03,
+         5.5457e-04],
+        [1.6330e-03, 2.3815e-03, 1.1343e-03, 9.9217e-01, 9.2940e-04, 1.2635e-03,
+         4.8745e-04],
+        [1.1804e-03, 2.0652e-03, 1.0888e-03, 9.9322e-01, 6.0214e-04, 1.3528e-03,
+         4.8855e-04],
+        [1.6807e-03, 2.2560e-03, 1.6240e-03, 9.9118e-01, 9.9488e-04, 1.5844e-03,
+         6.7695e-04],
+        [1.6007e-03, 2.3400e-03, 1.1357e-03, 9.9080e-01, 1.4141e-03, 1.8355e-03,
+         8.7695e-04],
+        [1.0184e-03, 1.5865e-03, 8.1462e-04, 9.9445e-01, 6.5353e-04, 1.0025e-03,
+         4.7409e-04]], device='cuda:0')
+**bs에 맞지않음!!!!!**
+
+
+line 303 => train data수 3902
+line 258 => 인스턴스 수 558
+=======test_loader=======
+=======dev_loader=======
+=======train_labeled_loader=======
+=======finish=======
+>>Epoch 9 Step 703 acc_test 0.161885 f1_test 0.039809 acc_val 0.387622 f1_val 0.079812 acc_train 0.992568 f1_train 0.142324 psl_cor 580 psl_totl 3939 pslt_global 0.700000  Tim 0:08:58
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 3939, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 580, 0, 0, 0]
+psl_acc(이전 PSL 평가에서의 정확도):  0.147 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, 0.14724549651145935, nan, nan, nan]
+train batch instace수가 7안됨 pass
+tensor([[1.7050e-03, 6.5556e-04, 5.6534e-04, 9.9461e-01, 5.5281e-04, 6.7899e-04,
+         1.2296e-03],
+        [1.0654e-03, 5.1460e-04, 3.3263e-04, 9.9665e-01, 3.6802e-04, 4.7316e-04,
+         5.9382e-04],
+        [1.3550e-03, 6.2850e-04, 6.1590e-04, 9.9485e-01, 6.9357e-04, 8.6528e-04,
+         9.8890e-04],
+        [9.5379e-04, 8.8767e-04, 6.2423e-04, 9.9546e-01, 6.2651e-04, 5.2631e-04,
+         9.2165e-04],
+        [9.9272e-04, 7.1280e-04, 4.2573e-04, 9.9584e-01, 4.9775e-04, 6.7065e-04,
+         8.6070e-04],
+        [1.4794e-03, 1.0841e-03, 8.7861e-04, 9.9354e-01, 9.0757e-04, 8.2487e-04,
+         1.2876e-03],
+        [1.2070e-03, 7.1859e-04, 6.0105e-04, 9.9487e-01, 7.4496e-04, 7.8007e-04,
+         1.0757e-03]], device='cuda:0')
+**bs에 맞지않음!!!!!**
+
+
+line 303 => train data수 3902
+line 258 => 인스턴스 수 558
+=======test_loader=======
+=======dev_loader=======
+=======train_labeled_loader=======
+=======finish=======
+>>Epoch 10 Step 1261 acc_test 0.161885 f1_test 0.039809 acc_val 0.387622 f1_val 0.079812 acc_train 0.992568 f1_train 0.142324 psl_cor 580 psl_totl 3939 pslt_global 0.700000  Tim 0:11:28
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 3939, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 580, 0, 0, 0]
+psl_acc(이전 PSL 평가에서의 정확도):  0.147 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, 0.14724549651145935, nan, nan, nan]
+train batch instace수가 7안됨 pass
+tensor([[2.1712e-04, 4.4717e-04, 1.1999e-03, 9.9610e-01, 5.0432e-04, 7.4705e-04,
+         7.8447e-04],
+        [4.3393e-04, 4.9019e-04, 2.4536e-03, 9.9389e-01, 9.8274e-04, 9.1176e-04,
+         8.4055e-04],
+        [5.0049e-04, 4.4548e-04, 1.4696e-03, 9.9422e-01, 8.8269e-04, 1.1082e-03,
+         1.3736e-03],
+        [2.7430e-04, 3.9875e-04, 1.7252e-03, 9.9563e-01, 4.8972e-04, 6.0990e-04,
+         8.7173e-04],
+        [3.6098e-04, 2.7719e-04, 1.6206e-03, 9.9566e-01, 4.7827e-04, 5.6351e-04,
+         1.0387e-03],
+        [3.5885e-04, 3.3329e-04, 1.1124e-03, 9.9560e-01, 9.5086e-04, 6.4586e-04,
+         9.9573e-04],
+        [3.3110e-04, 3.9863e-04, 1.7290e-03, 9.9534e-01, 6.1760e-04, 6.2063e-04,
+         9.5998e-04]], device='cuda:0')
+**bs에 맞지않음!!!!!**
+
+
+line 303 => train data수 3902
+line 258 => 인스턴스 수 558
+=======test_loader=======
+=======dev_loader=======
+=======train_labeled_loader=======
+=======finish=======
+>>Epoch 11 Step 1819 acc_test 0.161885 f1_test 0.039809 acc_val 0.387622 f1_val 0.079812 acc_train 0.992568 f1_train 0.142324 psl_cor 580 psl_totl 3939 pslt_global 0.700000  Tim 0:13:54
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 3939, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 580, 0, 0, 0]
+psl_acc(이전 PSL 평가에서의 정확도):  0.147 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, 0.14724549651145935, nan, nan, nan]
+train batch instace수가 7안됨 pass
+tensor([[1.6286e-03, 1.6987e-04, 7.8526e-04, 9.9568e-01, 5.0138e-04, 2.3921e-04,
+         9.9655e-04],
+        [7.7466e-04, 1.4205e-04, 7.0569e-04, 9.9715e-01, 3.5523e-04, 2.0879e-04,
+         6.6682e-04],
+        [9.9430e-04, 1.3385e-04, 4.9299e-04, 9.9718e-01, 3.5088e-04, 1.4485e-04,
+         7.0711e-04],
+        [1.1542e-03, 3.0029e-04, 8.7732e-04, 9.9615e-01, 4.9431e-04, 2.2425e-04,
+         7.9978e-04],
+        [1.2909e-03, 1.6590e-04, 5.1209e-04, 9.9627e-01, 4.4918e-04, 2.2320e-04,
+         1.0910e-03],
+        [1.2154e-03, 1.6268e-04, 7.9426e-04, 9.9584e-01, 4.6187e-04, 2.7454e-04,
+         1.2468e-03],
+        [9.4312e-04, 1.5391e-04, 5.1534e-04, 9.9668e-01, 4.1550e-04, 2.2956e-04,
+         1.0673e-03]], device='cuda:0')
+**bs에 맞지않음!!!!!**
+
+
+line 303 => train data수 3902
+line 258 => 인스턴스 수 558
+=======test_loader=======
+=======dev_loader=======
+=======train_labeled_loader=======
+=======finish=======
+>>Epoch 12 Step 2377 acc_test 0.161885 f1_test 0.039809 acc_val 0.387622 f1_val 0.079812 acc_train 0.992568 f1_train 0.142324 psl_cor 580 psl_totl 3939 pslt_global 0.700000  Tim 0:16:30
