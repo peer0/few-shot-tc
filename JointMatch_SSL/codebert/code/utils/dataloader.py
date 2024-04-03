@@ -236,6 +236,12 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     elif token == "microsoft/unixcoder-base":
         tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
     
+    
+    
+    
+    elif token == "Salesforce/codet5p-220m":
+        tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-220m")
+    
     else:
         print("token no name = error")
 

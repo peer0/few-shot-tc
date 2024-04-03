@@ -124,16 +124,10 @@ def oneRun(log_dir, output_dir_experiment, **params):
     
     # Initialize model & optimizer & lr_scheduler
     net_arch = params['net_arch']
-    #net_arch = 'bert-base-uncased'
-    #net_arch = 'microsoft/codebert-base'
-    #net_arch = "Salesforce/codet5p-110m-embedding"
-    #net_arch = "microsoft/unixcoder-base"
+
 
     token = "microsoft/codebert-base" if 'token' not in params else params['token']
-    #tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    #tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
-    #tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
-    #tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
+
     
     # save name
     save_name = 'pls_save_name'       if 'save_name' not in params else params['save_name']       
@@ -309,8 +303,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
             print("조기종료 step > max step =>", step > max_step)
             break
         if early_stop_flag:
-            print("종료된 epoch시점 : ", epoch, '(epoch - 11에서부터 acc_val증가 안됨.)')
-            print("조기종료 early_stop_flag ")
+            print("acc_val 증가안된 epoch시점 : ", epoch - (early_stop_tolerance+1))
+            print("early_stop_flag")
             break
         
         k = epoch #epoch마다 print를 위해서 대입
@@ -381,10 +375,11 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     })
 
                 # check classwise psl accuracy and total psl accuracy for the current eval
-                print('acc_train_cw',acc_train_cw)
-                print('cw_psl_eval: ', cw_psl_total_eval.tolist(), cw_psl_correct_eval.tolist())
-                print('psl_acc: ', round((psl_correct_eval/psl_total_eval),3), end=' ') if psl_total_eval > 0 else print('psl_acc: None', end=' ')
-                print('cw_psl_acc: ', (cw_psl_correct_eval/cw_psl_total_eval).tolist())
+                print('acc_train_cw(현재 train의 class별 acc)',acc_train_cw)
+                print('cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수): ', cw_psl_total_eval.tolist())
+                print('cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수): ', cw_psl_correct_eval.tolist())
+                print('psl_acc(이전 PSL 평가에서의 정확도): ', round((psl_correct_eval/psl_total_eval),3), end=' ') if psl_total_eval > 0 else print('psl_acc(PSL 평가에서의 정확도): None', end=' ')
+                print('\ncw_psl_acc(이전 클래스별 PSL 평가에서의 정확도): ', (cw_psl_correct_eval/cw_psl_total_eval).tolist())
 
                 # Early stopping & Save best model
                 # - best criterion: acc_val 
@@ -400,7 +395,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
                         early_stop_flag = True
                         print('Early stopping trigger at step: ', step)
                         print('Best model at step: ', best_model_step)
-                        print("**조기종료됨**")
+                        print("**조기종료됨**\n")
+                        print("가장 높은 acc_val : ", best_acc)
                         break
 
                 # initialize pseudo labels evaluation
@@ -469,9 +465,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                 pseudo_labels_nets = []
                 u_psl_masks_nets = []
                 
-                
-                import pdb; pdb.set_trace
-
+            
                 for i in range(num_nets):
                     # Generate pseudo labels
                     logits_x_ulb_w = outs_x_ulb_w_nets[i]
@@ -486,7 +480,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     # Compute mask for pseudo labels
                     probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
                     
-                    
+                    if ratio < 1:
+                        print(probs_x_ulb_w)
 
                     
                     max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)

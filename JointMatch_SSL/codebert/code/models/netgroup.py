@@ -17,7 +17,7 @@ from transformers import PreTrainedModel, AutoModel
 
 
 
-# change
+#change
 class CustomModel(nn.Module):
     def __init__(self, transformer_model_name, n_classes=7):
         super(CustomModel, self).__init__()
@@ -33,13 +33,42 @@ class CustomModel(nn.Module):
     def forward(self, input_ids, attention_mask=None, labels=None):  # Add 'labels' argument
 
         # Obtain transformer output
-        # import pdb; pdb.set_trace()
         # transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask, labels=labels).last_hidden_state.mean(dim=1)
         transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask)
         # Pass through the linear layer for classification
         logits = self.linear_layer(transformer_output)
 
         return logits
+
+# code5tp - 220m
+# class CustomModel(nn.Module):
+#     def __init__(self, transformer_model_name, n_classes=7):
+#         super(CustomModel, self).__init__()
+
+#         # Load the transformer model without the classification head
+#         config = AutoConfig.from_pretrained(transformer_model_name, trust_remote_code=True)
+#         self.text_transformer = AutoModelForSequenceClassification.from_pretrained(transformer_model_name, num_labels=n_classes, trust_remote_code=True)
+
+#     def forward(self, input_ids, attention_mask=None, labels=None):
+#         # Obtain transformer output
+#         outputs = self.text_transformer(input_ids, attention_mask=attention_mask, labels=labels)
+        
+#         # If labels are provided, compute the loss
+#         if labels is not None:
+#             loss = outputs.loss
+#         else:
+#             loss = None
+        
+#         # Extract the logits
+#         logits = outputs.logits
+
+#         return logits, loss
+
+
+
+
+
+
 
 
 # symbolic-based pesudo-label 모듈을 밑에 추가해서 train() 대신에 호출하기.##############################################
@@ -82,16 +111,25 @@ class NetGroup(nn.Module):
         elif net_arch == 'microsoft/codebert-base':
             net =  AutoModelForSequenceClassification.from_pretrained('microsoft/codebert-base', num_labels = self.n_classes)
 
+
+
         #T5, Unicoder 추가
         elif net_arch == "Salesforce/codet5p-110m-embedding":
             model = CustomModel("Salesforce/codet5p-110m-embedding")
             net = model
             #net = AutoModel.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True, num_labels = self.n_classes)
 
-           
         elif net_arch == "microsoft/unixcoder-base":
             net =  AutoModelForSequenceClassification.from_pretrained("microsoft/unixcoder-base", num_labels = self.n_classes)
-        
+
+
+
+
+        elif net_arch == "Salesforce/codet5p-220m":
+            model = CustomModel("Salesforce/codet5p-220m")
+            net = model
+
+
         net.to(self.device)
         return net
     
@@ -125,8 +163,13 @@ class NetGroup(nn.Module):
         elif self.net_arch == "microsoft/unixcoder-base":
             optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
             print('net_arch: ', self.net_arch, 'lr: ', lr)
+            
+            
+        
+        elif self.net_arch == "Salesforce/codet5p-220m":
+            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
+            print('net_arch: ', self.net_arch, 'lr: ', lr)
     #test
-
         return optimizer_net
     
  ########## ########## ########## 수정 필요  ########## ########## ##########
@@ -189,7 +232,6 @@ class NetGroup(nn.Module):
 
         #T5, Unixcoder 추가
         elif self.net_arch == "Salesforce/codet5p-110m-embedding":
-            # import pdb;pdb.set_trace()
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
             # outs = net(input_ids, attention_mask=attention_mask, return_dict=True).last_hidden_state
@@ -202,6 +244,19 @@ class NetGroup(nn.Module):
             # outs = net(input_ids, attention_mask=attention_mask, return_dict=True).last_hidden_state
             outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
 
+
+
+
+
+        elif self.net_arch == "Salesforce/codet5p-220m":
+            input_ids = x['input_ids'].to(self.device)
+            attention_mask = x['attention_mask'].to(self.device)
+            outs = net(input_ids, attention_mask=attention_mask, labels=y)
+ 
+            #outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
+
+
+
         return outs
  ########## ########## ########## 수정 필요  ########## ########## ##########
 
@@ -210,7 +265,6 @@ class NetGroup(nn.Module):
 
     # forward the group of networks from the same batch input
     def forward(self, x, y=None):
-        # import pdb;pdb.set_trace()
         outs = []
         for i in range(self.num_nets):
             outs.append(self.forward_net(self.nets[i], x, y))
@@ -252,7 +306,6 @@ class NetGroup(nn.Module):
     def save_model(self, path, name, ema_mode=False):
         # use ema model for evaluation
         ema_model = {}
-        #import pdb; pdb.set_trace()
         for i in range(self.num_nets):
             filename = os.path.join(path, name + '_net' + str(i) + '.pth')
             # switch to eval mode with EMA
