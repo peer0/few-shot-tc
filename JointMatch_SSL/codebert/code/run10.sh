@@ -1,6 +1,6 @@
 
 for nshot in 10; do
-	for language in java python; do
+	for language in python; do
 		for thres in 0.7 0.8 0.9; do
 			for model in 'codebert' 'unixcoder' 'codet5p'; do
 				for lr in '1e-5' '1e-4' '5e-4' ; do
