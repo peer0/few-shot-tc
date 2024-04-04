@@ -2,6 +2,7 @@ import os
 import random
 import sys
 from tqdm import tqdm
+import time
 
 import numpy as np
 import pandas as pd
@@ -10,6 +11,19 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
+from torch.utils.data import Dataset, DataLoader, Sampler
+from torchmetrics import Accuracy
+from torchmetrics.classification import MulticlassConfusionMatrix
+
+from transformers import AutoTokenizer
+from sklearn.metrics import f1_score, accuracy_score
+
+from utils.dataloader import get_dataloader
+from models.netgroup import NetGroup
+from utils.helper import format_time
+from criterions.criterions import ce_loss, consistency_loss
+from utils.helper import freematch_fairness_loss
+from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
 
 
 #### Set Path ####
@@ -23,58 +37,26 @@ print('current work directory: ', os.getcwd())
 
 
 
-## psudolabel data추가하는 함수.
-# train, unlabel, mask_list,
-#unlabel에 mask_list에 해당하는 train을 여기에 넣어준다. 그리고 Dataloader돌림.
 def get_pseudo_labeled_dataloader(train_labeled_dataset, ul_data, ul_list, max_idx, index, bs):
     if len(ul_list[0]) != bs:
         print("**bs에 맞지않음!!!!!**\n")
         return train_labeled_dataset 
-    #else:
-        #print('**bs맞음**\n')   
-    
-
-    #print(len(ul_list[0]))
     batch_unlabeled = []
     for batch_index in range(index*bs, index*bs+bs):
         batch_unlabeled.append(ul_data[batch_index])
-        
 
     total = len(train_labeled_dataset)
-    
 
-    for i in range(0, bs):  # 현재 배치에 대해 반복
-        #print(i,'번째의 배치의 추가')
+    for i in range(0, bs):
         mask = ul_list[0][i]
         idx = max_idx[i]
-        if mask.item():   # 해당 label이 pseudo-label 목록에 있는지 확인
-            # pseudo-labeled 데이터를 데이터셋에 추가
-            
-            train_labeled_dataset.add_data(batch_unlabeled[i][0],idx.item()+1)  # 데이터 추가
-            
-            
-            # if len(train_labeled_dataset) > total:
-            #     total = len(train_labeled_dataset) 
-            #     print("line 48 -> pseudo-label 이후 train_labeled_dataset" , len(train_labeled_dataset))
-            #else :
-            #    print("Dataset중복으로 업데이트 됨")   
-        
-
-    
+        if mask.item():
+            train_labeled_dataset.add_data(batch_unlabeled[i][0],idx.item()+1)
     return train_labeled_dataset
 
-
-
-
-
-
-
-
-# 학습 부분
-def oneRun(log_dir, output_dir_experiment, **params):
+def oneRun(output_dir_path, **params):
     
     """ Run one experiment """
-    ##### Default Setting #####
     ## Set input data path
     try:
         data_path = root + 'data/' + params['dataset']
@@ -85,89 +67,70 @@ def oneRun(log_dir, output_dir_experiment, **params):
         print('\ndata_path is not specified, use default path: ', data_path)
 
     ## Set output directory: used to store saved model and other outputs
-    output_dir_path = output_dir_experiment
+    #output_dir_path = experiment_home
 
     ## Set default hyperparameters
-    n_labeled_per_class = 10        if 'n_labeled_per_class' not in params else params['n_labeled_per_class']
-    bs = 8                          if 'bs' not in params else params['bs']      # original: 32
-    ul_ratio = 10                   if 'ul_ratio' not in params else params['ul_ratio']     
-    lr = 2e-5                       if 'lr' not in params else params['lr']      # original: 1e-4, 2e-5  
-    lr_linear = 1e-3                if 'lr_linear' not in params else params['lr_linear'] # original: 1e-3      
+    n_labeled_per_class = params['n_labeled_per_class']
+    bs = params['bs']
+    # ul_ratio = params['ul_ratio']     
+    psl_threshold_h = params['psl_threshold_h']
+    lr = params['lr']
+    #lr_linear = params['lr_linear']
 
-    # - semi-supervised 
-    weight_u_loss =0.1              if 'weight_u_loss' not in params else params['weight_u_loss']
-    load_mode = 'semi_SSL'          if 'load_mode' not in params else params['load_mode'] # semi, sup_baseline
+    weight_u_loss = params['weight_u_loss']
+    load_mode = params['load_mode'] # semi, sup_baseline
 
-    # - pseudo-labeling
-    psl_threshold_h = 0.98          if 'psl_threshold_h' not in params else params['psl_threshold_h']   # original: 0.75
-    labeling_mode = 'hard'          if 'labeling_mode' not in params else params['labeling_mode'] # hard, soft
-    adaptive_threshold = False      if 'adaptive_threshold' not in params else params['adaptive_threshold'] # True, False
+    labeling_mode = params['labeling_mode'] # hard, soft
+    adaptive_threshold = params['adaptive_threshold'] # True, False
 
     # - ensemble
-    num_nets = 1                    if 'num_nets' not in params else params['num_nets'] #SSL을 위한 추가
-    cross_labeling = False          if 'cross_labeling' not in params else params['cross_labeling'] # True, False
+    num_nets = params['num_nets'] #SSL을 위한 추가
+    cross_labeling = params['cross_labeling'] # True, False
 
     # - weight disagreement
-    weight_disagreement = False     if 'weight_disagreement' not in params else params['weight_disagreement'] # True, False
-    disagree_weight = 1             if 'disagree_weight' not in params else params['disagree_weight']
+    weight_disagreement = params['weight_disagreement'] # True, False
+    disagree_weight = params['disagree_weight']
 
     # - ema
-    ema_mode = False                if 'ema_mode' not in params else params['ema_mode']
-    ema_momentum = 0.9              if 'ema_momentum' not in params else params['ema_momentum'] # original: 0.99
+    ema_mode = params['ema_mode']
+    ema_momentum = params['ema_momentum'] # original: 0.99
 
     # - others
     seed = params['seed']
-    device_idx = 1                  if 'device_idx' not in params else params['device_idx']
-    val_interval = 25               if 'val_interval' not in params else params['val_interval'] # 20, 25
-    early_stop_tolerance = 10       if 'early_stop_tolerance' not in params else params['early_stop_tolerance'] # 5, 6, 10
-    max_epoch = 10000                if 'max_epoch' not in params else params['max_epoch'] # 100, 200
-    max_step = 100000               if 'max_step' not in params else params['max_step'] # 100000, 200000
+    device_idx = params['device_idx']
+    val_interval = params['val_interval'] # 20, 25
+    early_stop_tolerance = params['early_stop_tolerance'] # 5, 6, 10
+    max_epoch = params['max_epoch'] # 100, 200
+    max_step = params['max_step'] # 100000, 200000
     
     # Initialize model & optimizer & lr_scheduler
     net_arch = params['net_arch']
-    #net_arch = 'bert-base-uncased'
-    #net_arch = 'microsoft/codebert-base'
-    #net_arch = "Salesforce/codet5p-110m-embedding"
-    #net_arch = "microsoft/unixcoder-base"
 
-    token = "microsoft/codebert-base" if 'token' not in params else params['token']
-    #tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    #tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
-    #tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
-    #tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
     
     # save name
-    save_name = 'pls_save_name'       if 'save_name' not in params else params['save_name']       
+    save_name = params['save_name']       
     
     ## Set random seed and device
     # Fix random seed
     cudnn.deterministic = True
     cudnn.benchmark = True
+    
 
     # Check & set device
-    if torch.cuda.is_available():     
-        device = torch.device("cuda", device_idx)
-        print('\nThere are %d GPU(s) available.' % torch.cuda.device_count())
-        print('We will use the GPU-', device_idx, torch.cuda.get_device_name(device_idx))
-    else:
-        print('\nNo GPU available, using the CPU instead.')
-        device = torch.device("cpu")
+    assert torch.cuda.is_available()
+    device = torch.device("cuda", device_idx)
+    print('\nThere are %d GPU(s) available.' % torch.cuda.device_count())
+    print('We will use the GPU-', device_idx, torch.cuda.get_device_name(device_idx))
 
-
+    tokenizer = AutoTokenizer.from_pretrained(net_arch)
 
 
     #### Load Data ####
-    from utils.dataloader import get_dataloader
     print("\n**line 147 모델 => ",net_arch)
-    print('**tokenizer type = ',token,'\n')
-    
-    if net_arch != token:
-        print("net_arch != tokenizer!!!")
-        input()
-        
+    print('**tokenizer type = ',net_arch,'\n')
     
     #train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u = get_dataloader(data_path, n_labeled_per_class, bs, load_mode)
-    train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u = get_dataloader(data_path, n_labeled_per_class, bs, load_mode, token)
+    train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u = get_dataloader(data_path, n_labeled_per_class, bs, load_mode, net_arch)
    
     print('n_classes: ', n_classes, '\n')
     #print('line 152')
@@ -178,8 +141,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
 
     ##### Model & Optimizer & Learning Rate Scheduler #####
-    from models.netgroup import NetGroup
-    netgroup = NetGroup(net_arch, num_nets, n_classes, device, lr, lr_linear)
+    # netgroup = NetGroup(net_arch, num_nets, n_classes, device, lr, lr_linear)
+    netgroup = NetGroup(net_arch, num_nets, n_classes, device, lr)
     
     # Initialize EMA
     netgroup.train()
@@ -192,16 +155,11 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
     ##### Training & Evaluation #####
     ## Set or import criterions & helper functions
-    from utils.helper import format_time
-    from criterions.criterions import ce_loss, consistency_loss
 
 
     ## Evaluation
     # define evaluation metrics
     # from torchmetrics import F1Score
-    from sklearn.metrics import f1_score, accuracy_score
-    from torchmetrics import Accuracy
-    from torchmetrics.classification import MulticlassConfusionMatrix
     # f1 = F1Score(num_classes=n_classes, average='macro')
     # accuracy = Accuracy(num_classes=n_classes, average='micro')
     accuracy_classwise = Accuracy(num_classes=n_classes, average='none')
@@ -272,9 +230,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
 
     ## Training
-    import time
-    import torch.nn.functional as F
-    from utils.helper import freematch_fairness_loss
 
     # Initialize variables
     t0 = time.time() # Measure how long the training takes.
@@ -296,9 +251,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
 
 
-    from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
-    from transformers import AutoTokenizer
-    from torch.utils.data import Dataset, DataLoader, Sampler
     # Training
     pbar = tqdm(total=max_step,desc="{} training".format(net_arch))
     netgroup.train()
@@ -316,7 +268,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
         
         
         # 결합된 데이터에 대한 DataLoader 생성
-        tokenizer = AutoTokenizer.from_pretrained(token)
         train_sampler = BalancedBatchSampler(train_dataset_l,bs)
         train_labeled_loader = DataLoader(dataset=train_dataset_l, batch_size=bs, shuffle= train_sampler, collate_fn=MyCollator_SSL(tokenizer))
         
@@ -598,7 +549,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     if 'step' not in df_stats.columns:
         df_stats['step'] = range(1, len(df_stats) + 1)
     df_stats = df_stats.set_index('step')
-    training_stats_path = log_dir + 'training_statistics.csv'   
+    training_stats_path = experiment_home + 'training_statistics.csv'   
     df_stats.to_csv(training_stats_path)     
     print('Save training statistics in: ', training_stats_path)
 
@@ -611,7 +562,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
     best_data.update(params) # record tuned hyper-params
     best_df = pd.DataFrame([best_data])         
-    best_csv_path = log_dir_multiRun + 'summary.csv'
+    best_csv_path = experiment_home + 'summary.csv'
     if not os.path.exists(best_csv_path):
         best_df.to_csv(best_csv_path, mode='a', index=False, header=True)
     else:
@@ -647,7 +598,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
         plt.xlabel("iteration")
         plt.ylabel("peformance")
         plt.legend()
-        plt.savefig(log_dir+plot_type+'.png', bbox_inches='tight')
+        plt.savefig(experiment_home+plot_type+'.png', bbox_inches='tight')
 
     # Visualize and save confusion matrix
     df_cm = pd.DataFrame(confmat_test, index = [i for i in range(n_classes)],
@@ -655,8 +606,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
     df_cm_norm = df_cm.div(df_cm.sum(axis=1), axis=0)
     plt.figure(figsize=(20,14))
     sns.heatmap(df_cm_norm, annot=True, annot_kws={"size": 10}, fmt='.2f', cmap='Reds')
-    plt.savefig(log_dir+'confmat_norm.png', bbox_inches='tight')
-    # df_cm.to_csv(log_dir+'confmat.csv', index=True, header=True)
+    plt.savefig(experiment_home+'confmat_norm.png', bbox_inches='tight')
+    df_cm.to_csv(experiment_home+'confmat.csv', index=True, header=True)
 
     # return best_data to record multiRun results
     return best_data
@@ -665,7 +616,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
 #출력하는 부분, 학습 횟수
 ##### multiRun ######
-def multiRun(experiment_home=None, num_runs=3, unit_test_mode=False, **params):
+def multiRun(unit_test_mode=False, **params):
     import statistics
     import pandas as pd
     import os
@@ -674,45 +625,35 @@ def multiRun(experiment_home=None, num_runs=3, unit_test_mode=False, **params):
 
     ## Create folder structure
     # genereate a list of fixed seeds according to the number of runs
-    seeds_list = list(range(num_runs)) if 'seeds_list' not in params else params['seeds_list']
+    # seeds_list = list(range(num_runs)) if 'seeds_list' not in params else params['seeds_list']
+    experiment_home = params['experiment_home']
+    num_runs = params['num_runs']
+    seeds_list = params['seeds_list']
 
     # create a folder for this multiRun
     cur_time = time.strftime("%Y%m%d-%H%M%S")
     if experiment_home is None:
-        experiment_home = root + '/experiment/temp/'
-    log_root = experiment_home + '/log/'
-    global log_dir_multiRun
-    log_dir_multiRun = log_root + cur_time + '/'
+        experiment_home = './experiment/temp/'
 
     if not os.path.exists(experiment_home):
         os.makedirs(experiment_home)
-    if not os.path.exists(log_root):
-        os.makedirs(log_root)
-    if not os.path.exists(log_dir_multiRun):
-        os.makedirs(log_dir_multiRun)
 
     # create folders for each run
-    for i in range(num_runs):
-        log_dir = log_dir_multiRun + str(seeds_list[i]) + '/' + params['save_name']
-        if not os.path.exists(log_dir):
-            os.makedirs(log_dir)
-
-    # create output folder for this experiment
-    output_dir_experiment = experiment_home + '/output/'
-    if not os.path.exists(output_dir_experiment):
-        os.makedirs(output_dir_experiment)
+    #for i in range(num_runs):
+        #if not os.path.exists(something_here!!!):
+        #    os.makedirs(something_here)
 
 
     ## Obtain averaged results over multiple runs
+    print(f"Experiment home: {experiment_home}")
+    print(f"The number of runs: {num_runs}")
     results = []
     test_accs = []
     test_f1s = []
     for i in range(num_runs):
         if not unit_test_mode:
-            log_dir = log_dir_multiRun + str(seeds_list[i]) + '/'
-            result = oneRun(log_dir, output_dir_experiment, **params, seed=seeds_list[i])
-        else:
-            result = {'test_acc': random.random(), 'test_f1': random.random()}
+            print(f"Seed for this run: {seeds_list[i]}")
+            result = oneRun(experiment_home, **params, seed=seeds_list[i])
         results.append(result)
         
         test_accs.append(result['test_acc'])
@@ -734,7 +675,5 @@ def multiRun(experiment_home=None, num_runs=3, unit_test_mode=False, **params):
 
     final.update(params)
     final.update({'seeds_list': seeds_list})
-    df = pd.DataFrame([final])
-    csv_path = log_root + 'summary_avgrun.csv'
-    df.to_csv(csv_path, mode='a', index=False, header=True)
+    print(final)
     print('\nSave best record in: ', csv_path)
