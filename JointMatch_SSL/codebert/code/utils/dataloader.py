@@ -42,7 +42,6 @@ class SEMI_SSL_Dataset(Dataset):
     def add_data(self, new_sent, new_label):
         if new_sent in self.sents:
             # 해당 데이터가 이미 존재하는 경우 레이블을 업데이트합니다.
-            #import pdb; pdb.set_trace()
             #print("**동일 데이터 업데이트")
             idx = self.sents.index(new_sent)
             self.labels[idx] = new_label
@@ -150,14 +149,14 @@ class MyCollator_SSL(object): # 추가 SSL
         sents = []
         labels = []
         for sample in batch:
-            #import pdb; pdb.set_trace()
-            #print('line120')
             if len(sample) == 2:
                 sents.append(sample[0])
                 labels.append(sample[1])
 
-    
-        tokenized = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=255, return_tensors='pt')
+        
+        #tokenized = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=255, return_tensors='pt')
+        tokenized = self.tokenizer(sents, padding=True, truncation='longest_first', max_length= 512, return_tensors='pt')
+        #import pdb; pdb.set_trace()``
         labels = torch.LongTensor(labels) - 1
                     
 
@@ -336,6 +335,8 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
         shuffled_train_dataset_u = torch.utils.data.Subset(train_dataset_u, shuffled_indices)
         
         #train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator_SSL(tokenizer))
+        
+        #import pdb; pdb.set_trace()
         train_loader_u = DataLoader(dataset=shuffled_train_dataset_u, batch_size=bs, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
         #train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
         

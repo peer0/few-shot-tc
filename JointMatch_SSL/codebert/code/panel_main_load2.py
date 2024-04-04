@@ -63,7 +63,7 @@ ema_momentum = 0.9
 val_interval = 25  # 몇번째 만큼 검증을 하고 모델이 어떤지 파악하는 parameter
 
 
-early_stop_tolerance = 20
+early_stop_tolerance = 10
 #early_stop_tolerance = int(sys.argv[5])
 
 p_tolerance = 10

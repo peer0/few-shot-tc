@@ -165,11 +165,19 @@ def oneRun(log_dir, output_dir_experiment, **params):
     
     #train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u = get_dataloader(data_path, n_labeled_per_class, bs, load_mode)
     train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u = get_dataloader(data_path, n_labeled_per_class, bs, load_mode, token)
-   
+    
+    # tokenizer 분석하는 코드 추가함.
+    # num = []
+    # for _ in range(len(iter(train_labeled_loader))): 
+    #     for j in iter(train_labeled_loader).next()['x']['input_ids']:
+    #         num.append(len(j))
+         
+    # for _ in range(len(iter(train_unlabeled_loader))): 
+    #     for j in iter(train_labeled_loader).next()['x']['input_ids']:
+    #         num.append(len(j))   
+    
+
     print('n_classes: ', n_classes, '\n')
-    #print('line 152')
-    # # used for degugging
-    # sys.exit()
 
 
 
@@ -316,7 +324,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
         
         # MyCollator_SSL은 기존의 MyCollator는 data를 augmentation을 함.
         train_labeled_loader = DataLoader(dataset=train_dataset_l, batch_size=bs, shuffle= train_sampler, collate_fn=MyCollator_SSL(tokenizer))
-        
         print('\nline 303 => train data수', len(train_dataset_l))
         print("line 258 => 인스턴스 수" , len(iter(train_labeled_loader)))
 
@@ -414,6 +421,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
             ## Process Labeled Data
             #x_lb, y_lb = batch_label['x_w'], batch_label['label']
             x_lb, y_lb = batch_label['x'], batch_label['label']
+
             
             if len(y_lb) == bs :
                 # forward pass
