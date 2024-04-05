@@ -1,17 +1,22 @@
 import os
 import time
 import argparse
+import json
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from sklearn.metrics import f1_score, accuracy_score
-from utils.dataloader import get_dataloader
+from transformers import AutoTokenizer
+
 from models.netgroup import NetGroup
 from utils.helper import format_time
+from utils.dataloader import get_dataloader
+from criterions.criterions import ce_loss, consistency_loss
+from utils.helper import freematch_fairness_loss
 from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
-import json
 
-def pseudo_labeling(netgroup, train_dataset_l,train_unlabeled_loader, psl_threshold_h, psl_total, device):
+
+def pseudo_labeling(netgroup, train_dataset_l,train_unlabeled_loader, psl_threshold_h, psl_total, device, pbar):
     psl_correct = 0
     for batch_unlabel in train_unlabeled_loader:
         x_ulb_s = batch_unlabel['x']
@@ -19,12 +24,13 @@ def pseudo_labeling(netgroup, train_dataset_l,train_unlabeled_loader, psl_thresh
             outs_x_ulb_w_nets = netgroup.forward(x_ulb_s)
         logits_x_ulb_w = outs_x_ulb_w_nets[0]
         probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
+        #pbar.write(f"{probs_x_ulb_w}")
         max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
         for target_idx, target_probs in zip(max_idx, max_probs):
             target_idx = int(target_idx)
             if target_probs >= psl_threshold_h:
                 psl_total += 1
-                if target_idx == batch_unlabel['label'].item() - 1:
+                if target_idx == batch_unlabel['label'].item():
                     psl_correct += 1
                 # Update dataset with pseudo-label
                 train_dataset_l.add_data(batch_unlabel['x'], target_idx + 1)  # Add pseudo-labeled data to the labeled dataset
@@ -35,40 +41,41 @@ def calculate_loss(netgroup, data_loader, device):
     total_loss = 0.0
     with torch.no_grad():
         for batch in data_loader:
-            inputs, labels = batch['input'].to(device), batch['label'].to(device)
+            inputs, labels = batch['x'].to(device), batch['label'].to(device)
             outputs = netgroup.forward(inputs, labels)[0]
             loss = [ce_loss(outputs, labels)]
             total_loss += loss[0].item()
     return total_loss / len(data_loader)
 
-def train_one_epoch(netgroup, train_labeled_loader, optimizer, device):
+def train_one_epoch(netgroup, train_labeled_loader, device):
     netgroup.train()
     total_loss = 0.0
     for batch_label in train_labeled_loader:
         x_lb, y_lb = batch_label['x'], batch_label['label'].to(device)
         outs_x_lb = netgroup.forward(x_lb, y_lb)[0]
         sup_loss_nets = [ce_loss(outs_x_lb, y_lb)]
-        optimizer.zero_grad()
-        sup_loss_nets[0].backward()
-        optimizer.step()
+        netgroup.update(sup_loss_nets)
         total_loss += sup_loss_nets[0].item()
     return total_loss / len(train_labeled_loader)
 
 def train(output_dir_path, **params):
     torch.manual_seed(params['seed'])
+    max_epoch = params["max_epoch"]
+    save_name = params["save_name"]
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     psl_total = 0
 
     train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader(
-        root + 'data/' + params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
+        '../data/' + params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
         params['net_arch'])
 
     # Initialize model
     netgroup = NetGroup(params['net_arch'], params['num_nets'], n_classes, device, params['lr'])
     netgroup.to(device)
+    tokenizer = AutoTokenizer.from_pretrained(params['net_arch'])
 
     # Initialize optimizer
-    optimizer = torch.optim.Adam(netgroup.parameters(), lr=params['lr'])
+    #optimizer = torch.optim.Adam(netgroup.parameters(), lr=params['lr'])
 
     # Load data
     train_unlabeled_loader = DataLoader(dataset=train_dataset_u, batch_size=1, shuffle=False,
@@ -79,14 +86,14 @@ def train(output_dir_path, **params):
     early_stop_count = 0
     pbar = tqdm(total=max_epoch, desc="Training", position=0, leave=True)
     for epoch in range(max_epoch):
-        if early_stop_count >= early_stop_tolerance:
+        if early_stop_count >= params["early_stop_tolerance"]:
             print('Early stopping trigger at epoch:', epoch)
             break
         # Update train labeled loader with new pseudo-labeled data
         # train_labeled_loader.dataset.update_data(train_dataset_u)
         train_labeled_loader = DataLoader(dataset=train_dataset_l, batch_size=params['bs'], shuffle=True, collate_fn=MyCollator_SSL(tokenizer))
-        train_loss = train_one_epoch(netgroup, train_labeled_loader, optimizer, device)
-        val_loss = calculate_loss(netgroup, val_loader, device)
+        train_loss = train_one_epoch(netgroup, train_labeled_loader, device)
+        val_loss = calculate_loss(netgroup, dev_loader, device)
         # Evaluate
         acc_train, _ = evaluate(netgroup, train_labeled_loader, device)
         acc_val, _ = evaluate(netgroup, dev_loader, device)
@@ -94,14 +101,16 @@ def train(output_dir_path, **params):
             best_acc = acc_val
             best_model_epoch = epoch + 1
             early_stop_count = 0
-            torch.save(netgroup.state_dict(), os.path.join(output_dir_path, f"{save_name}_best.pth"))
+            torch.save(netgroup.state_dict(), os.path.join(output_dir_path, save_name))
         else:
             early_stop_count += 1
         acc_test, f1_test = evaluate(netgroup, test_loader, device)
-        train_dataset_l, psl_total, psl_correct = pseudo_labeling(netgroup, train_dataset_l, train_unlabeled_loader, params['psl_threshold_h'], psl_total, device)
+        train_dataset_l, psl_total, psl_correct = pseudo_labeling(netgroup, train_dataset_l, train_unlabeled_loader, params['psl_threshold_h'], psl_total, device, pbar)
 
-        pbar.write(f"Epoch {epoch + 1}/{max_epoch}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f},"
-                   f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1: {f1_test:.4f}")
+        pbar.write(f"Epoch {epoch + 1}/{max_epoch}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
+                   f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1: {f1_test:.4f}, "
+                   f"Total Pseudo-Labels: {psl_total}, Correct Pseudo-Labels: {psl_correct}, "
+                   f"Train Data Number: {len(train_dataset_l)}")
         pbar.update(1)
     pbar.close()
     return best_model_epoch, best_acc
@@ -129,12 +138,14 @@ def main(config_file='config.json', **kwargs):
         if value is not None:
             params[key] = value
     output_dir_path = './experiment/{}_{}_{}_{}_{}_{}/'.format(params['dataset'], params['model_name'], params['n_labeled_per_class'],params['psl_threshold_h'],params['lr'],params['seed'])
+    if not os.path.exists(output_dir_path):
+        os.makedirs(output_dir_path)
 
     # Use the merged parameters for further processing
     print("Merged parameters:", params)
 
     # Train
-    best_step, best_acc = train(output_dir_path, params)
+    best_step, best_acc = train(output_dir_path, **params)
 
     # Save best model info
     with open(os.path.join(output_dir_path, "best_model_info.txt"), "w") as f:
