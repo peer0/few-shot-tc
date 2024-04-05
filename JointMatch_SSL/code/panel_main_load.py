@@ -12,38 +12,35 @@ import os
 
 load_mode = 'semi_SSL'
 
-#n_labeled_per_class = int(sys.argv[1]) #few shot 수
-n_labeled_per_class = 10
+n_labeled_per_class = int(sys.argv[1]) #few shot 수
+#n_labeled_per_class = 10
 
 bs = 7  # 4, 8 # batch size
 
 
-# model_name = sys.argv[2]
-# if model_name=='codebert':
-#         token = "microsoft/codebert-base"
-#         net_arch = "microsoft/codebert-base"
-# elif model_name=='unixcoder':
-#         token = "microsoft/unixcoder-base"
-#         net_arch = "microsoft/unixcoder-base"
-# elif model_name=='codet5p':
-#         token = "Salesforce/codet5p-110m-embedding"
-#         net_arch = "Salesforce/codet5p-110m-embedding"
+model_name = sys.argv[2]
+if model_name=='codebert':
+        token = net_arch = "microsoft/codebert-base"
+elif model_name=='unixcoder':
+        token = net_arch = "microsoft/unixcoder-base"
+elif model_name=='codet5p':
+        token = net_arch = "Salesforce/codet5p-110m-embedding"
 
 
 #token = net_arch = "microsoft/codebert-base"
 #token = net_arch = "microsoft/unixcoder-base"
-token = net_arch = "Salesforce/codet5p-110m-embedding"
+#token = net_arch = "Salesforce/codet5p-110m-embedding"
 
 
 labeling_mode = 'hard'
 
-lr = 5e-4  # 
-#lr = float(sys.argv[3])  #
+#lr = 5e-4  # 
+lr = float(sys.argv[3])  #
 
 weight_u_loss = 1
 
-psl_threshold_h = 0 # ul의 predict의 임계값
-#psl_threshold_h = float(sys.argv[4]) # ul의 predict의 임계값
+#psl_threshold_h = 0 # ul의 predict의 임계값
+psl_threshold_h = float(sys.argv[4]) # ul의 predict의 임계값
 
 adaptive_threshold = True
 

@@ -65,8 +65,8 @@ class NetGroup(nn.Module):
         #신경망 그룹을 위한 옵티마이저 초기화
         self.optimizers = {} #옵티마이저 저장 딕셔너리
         for i in range(num_nets):
-            #self.optimizers[i] = self.init_optimizer(self.nets[i], lr, lr_linear)#초기화
-            self.optimizers[i] = self.init_optimizer(self.nets[i], lr, lr)#초기화
+            self.optimizers[i] = self.init_optimizer(self.nets[i], lr, lr_linear)#초기화
+            #self.optimizers[i] = self.init_optimizer(self.nets[i], lr, lr)#초기화
 
 
 
