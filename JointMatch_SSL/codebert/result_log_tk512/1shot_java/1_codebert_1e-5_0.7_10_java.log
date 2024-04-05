@@ -417,3 +417,50 @@ cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0
 cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
 psl_acc(PSL 평가에서의 정확도): None 
 cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+tensor([[0.1403, 0.1484, 0.1573, 0.1270, 0.1609, 0.1287, 0.1374],
+        [0.1971, 0.1248, 0.0938, 0.1493, 0.1395, 0.1028, 0.1927],
+        [0.1495, 0.1202, 0.1227, 0.1296, 0.1519, 0.1438, 0.1822],
+        [0.1000, 0.1395, 0.1438, 0.2091, 0.1121, 0.1972, 0.0982],
+        [0.1116, 0.1785, 0.1468, 0.1931, 0.1130, 0.1331, 0.1237],
+        [0.1598, 0.1189, 0.0945, 0.1310, 0.1632, 0.1538, 0.1786],
+        [0.1242, 0.1556, 0.1459, 0.1577, 0.1556, 0.1353, 0.1257]],
+       device='cuda:0')
+
+line 303 => train data수 7
+line 258 => 인스턴스 수 1
+=======test_loader=======
+=======dev_loader=======
+=======train_labeled_loader=======
+=======finish=======
+>>Epoch 20 Step 19 acc_test 0.116331 f1_test 0.093228 acc_val 0.116751 f1_val 0.085709 acc_train 1.000000 f1_train 1.000000 psl_cor 0 psl_totl 0 pslt_global 0.700000  Tim 0:16:20
+acc_train_cw(현재 train의 class별 acc) [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+Early stopping trigger at step:  19
+Best model at step:  9
+**조기종료됨**
+
+가장 높은 acc_val :  0.2233502538071066
+tensor([[0.1344, 0.1268, 0.1661, 0.1480, 0.1614, 0.1377, 0.1256],
+        [0.1957, 0.1252, 0.1040, 0.1046, 0.1764, 0.1256, 0.1685],
+        [0.1847, 0.1210, 0.1038, 0.1094, 0.1927, 0.1182, 0.1702],
+        [0.0822, 0.1363, 0.1595, 0.1718, 0.1206, 0.1905, 0.1391],
+        [0.1189, 0.1584, 0.1267, 0.1910, 0.1151, 0.1648, 0.1251],
+        [0.1633, 0.1321, 0.1233, 0.1009, 0.1963, 0.1185, 0.1657],
+        [0.1357, 0.1358, 0.1454, 0.1668, 0.1190, 0.1665, 0.1308]],
+       device='cuda:0')
+acc_val 증가안된 epoch시점 :  10
+early_stop_flag
+
+Training complete!
+Total training took 0:16:57 (h:mm:ss)
+Load model from ./experiment/few_shot/output/1_codebert-base_1e-05_0.7_10_java_extended_data_net0.pth
+Save training statistics in:  ./experiment/few_shot/log/20240404-201320/0/training_statistics.csv
+
+Best_step:  9 
+best_test_acc:  0.1319910514541387 
+best_test_f1:  0.07813105581007239
+Save best record in:  ./experiment/few_shot/log/20240404-201320/summary.csv
+Save best record in:  ./experiment/few_shot/log/summary_avgrun.csv

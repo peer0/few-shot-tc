@@ -172,7 +172,6 @@ class NetGroup(nn.Module):
 
 
 
- ########## ########## ########## 수정 필요  ########## ########## ##########
     # forward one network
     def forward_net(self, net, x, y=None):
         if self.net_arch == 'bert-base-uncased':
@@ -196,7 +195,6 @@ class NetGroup(nn.Module):
             attention_mask = x['attention_mask'].to(self.device)
             # outs = net(input_ids, attention_mask=attention_mask, return_dict=True).last_hidden_state
             outs = net(input_ids, attention_mask=attention_mask, labels=y)
-            # outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
 
         elif self.net_arch == "microsoft/unixcoder-base":
             input_ids = x['input_ids'].to(self.device)
@@ -229,7 +227,7 @@ class NetGroup(nn.Module):
         optimizer.zero_grad()
         
         
-        #print(loss)
+        print('loss -> ' , loss, '\n')
         loss.requires_grad_(True)    
         loss.backward(retain_graph=True)   
         #loss.backward(retain_graph=True) # SSL

@@ -29,10 +29,10 @@ bs = 7  # 4, 8 # batch size
 #         net_arch = "Salesforce/codet5p-110m-embedding"
         
         
-token = net_arch = "microsoft/codebert-base"
+#token = net_arch = "microsoft/codebert-base"
 #token = net_arch = "microsoft/unixcoder-base"
 #token = net_arch = "Salesforce/codet5p-110m-embedding"
-#token = net_arch = "Salesforce/codet5p-220m"
+token = net_arch = "Salesforce/codet5p-220m"
 
 
 labeling_mode = 'hard'

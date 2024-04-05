@@ -384,16 +384,17 @@ def oneRun(log_dir, output_dir_experiment, **params):
         if acc_val > best_acc:
             best_acc = acc_val
             best_model_step = step
+            best_epoch = epoch
             early_stop_count = 0
             netgroup.save_model(output_dir_path, save_name, ema_mode=ema_mode)
         else:
             early_stop_count+=1
             if early_stop_count >= early_stop_tolerance:
                 early_stop_flag = True
-                print('Early stopping trigger at step: ', step)
-                print('Best model at step: ', best_model_step)
+                #print('Early stopping trigger at step: ', step)
+                #print('Best model at step: ', best_model_step)
                 print("**조기종료됨**\n")
-                print("가장 높은 acc_val : ", best_acc)
+                #print("가장 높은 acc_val : ", best_acc)
                 break
 
         # initialize pseudo labels evaluation
@@ -482,7 +483,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     # Compute mask for pseudo labels
                     probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
                     
-                    if ratio < 1:
+                    if ratio == 1:
                         print(probs_x_ulb_w)
 
                     
@@ -607,7 +608,9 @@ def oneRun(log_dir, output_dir_experiment, **params):
     best_data = {'record_time': cur_time,
                 'best_step': best_model_step, 'test_acc':acc_test, 'test_f1': f1_test,     
                 }
-    print('\nBest_step: ', best_model_step, '\nbest_test_acc: ', acc_test, '\nbest_test_f1: ', f1_test)
+    print('\ntotal_data: ', len(train_dataset_l),'\nBest_step: ', best_model_step,'\nBest_epoch: ', best_epoch ,
+          '\nbest_val_acc: ',best_acc, '\nbest_test_acc: ', acc_test, '\nbest_test_f1: ', f1_test)
+    
 
     best_data.update(params) # record tuned hyper-params
     best_df = pd.DataFrame([best_data])         
