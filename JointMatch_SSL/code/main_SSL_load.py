@@ -319,7 +319,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
         
         # MyCollator_SSL은 기존의 MyCollator는 data를 augmentation을 함.
         train_labeled_loader = DataLoader(dataset=train_dataset_l, batch_size=bs, shuffle= train_sampler, collate_fn=MyCollator_SSL(tokenizer))
-        print('\nline 303 => train data수', len(train_dataset_l))
+        print('line 303 => train data수', len(train_dataset_l))
         print("line 258 => 인스턴스 수" , len(iter(train_labeled_loader)))
         
         #print("=======test_loader=======")
@@ -402,17 +402,16 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
 
 
+        step += len(iter(train_labeled_loader))
 
-
-        k = epoch #epoch마다 print를 위해서 대입
-        for batch_label in iter(train_labeled_loader):
+        #for batch_label in iter(train_labeled_loader):
             # --- Evaluation: Check Performance on Validation set every val_interval batches ---##
 
             ## --- Training --- ##
-            step += 1
+            #step += 1
             ## Process Labeled Data
             #x_lb, y_lb = batch_label['x_w'], batch_label['label']
-            x_lb, y_lb = batch_label['x'], batch_label['label']
+            #x_lb, y_lb = batch_label['x'], batch_label['label']
 
             
             # if len(y_lb) == bs :
@@ -480,13 +479,15 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     # Compute mask for pseudo labels
                     probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
                     
-                    if ratio == 1:
-                        print('line 484(pseudolabel)->', probs_x_ulb_w)
+
 
                     
                     max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
-                    #print(max_probs)
-                    #print(max_idx)
+       
+                    if ratio == 1:
+                        print('line 484(pseudolabel)->', probs_x_ulb_w)
+                        print("max = ", max_probs, "max_idx = ", max_idx)
+                    
                     
                     if adaptive_threshold:
                         # Fixed hard threshold
@@ -506,7 +507,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     #     u_psl_masks_nets.append(u_psl_mask)
 
                 # Compute loss for unlabeled data for all nets
-                total_unsup_loss_nets = []
+                #total_unsup_loss_nets = []
                 
                 if any(any(item) for item in u_psl_masks_nets):
                     train_dataset_l =  get_pseudo_labeled_dataloader(train_dataset_l, shuffled_train_dataset_u, u_psl_masks_nets, max_idx, ratio, bs)
@@ -514,27 +515,29 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     
                 
 
+                pseudo_label = pseudo_labels_nets[0]
+                u_psl_mask = u_psl_masks_nets[0]
 
-                for i in range(num_nets):
-                    pseudo_label = pseudo_labels_nets[i]
-                    u_psl_mask = u_psl_masks_nets[i]
+                # for i in range(num_nets):
+                    #pseudo_label = pseudo_labels_nets[i]
+                    #u_psl_mask = u_psl_masks_nets[i]
                     
-                    if weight_disagreement:
-                        disagree_mask = torch.logical_xor(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
-                        agree_mask = torch.logical_and(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
-                        disagree_weight_masked = disagree_weight * disagree_mask + (1 - disagree_weight) * agree_mask
-                    elif weight_disagreement == 'ablation_baseline':
-                        disagree_weight = 0.5
-                        disagree_mask = torch.logical_xor(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
-                        agree_mask = torch.logical_and(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
-                        disagree_weight_masked = disagree_weight * disagree_mask + (1 - disagree_weight) * agree_mask
-                    else:
-                        disagree_weight_masked = None
+                    #if weight_disagreement:
+                        #disagree_mask = torch.logical_xor(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
+                        #agree_mask = torch.logical_and(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
+                        #disagree_weight_masked = disagree_weight * disagree_mask + (1 - disagree_weight) * agree_mask
+                    #elif weight_disagreement == 'ablation_baseline':
+                        #disagree_weight = 0.5
+                        #disagree_mask = torch.logical_xor(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
+                        #agree_mask = torch.logical_and(u_psl_masks_nets[(i) % num_nets], u_psl_masks_nets[(i + 1) % num_nets])
+                        #disagree_weight_masked = disagree_weight * disagree_mask + (1 - disagree_weight) * agree_mask
+                    #else:
+                        #disagree_weight_masked = None
 
                     # Compute loss for unlabeled data
-                    unsup_loss = consistency_loss(outs_x_ulb_w_nets[i], pseudo_label, loss_type='ce', mask=u_psl_mask, disagree_weight_masked=disagree_weight_masked)
-                    total_unsup_loss = weight_u_loss * unsup_loss
-                    total_unsup_loss_nets.append(total_unsup_loss)                
+                    #unsup_loss = consistency_loss(outs_x_ulb_w_nets[i], pseudo_label, loss_type='ce', mask=u_psl_mask, disagree_weight_masked=disagree_weight_masked)
+                    #total_unsup_loss = weight_u_loss * unsup_loss
+                    #total_unsup_loss_nets.append(total_unsup_loss)                
 
 
 

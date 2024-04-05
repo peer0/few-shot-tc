@@ -33,7 +33,7 @@ bs = 7  # 4, 8 # batch size
 #token = net_arch = "microsoft/unixcoder-base"
 token = net_arch = "Salesforce/codet5p-110m-embedding"
 
-
+load_mode = 'semi_SSL'
 
 labeling_mode = 'hard'
 
@@ -81,7 +81,7 @@ dataset = '../data/problem_based_split/java_extended_data'
 #dataset = '../data/problem_based_split/corcod.index' 
 
 
-seeds_list = [0]
+seeds_list = [43]
 # JointMatch
 num_runs = 1 # 같은 실험
 #num_nets = 2 # model 수.
@@ -105,5 +105,6 @@ multiRun(device_idx=device_idx, experiment_home=experiment_home, dataset=dataset
         num_nets=num_nets, cross_labeling=cross_labeling, 
         weight_disagreement=weight_disagreement, disagree_weight=disagree_weight,
         ema_mode=ema_mode, ema_momentum=ema_momentum,
-        val_interval=val_interval, early_stop_tolerance=early_stop_tolerance, max_step=max_step, 
-        max_epoch = max_epoch, save_name = save_name, token = token, net_arch = net_arch, labeling_mode = labeling_mode) 
+        val_interval=val_interval, max_step=max_step, 
+        max_epoch = max_epoch, save_name = save_name, token = token, net_arch = net_arch, labeling_mode = labeling_mode
+        ,load_mode = load_mode, seeds_list = seeds_list) 
