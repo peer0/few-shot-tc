@@ -40,35 +40,6 @@ class CustomModel(nn.Module):
 
         return logits
 
-# code5tp - 220m
-# class CustomModel(nn.Module):
-#     def __init__(self, transformer_model_name, n_classes=7):
-#         super(CustomModel, self).__init__()
-
-#         # Load the transformer model without the classification head
-#         config = AutoConfig.from_pretrained(transformer_model_name, trust_remote_code=True)
-#         self.text_transformer = AutoModelForSequenceClassification.from_pretrained(transformer_model_name, num_labels=n_classes, trust_remote_code=True)
-
-#     def forward(self, input_ids, attention_mask=None, labels=None):
-#         # Obtain transformer output
-#         outputs = self.text_transformer(input_ids, attention_mask=attention_mask, labels=labels)
-        
-#         # If labels are provided, compute the loss
-#         if labels is not None:
-#             loss = outputs.loss
-#         else:
-#             loss = None
-        
-#         # Extract the logits
-#         logits = outputs.logits
-
-#         return logits, loss
-
-
-
-
-
-
 
 
 # symbolic-based pesudo-label 모듈을 밑에 추가해서 train() 대신에 호출하기.##############################################
@@ -123,13 +94,6 @@ class NetGroup(nn.Module):
             net =  AutoModelForSequenceClassification.from_pretrained("microsoft/unixcoder-base", num_labels = self.n_classes)
 
 
-
-
-        elif net_arch == "Salesforce/codet5p-220m":
-            model = CustomModel("Salesforce/codet5p-220m")
-            net = model
-
-
         net.to(self.device)
         return net
     
@@ -165,10 +129,6 @@ class NetGroup(nn.Module):
             print('net_arch: ', self.net_arch, 'lr: ', lr)
             
             
-        
-        elif self.net_arch == "Salesforce/codet5p-220m":
-            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
-            print('net_arch: ', self.net_arch, 'lr: ', lr)
     #test
         return optimizer_net
     
@@ -246,17 +206,6 @@ class NetGroup(nn.Module):
 
 
 
-
-
-        elif self.net_arch == "Salesforce/codet5p-220m":
-            input_ids = x['input_ids'].to(self.device)
-            attention_mask = x['attention_mask'].to(self.device)
-            outs = net(input_ids, attention_mask=attention_mask, labels=y)
- 
-            #outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
-
-
-
         return outs
  ########## ########## ########## 수정 필요  ########## ########## ##########
 
@@ -281,7 +230,6 @@ class NetGroup(nn.Module):
         
         
         #print(loss)
-        #print("##########################################") 
         loss.requires_grad_(True)    
         loss.backward(retain_graph=True)   
         #loss.backward(retain_graph=True) # SSL
@@ -290,7 +238,6 @@ class NetGroup(nn.Module):
         optimizer.step()# 4.그래디언트를 사용하여 모델의 가중치를 업데이트합니다
 
     # update the group of networks
-    
     def update(self, losses):
         for i in range(self.num_nets):
             self.update_net(self.nets[i], self.optimizers[i], losses[i])
@@ -343,7 +290,3 @@ class NetGroup(nn.Module):
             print('Load model from {}'.format(filename))
             
             
-            
-            
-
-# Cass symbolic-based pseudo-label 모듈을 여기에 추가해서 main_SSL_load.py에서 호출.

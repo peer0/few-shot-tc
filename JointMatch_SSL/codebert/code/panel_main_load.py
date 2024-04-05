@@ -29,16 +29,12 @@ elif model_name=='unixcoder':
 elif model_name=='codet5p':
         token = "Salesforce/codet5p-110m-embedding"
         net_arch = "Salesforce/codet5p-110m-embedding"
-#token = "microsoft/codebert-base"
-#token = "microsoft/unixcoder-base"
-
-#token = "Salesforce/codet5p-110m-embedding"
-
-#net_arch = 'microsoft/codebert-base'
-#net_arch = "microsoft/unixcoder-base"
 
 
-#net_arch = "Salesforce/codet5p-110m-embedding"
+#token = net_arch = "microsoft/codebert-base"
+#token = net_arch = "microsoft/unixcoder-base"
+#token = net_arch = "Salesforce/codet5p-110m-embedding"
+#token = net_arch = "Salesforce/codet5p-220m"
 
 labeling_mode = 'hard'
 

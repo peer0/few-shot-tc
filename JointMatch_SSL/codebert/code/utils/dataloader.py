@@ -51,38 +51,6 @@ class SEMI_SSL_Dataset(Dataset):
             self.sents.append(new_sent)
             self.labels.append(new_label)
             
-# 셔플 추가 코드            
-# class SEMI_SSL_Dataset(Dataset):
-#     def __init__(self, sents, labels=None, shuffle=False):
-#         self.shuffle = shuffle
-#         if shuffle:
-#             self.indices = torch.randperm(len(sents))
-#         else:
-#             self.indices = torch.arange(len(sents))
-        
-#         self.sents = [sents[i] for i in self.indices]
-        
-#         if labels is not None:
-#             self.labels = [labels[i] for i in self.indices]
-#         else:
-#             self.labels = None
-
-#     def __len__(self):
-#         return len(self.indices)
-    
-#     def __getitem__(self, idx):
-#         return self.sents[idx], self.labels[idx] if self.labels is not None else None
-    
-#     def add_data(self, new_sent, new_label):
-#         if new_sent in self.sents:
-#             # 해당 데이터가 이미 존재하는 경우 레이블을 업데이트합니다.
-#             idx = self.sents.index(new_sent)
-#             self.labels[idx] = new_label
-#         else:
-#             # 새로운 데이터인 경우 데이터와 레이블을 추가합니다.
-#             print("추가 데이터 업데이트")
-#             self.sents.append(new_sent)
-#             self.labels.append(new_label)
 
 
 
@@ -244,12 +212,6 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     else:
         print("token no name = error")
 
-        
-    #tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
-    #tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
-    #tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
-    #tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
-
 
     
     train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
@@ -309,19 +271,7 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     
     
     ######### SSL실험 추가
-    #elif load_mode == 'semi_SSL':
-    if load_mode == 'semi_SSL':
-        
-        # if 'yahoo' in data_path:
-        #     bt_df = pd.read_csv(os.path.join(data_path, 'bt_train.csv'))
-        #     bt_l_df, bt_u_df = bt_df.iloc[train_labeled_idxs].reset_index(drop=True), bt_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
-        #     train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
-        #     train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
-        # else:
-            # train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
-            # train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
-        
-        #print('line266')
+    elif load_mode == 'semi_SSL':
         
         
         # content와 label만 뽑아내게 바꿈.
@@ -340,22 +290,6 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
         train_loader_u = DataLoader(dataset=shuffled_train_dataset_u, batch_size=bs, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
         #train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
         
-        # import pdb; pdb.set_trace() 
-        # shuffled_unlabeled_sets = []
-        # for i in shuffled_train_dataset_u:
-        #     temp_unlabeled = []
-        #     for j in range(7): temp_unlabeled.append(i)
-        
-        # shuffled_train_dataset_u = [shuffled_train_dataset_u[i:min(i+bs,len(shuffled_train_dataset_u))] \
-        #  for i in range(0,len(shuffled_train_dataset_u),bs)]
-    
-    # ##load_mode == 'sup_baseline'는 sup_baseline class실행->content와 label만
-    # elif load_mode == 'sup_baseline':
-    #     train_dataset_l = SEMINoAugDataset(train_l_df['content'].to_list(), train_l_df['label'].to_list())
-    #     train_loader_u = None
-    
-    #print("line 265")
-    #import pdb; pdb.set_trace()
     
     ##2024-01-26
     train_sampler = BalancedBatchSampler(train_dataset_l,bs)
@@ -368,9 +302,6 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     test_dataset = SEMINoAugDataset(test_df['content'].to_list(), labels=test_df['label'].to_list())
     ##shuffle=False로 하면 일관된 평가가 가능 : 주로 valid,test단계에서사용
     
-    ##2024-01-26
-    # dev_sampler = BalancedBatchSampler(dev_dataset,bs)
-    # dev_loader = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=dev_sampler,collate_fn=MyCollator(tokenizer))
 
     dev_loader = DataLoader(dataset=dev_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
     test_loader = DataLoader(dataset=test_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))

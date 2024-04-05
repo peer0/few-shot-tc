@@ -180,12 +180,9 @@ def oneRun(log_dir, output_dir_experiment, **params):
     print('n_classes: ', n_classes, '\n')
 
 
-
-
     ##### Model & Optimizer & Learning Rate Scheduler #####
     from models.netgroup import NetGroup
     netgroup = NetGroup(net_arch, num_nets, n_classes, device, lr, lr_linear)
-    
     # Initialize EMA
     netgroup.train()
     if ema_mode:
@@ -307,6 +304,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     netgroup.train()
     for epoch in range(max_epoch):
         epoch += 1
+        
         if step > max_step:
             print("조기종료 step > max step =>", step > max_step)
             break
@@ -314,10 +312,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
             print("acc_val 증가안된 epoch시점 : ", epoch - (early_stop_tolerance+1))
             print("early_stop_flag")
             break
-        
-        k = epoch #epoch마다 print를 위해서 대입
-        
-        
+    
         # 결합된 데이터에 대한 DataLoader 생성
         tokenizer = AutoTokenizer.from_pretrained(token)
         train_sampler = BalancedBatchSampler(train_dataset_l,bs)
@@ -326,95 +321,94 @@ def oneRun(log_dir, output_dir_experiment, **params):
         train_labeled_loader = DataLoader(dataset=train_dataset_l, batch_size=bs, shuffle= train_sampler, collate_fn=MyCollator_SSL(tokenizer))
         print('\nline 303 => train data수', len(train_dataset_l))
         print("line 258 => 인스턴스 수" , len(iter(train_labeled_loader)))
+        
+        print("=======test_loader=======")
+        acc_test, f1_test, acc_test_cw = evaluation(test_loader)
+        print("=======dev_loader=======")
+        acc_val, f1_val, acc_val_cw = evaluation(dev_loader)
+        print("=======train_labeled_loader=======")
+        acc_train, f1_train, acc_train_cw = evaluation(train_labeled_loader)
+        print("=======finish=======")
+        # print('acc_train_cw:',acc_train_cw)
+        # evaluation(train_labeled_loader)
+        # exit()
+        # restore training mode 
+        if ema_mode:
+            netgroup.train_ema()
+        netgroup.train()
+
+        print('>>Epoch %d Step %d acc_test %f f1_test %f acc_val %f f1_val %f acc_train %f f1_train %f psl_cor %d psl_totl %d pslt_global %f '% 
+                (epoch, step, acc_test, f1_test,acc_val, f1_val, acc_train, f1_train, psl_correct_eval, psl_total_eval, pslt_global),
+                'Tim {:}'.format(format_time(time.time() - t0)))
+        
+        # Record all statistics from this evaluation.
+        acc_psl = (psl_correct_eval/psl_total_eval) if psl_total_eval > 0 else None
+
+        training_stats.append(
+            {   'step': step, #배치수
+                'acc_train': acc_train,#train의 acc
+                'f1_train': f1_train, #train의 f1
+                'cw_acc_train': acc_train_cw, #train의 class별 acc
+                'acc_val': acc_val,#valid의 acc
+                'f1_val': f1_val, #valid의 f1
+                'cw_acc_val': acc_val_cw, #valid의 class별 acc
+                'acc_test': acc_test,#test의 acc
+                'f1_test': f1_test, #test의 f1
+                'cw_acc_test': acc_test_cw, #test의 class별 acc
+                'psl_correct': psl_correct_eval, # 
+                'psl_total': psl_total_eval,
+                'acc_psl': acc_psl, 
+                'pslt_global': pslt_global,  
+                'cw_avg_prob': cw_avg_prob.tolist(),
+                'local_threshold': local_threshold.tolist(),
+                # 'cw_psl_total': cw_psl_total.tolist(),
+                # 'cw_psl_correct': cw_psl_correct.tolist(),  
+                'cw_psl_total_eval': cw_psl_total_eval.tolist(),
+                'cw_psl_correct_eval': cw_psl_correct_eval.tolist(),
+                'cw_psl_acc_eval': (cw_psl_correct_eval/cw_psl_total_eval).tolist(),
+                'cw_psl_total_accum': cw_psl_total_accum.tolist(),
+                'cw_psl_correct_accum': cw_psl_correct_accum.tolist(),
+                'cw_psl_acc_accum': (cw_psl_correct_accum/cw_psl_total_accum).tolist(),
+            })
+
+        # check classwise psl accuracy and total psl accuracy for the current eval
+        print('acc_train_cw(현재 train의 class별 acc)',acc_train_cw)
+        print('cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수): ', cw_psl_total_eval.tolist())
+        print('cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수): ', cw_psl_correct_eval.tolist())
+        print('psl_acc(이전 PSL 평가에서의 정확도): ', round((psl_correct_eval/psl_total_eval),3), end=' ') if psl_total_eval > 0 else print('psl_acc(PSL 평가에서의 정확도): None', end=' ')
+        print('\ncw_psl_acc(이전 클래스별 PSL 평가에서의 정확도): ', (cw_psl_correct_eval/cw_psl_total_eval).tolist())
+
+        # Early stopping & Save best model
+        # - best criterion: acc_val 
+        # 검증 val보다 best acc가 높아서 조기 종료가 됨.
+        if acc_val > best_acc:
+            best_acc = acc_val
+            best_model_step = step
+            early_stop_count = 0
+            netgroup.save_model(output_dir_path, save_name, ema_mode=ema_mode)
+        else:
+            early_stop_count+=1
+            if early_stop_count >= early_stop_tolerance:
+                early_stop_flag = True
+                print('Early stopping trigger at step: ', step)
+                print('Best model at step: ', best_model_step)
+                print("**조기종료됨**\n")
+                print("가장 높은 acc_val : ", best_acc)
+                break
+
+        # initialize pseudo labels evaluation
+        psl_total_eval, psl_correct_eval = 0, 0
+        #psl_correct_eval = 0
+        cw_psl_total_eval, cw_psl_correct_eval = torch.zeros(n_classes, dtype=int), torch.zeros(n_classes, dtype=int)
 
 
+
+
+
+
+        k = epoch #epoch마다 print를 위해서 대입
         for batch_label in iter(train_labeled_loader):
             # --- Evaluation: Check Performance on Validation set every val_interval batches ---##
-            if epoch == k :
-                k += 1      
-                print("=======test_loader=======")
-                acc_test, f1_test, acc_test_cw = evaluation(test_loader)
-                print("=======dev_loader=======")
-                acc_val, f1_val, acc_val_cw = evaluation(dev_loader)
-                print("=======train_labeled_loader=======")
-                acc_train, f1_train, acc_train_cw = evaluation(train_labeled_loader)
-                print("=======finish=======")
-                # print('acc_train_cw:',acc_train_cw)
-                # evaluation(train_labeled_loader)
-                # exit()
-                # restore training mode 
-                if ema_mode:
-                    netgroup.train_ema()
-                netgroup.train()
-
-                print('>>Epoch %d Step %d acc_test %f f1_test %f acc_val %f f1_val %f acc_train %f f1_train %f psl_cor %d psl_totl %d pslt_global %f '% 
-                        (epoch, step, acc_test, f1_test,acc_val, f1_val, acc_train, f1_train, psl_correct_eval, psl_total_eval, pslt_global),
-                        'Tim {:}'.format(format_time(time.time() - t0)))
-                
-                # Record all statistics from this evaluation.
-                acc_psl = (psl_correct_eval/psl_total_eval) if psl_total_eval > 0 else None
-
-                training_stats.append(
-                    {   'step': step, #배치수
-                        'acc_train': acc_train,#train의 acc
-                        'f1_train': f1_train, #train의 f1
-                        'cw_acc_train': acc_train_cw, #train의 class별 acc
-                        'acc_val': acc_val,#valid의 acc
-                        'f1_val': f1_val, #valid의 f1
-                        'cw_acc_val': acc_val_cw, #valid의 class별 acc
-                        'acc_test': acc_test,#test의 acc
-                        'f1_test': f1_test, #test의 f1
-                        'cw_acc_test': acc_test_cw, #test의 class별 acc
-                        'psl_correct': psl_correct_eval, # 
-                        'psl_total': psl_total_eval,
-                        'acc_psl': acc_psl, 
-                        'pslt_global': pslt_global,  
-                        'cw_avg_prob': cw_avg_prob.tolist(),
-                        'local_threshold': local_threshold.tolist(),
-                        # 'cw_psl_total': cw_psl_total.tolist(),
-                        # 'cw_psl_correct': cw_psl_correct.tolist(),  
-                        'cw_psl_total_eval': cw_psl_total_eval.tolist(),
-                        'cw_psl_correct_eval': cw_psl_correct_eval.tolist(),
-                        'cw_psl_acc_eval': (cw_psl_correct_eval/cw_psl_total_eval).tolist(),
-                        'cw_psl_total_accum': cw_psl_total_accum.tolist(),
-                        'cw_psl_correct_accum': cw_psl_correct_accum.tolist(),
-                        'cw_psl_acc_accum': (cw_psl_correct_accum/cw_psl_total_accum).tolist(),
-                    })
-
-                # check classwise psl accuracy and total psl accuracy for the current eval
-                print('acc_train_cw(현재 train의 class별 acc)',acc_train_cw)
-                print('cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수): ', cw_psl_total_eval.tolist())
-                print('cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수): ', cw_psl_correct_eval.tolist())
-                print('psl_acc(이전 PSL 평가에서의 정확도): ', round((psl_correct_eval/psl_total_eval),3), end=' ') if psl_total_eval > 0 else print('psl_acc(PSL 평가에서의 정확도): None', end=' ')
-                print('\ncw_psl_acc(이전 클래스별 PSL 평가에서의 정확도): ', (cw_psl_correct_eval/cw_psl_total_eval).tolist())
-
-                # Early stopping & Save best model
-                # - best criterion: acc_val 
-                # 검증 val보다 best acc가 높아서 조기 종료가 됨.
-                if acc_val > best_acc:
-                    best_acc = acc_val
-                    best_model_step = step
-                    early_stop_count = 0
-                    netgroup.save_model(output_dir_path, save_name, ema_mode=ema_mode)
-                else:
-                    early_stop_count+=1
-                    if early_stop_count >= early_stop_tolerance:
-                        early_stop_flag = True
-                        print('Early stopping trigger at step: ', step)
-                        print('Best model at step: ', best_model_step)
-                        print("**조기종료됨**\n")
-                        print("가장 높은 acc_val : ", best_acc)
-                        break
-
-                # initialize pseudo labels evaluation
-                psl_total_eval, psl_correct_eval = 0, 0
-                #psl_correct_eval = 0
-                cw_psl_total_eval, cw_psl_correct_eval = torch.zeros(n_classes, dtype=int), torch.zeros(n_classes, dtype=int)
-
-
-
-
-
 
             ## --- Training --- ##
             step += 1

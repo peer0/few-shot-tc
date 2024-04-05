@@ -11,7 +11,7 @@ import os
 ### code_complex
 
 #n_labeled_per_class = int(sys.argv[1]) #few shot 수
-n_labeled_per_class = 10
+n_labeled_per_class = 1
 
 bs = 7  # 4, 8 # batch size
 #ul_ratio = 554            # 10shot 이면 549 , 5shot이면 554, 1shot이면 558 # 현재 전체 데이터로 자동으로 설정됨
@@ -29,20 +29,20 @@ bs = 7  # 4, 8 # batch size
 #         net_arch = "Salesforce/codet5p-110m-embedding"
         
         
-#token = net_arch = "microsoft/codebert-base"
+token = net_arch = "microsoft/codebert-base"
 #token = net_arch = "microsoft/unixcoder-base"
-token = net_arch = "Salesforce/codet5p-110m-embedding"
+#token = net_arch = "Salesforce/codet5p-110m-embedding"
 #token = net_arch = "Salesforce/codet5p-220m"
 
 
 labeling_mode = 'hard'
 
 
-lr = 5e-4  # 
+lr = 1e-4  # 
 #lr = float(sys.argv[3])  #
 
 weight_u_loss = 1
-psl_threshold_h = 0.7 # ul의 predict의 임계값
+psl_threshold_h = 0 # ul의 predict의 임계값
 #psl_threshold_h = float(sys.argv[4]) # ul의 predict의 임계값
 
 adaptive_threshold = True
