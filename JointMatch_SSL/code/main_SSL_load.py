@@ -484,7 +484,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     
                     max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
        
-                    if ratio == 1:
+                    if ratio < 5:
                         print('line 484(pseudolabel)->', probs_x_ulb_w)
                         print("max = ", max_probs, "max_idx = ", max_idx)
                     
