@@ -1,4 +1,4 @@
-for nshot in 5; do
+for nshot in 10; do
 	for language in java ; do
 		for thres in  0.7; do
 			for model in 'codet5p' ; do
