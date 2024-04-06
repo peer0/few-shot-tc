@@ -438,7 +438,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     data_iter_unl = iter(train_unlabeled_loader)
                     batch_unlabel = next(data_iter_unl) # data_iter_unl은 7개의 ul_data가 잇음
                 
-                    
                 # unlabel data 가져오기
                 x_ulb_s = batch_unlabel['x']
 
@@ -477,7 +476,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
        
                     if ratio < 5:
                         print('line 484(pseudolabel)->', probs_x_ulb_w)
-                        print("max = ", max_probs, "max_idx = ", max_idx)
+                        print("max = ", max_probs, "max_idx = ", max_idx, '\n')
                     
                     
                     if adaptive_threshold:
@@ -543,13 +542,9 @@ def oneRun(log_dir, output_dir_experiment, **params):
                 
                 
                 gt_labels_u = batch_unlabel['label'][u_psl_mask].to(device)
-                #print("line 442, gt_labels_u:{}".format(gt_labels_u))
-                
                 psl_total = torch.sum(u_psl_mask).item()
-                #print("psl_total =", psl_total)
 
                 u_label_psl = pseudo_label[u_psl_mask]
-                #print("line 448, u_label_psl:{}".format(u_label_psl))
                 u_label_psl_hard = torch.argmax(u_label_psl, dim=-1)
                 
                 # SSL 확인해야함.###############################################################

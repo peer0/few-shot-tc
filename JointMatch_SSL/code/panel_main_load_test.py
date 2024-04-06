@@ -44,7 +44,7 @@ lr = 5e-4  #
 weight_u_loss = 1
 
 adaptive_threshold = True
-psl_threshold_h = 0 # ul의 predict의 임계값
+psl_threshold_h = 0.7 # ul의 predict의 임계값
 #psl_threshold_h = float(sys.argv[4]) # ul의 predict의 임계값
 
 
