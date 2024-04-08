@@ -25,7 +25,10 @@ print('current work directory: ', os.getcwd())
 ## psudolabel data추가하는 함수.
 # train, unlabel, mask_list,
 #unlabel에 mask_list에 해당하는 train을 여기에 넣어준다. 그리고 Dataloader돌림.
-def get_pseudo_labeled_dataloader(train_labeled_dataset, ul_data, ul_list, max_idx, count, bs):
+def get_pseudo_labeled_dataloader(pseudo_table,pse_count, train_labeled_dataset, ul_data, ul_list, max_idx, count):
+    
+    min_value = min(pse_count.values())
+    
     batch_unlabeled = ul_data[count]
     idx = max_idx[0]
     train_labeled_dataset.add_data(batch_unlabeled[0],idx.item()+1)  # 데이터 추가
@@ -272,6 +275,10 @@ def oneRun(log_dir, output_dir_experiment, **params):
     t0 = time.time() # Measure how long the training takes.
     step = 0
     best_acc = 0
+    
+    best_val_loss = 99
+    best_train_loss = 99
+    
     best_model_step = 0
     pslt_global = 0
     psl_total_eval = 0
@@ -284,7 +291,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     cw_avg_prob = (torch.ones(n_classes) / n_classes).to(device)    # estimate learning stauts of each class
     local_threshold = torch.zeros(n_classes, dtype=int)
 
-
+    
 
 
     from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
@@ -296,6 +303,9 @@ def oneRun(log_dir, output_dir_experiment, **params):
     from tqdm import tqdm
     pbar = tqdm(total=max_epoch, desc="Training", position=0, leave=True)
     for epoch in range(max_epoch):
+        
+        pseudo_table = []
+        pse_count = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0}
         
         if step > max_step:
             print("조기종료 step > max step =>", step > max_step)
@@ -476,7 +486,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
        
                     if ratio < 5:
                         print('line 484(pseudolabel)->', probs_x_ulb_w)
-                        print("max = ", max_probs, "max_idx = ", max_idx, '\n')
+                        print("max = ", max_probs, "max_idx = ", max_idx)
                     
                     
                     if adaptive_threshold:
@@ -501,7 +511,16 @@ def oneRun(log_dir, output_dir_experiment, **params):
                 
                 # 수정필요
                 if any(any(item) for item in u_psl_masks_nets):
-                    train_dataset_l =  get_pseudo_labeled_dataloader(train_dataset_l, shuffled_train_dataset_u, u_psl_masks_nets, max_idx, ratio, bs)
+                    pse_data = shuffled_train_dataset_u[ratio]
+                    pse_label = max_idx[0].item()+1
+                    pse_count[pse_label] += 1
+                    pseudo_table.append(pse_data, pse_label)
+                    
+                if ratio == ul_ratio:
+                        train_dataset_l =  get_pseudo_labeled_dataloader(pseudo_table, pse_count, 
+                                                                         train_dataset_l, shuffled_train_dataset_u, 
+                                                                         u_psl_masks_nets, max_idx, 
+                                                                         ratio)
 
                     
                 
@@ -567,7 +586,18 @@ def oneRun(log_dir, output_dir_experiment, **params):
         
         train_labeled_loader = DataLoader(dataset=train_dataset_l, batch_size=params['bs'], shuffle=True, collate_fn=MyCollator_SSL(tokenizer))
         train_loss = train_one_epoch(netgroup, train_labeled_loader, device)   
-        val_loss = calculate_loss(netgroup, dev_loader, device)    
+        val_loss = calculate_loss(netgroup, dev_loader, device)
+        
+        if val_loss < best_val_loss:
+            best_val_loss = val_loss
+            val_epoch = epoch
+            print(best_val_loss, val_epoch+1)
+        if train_loss < best_train_loss:
+            best_train_loss = train_loss
+            train_epoch = epoch
+            print(best_train_loss, train_epoch+1)
+        
+        print("\n")    
         pbar.write(f"Epoch {epoch + 1}/{max_epoch}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
                    f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1: {f1_test:.4f}, "
                    f"Total Pseudo-Labels: {psl_total}, Correct Pseudo-Labels: {psl_correct}, "
@@ -611,7 +641,9 @@ def oneRun(log_dir, output_dir_experiment, **params):
     best_data = {'record_time': cur_time,
                 'best_step': best_model_step, 'test_acc':acc_test, 'test_f1': f1_test,     
                 }
-    print('\ntotal_data: ', len(train_dataset_l),'\nBest_step: ', best_model_step,'\nBest_epoch: ', best_epoch ,
+    print('\nbest_val_loss - epoch', best_val_loss, val_epoch+1)
+    print('best_trian_loss - epoch', best_train_loss, train_epoch+1)
+    print('total_data: ', len(train_dataset_l),'\nBest_step: ', best_model_step,'\nBest_epoch: ', best_epoch ,
           '\nbest_val_acc: ',best_acc, '\nbest_test_acc: ', acc_test, '\nbest_test_f1: ', f1_test)
     
 

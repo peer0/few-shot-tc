@@ -65,7 +65,7 @@ ema_momentum = 0.9
 val_interval = 25  # 몇번째 만큼 검증을 하고 모델이 어떤지 파악하는 parameter
 
 
-early_stop_tolerance = 10
+#early_stop_tolerance = 10
 #early_stop_tolerance = int(sys.argv[5])
 
 p_tolerance = 10
@@ -89,7 +89,7 @@ num_nets = 1 # model 수. # 여기에서는 SSL을 위한 실험이기에 1개�
 
 
 print(dataset.split('/')[3])
-save_name = f"{n_labeled_per_class}_{net_arch.split('/')[1]}_{lr}_{psl_threshold_h}_{early_stop_tolerance}_{dataset.split('/')[3]}"
+save_name = f"{n_labeled_per_class}_{net_arch.split('/')[1]}_{lr}_{psl_threshold_h}_{dataset.split('/')[3]}"
 # .format(n_labeled_per_class,net_arch.split('/')[1],lr,psl_threshold_h,early_stop_tolerance,dataset.split('/')[3])
 
 

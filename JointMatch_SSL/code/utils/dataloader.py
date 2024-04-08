@@ -6,7 +6,7 @@ import numpy as np
 import nlpaug.augmenter.word as naw
 from transformers import BertTokenizer, AutoTokenizer
 from torch.utils.data import Dataset, DataLoader, Sampler
-
+import pdb
 
 
  # ** data augmentation을 밑에를 바탕으로 새로운 class선언을 해서 이용합니다 체크. 
@@ -124,7 +124,6 @@ class MyCollator_SSL(object): # 추가 SSL
         
         #tokenized = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=255, return_tensors='pt')
         tokenized = self.tokenizer(sents, padding=True, truncation='longest_first', max_length= 512, return_tensors='pt')
-        #import pdb; pdb.set_trace()``
         labels = torch.LongTensor(labels) - 1
                     
 
@@ -158,7 +157,6 @@ class BalancedBatchSampler(torch.utils.data.sampler.Sampler):
 
 
 def train_split(labels, n_labeled_per_class, unlabeled_per_class=None): #unlabeled_per_class를 이용해서 ul_data를 설정 가능 현재는 전체.
-    #import pdb; pdb.set_trace()
     """Split the dataset into labeled and unlabeled subsets.
     Args:
         labels: labels of the training data
@@ -168,6 +166,8 @@ def train_split(labels, n_labeled_per_class, unlabeled_per_class=None): #unlabel
             train_labeled_idxs: list of labeled example indices
             train_unlabeled_idxs: list of unlabeled example indices
     """
+    
+
     labels = np.array(labels)
     all_classes = set(labels)
 
@@ -203,12 +203,6 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     elif token == "microsoft/unixcoder-base":
         tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
     
-    
-    
-    
-    elif token == "Salesforce/codet5p-220m":
-        tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-220m")
-    
     else:
         print("token no name = error")
 
@@ -227,7 +221,6 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     num_class = len(set(labels))
     train_labeled_idxs, train_unlabeled_idxs = train_split(labels, n_labeled_per_class)
 
-    
     train_l_df, train_u_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True), train_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
 
     
@@ -273,7 +266,7 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     ######### SSL실험 추가
     elif load_mode == 'semi_SSL':
         
-        
+   
         # content와 label만 뽑아내게 바꿈.
         train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
         
@@ -286,7 +279,6 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
         
         #train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator_SSL(tokenizer))
         
-        #import pdb; pdb.set_trace()
         train_loader_u = DataLoader(dataset=shuffled_train_dataset_u, batch_size=1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
         #train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
         
