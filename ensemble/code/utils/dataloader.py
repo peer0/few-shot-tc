@@ -1,5 +1,6 @@
 import os
 import sys
+import random
 import torch
 import pandas as pd
 import numpy as np
@@ -138,7 +139,6 @@ class BalancedBatchSampler(torch.utils.data.sampler.Sampler):
 
     def __len__(self):
         return len(self.dataset)
-
 
 def train_split(labels, n_labeled_per_class, unlabeled_per_class=None): #unlabeled_per_class를 이용해서 ul_data를 설정 가능 현재는 전체.
     """Split the dataset into labeled and unlabeled subsets.
