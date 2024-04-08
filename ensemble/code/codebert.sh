@@ -1,7 +1,7 @@
 #!/bin/bash
 
 for seed in 42 43 45; do
-    for nshot in 1 5 10; do
+    for nshot in 5 10; do
         for language in java python corcod; do
             for thres in 0.4 0.5 0.6; do
                 for lr in '1e-5' '1e-4' '5e-4' ; do
