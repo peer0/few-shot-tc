@@ -9,7 +9,6 @@ import os
 # token, net_arch만 변경해서 이용하면됨.
 
 ### code_complex
-
 load_mode = 'semi_SSL'
 
 n_labeled_per_class = int(sys.argv[1]) #few shot 수
@@ -44,7 +43,7 @@ psl_threshold_h = float(sys.argv[4]) # ul의 predict의 임계값
 
 adaptive_threshold = True
 
-max_epoch = 100
+max_epoch = 2
 
 #num_nets = 2 # joint match이기에 2개의 model을 이용해서 2. 
 num_nets = 1 # 여기에서는 SSL을 위한 실험이기에 1개의 모델만 이용함.
@@ -66,13 +65,19 @@ p_tolerance = 10
 max_step = 100000   
 
 device_idx = 0
-experiment_home = './experiment/few_shot'  #저장소 path
 
 # 'ag_news', 'yahoo', 'imdb', 'empatheticdialogues', 'threecrises', 'goemotions'
-#dataset = sys.argv[6]
-dataset = '../data/problem_based_split/java_extended_data' 
+dataset = sys.argv[5]
+#dataset = '../data/problem_based_split/java_extended_data' 
 #dataset = '../data/problem_based_split/python_extended_data' 
 #dataset = '../data/problem_based_split/corcod.index' 
+
+#experiment_home =  './experiment/java'
+experiment_home = f"./experiment/{dataset.split('/')[3]}"  #저장소 path
+
+pse_cl = sys.argv[6]
+        
+        
 
 
 seeds_list = [43]
@@ -81,7 +86,7 @@ num_runs = 1 # 같은 실험
 
 
 
-print(dataset.split('/')[3])
+print('Data set ->', dataset.split('/')[3])
 #save_name = f"{n_labeled_per_class}_{net_arch.split('/')[1]}_{lr}_{psl_threshold_h}_{early_stop_tolerance}_{dataset.split('/')[3]}"
 save_name = f"{n_labeled_per_class}_{net_arch.split('/')[1]}_{lr}_{psl_threshold_h}_{dataset.split('/')[3]}"
 # .format(n_labeled_per_class,net_arch.split('/')[1],lr,psl_threshold_h,early_stop_tolerance,dataset.split('/')[3])
@@ -94,6 +99,7 @@ adaptive_threshold = True
 weight_disagreement = 'True'
 
 
+
 #early_stop_tolerance=early_stop_tolerance,
 multiRun(device_idx=device_idx, experiment_home=experiment_home, dataset=dataset, num_runs=num_runs,
         n_labeled_per_class=n_labeled_per_class, bs=bs, lr=lr,
@@ -101,6 +107,6 @@ multiRun(device_idx=device_idx, experiment_home=experiment_home, dataset=dataset
         num_nets=num_nets, cross_labeling=cross_labeling, 
         weight_disagreement=weight_disagreement, disagree_weight=disagree_weight,
         ema_mode=ema_mode, ema_momentum=ema_momentum,
-        val_interval=val_interval, max_step=max_step, 
+        val_interval=val_interval, max_step=max_step, pse_cl = pse_cl,
         max_epoch = max_epoch, save_name = save_name, token = token, net_arch = net_arch, labeling_mode = labeling_mode
         ,load_mode = load_mode, seeds_list = seeds_list) 

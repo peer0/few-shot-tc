@@ -12,7 +12,7 @@ import os
 
 #n_labeled_per_class = int(sys.argv[1]) #few shot 수
 n_labeled_per_class = 5
-
+pse_cl = 7
 bs = 7  # 4, 8 # batch size
 #ul_ratio = 554            # 10shot 이면 549 , 5shot이면 554, 1shot이면 558 # 현재 전체 데이터로 자동으로 설정됨
 
@@ -38,7 +38,7 @@ load_mode = 'semi_SSL'
 labeling_mode = 'hard'
 
 
-lr = 5e-4  # 
+lr = 4e-4  # 
 #lr = float(sys.argv[3])  #
 
 weight_u_loss = 1
@@ -107,4 +107,4 @@ multiRun(device_idx=device_idx, experiment_home=experiment_home, dataset=dataset
         ema_mode=ema_mode, ema_momentum=ema_momentum,
         val_interval=val_interval, max_step=max_step, 
         max_epoch = max_epoch, save_name = save_name, token = token, net_arch = net_arch, labeling_mode = labeling_mode
-        ,load_mode = load_mode, seeds_list = seeds_list) 
+        ,load_mode = load_mode, seeds_list = seeds_list, pse_cl = pse_cl) 

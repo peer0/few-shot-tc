@@ -25,13 +25,22 @@ print('current work directory: ', os.getcwd())
 ## psudolabel data추가하는 함수.
 # train, unlabel, mask_list,
 #unlabel에 mask_list에 해당하는 train을 여기에 넣어준다. 그리고 Dataloader돌림.
-def get_pseudo_labeled_dataloader(pseudo_table,pse_count, train_labeled_dataset, ul_data, ul_list, max_idx, count):
+def get_pseudo_labeled_dataloader(pse_table, pse_count, train_labeled_dataset):
+    pse_input = []
+    pse_key = [key for key, value in pse_count.items() if value >= 1]
+    min_value = min(value for value in pse_count.values() if value != 0)
+
+    print("\n\nBalance pseudo label class -> ", pse_key, " value -> ", min_value)
+    print("add data -> " ,len(pse_key)*min_value)
     
-    min_value = min(pse_count.values())
-    
-    batch_unlabeled = ul_data[count]
-    idx = max_idx[0]
-    train_labeled_dataset.add_data(batch_unlabeled[0],idx.item()+1)  # 데이터 추가
+    for i in pse_key:
+        matching_tuples = [tup for tup in pse_table if tup[1] == i]
+        selected_tuples = random.sample(matching_tuples, min_value)
+        pse_input.extend(selected_tuples)
+
+
+    for i in range(len(pse_input)):
+        train_labeled_dataset.add_data(pse_input[i][0],pse_input[i][1])  # 데이터 추가  
     return train_labeled_dataset
 
 
@@ -69,8 +78,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
     ##### Default Setting #####
     ## Set input data path
     try:
-        data_path = root + 'data/' + params['dataset']
-        #data_path = params['datase']
+        #data_path = root + 'data/' + params['dataset']
+        data_path = params['dataset']
         print('\ndata_path: ', data_path)
     except:
         data_path = root + 'data/ag_news'
@@ -117,7 +126,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     
     # Initialize model & optimizer & lr_scheduler
     net_arch = params['net_arch']
-
+    pse_cl = params['pse_cl']
 
     token = "microsoft/codebert-base" if 'token' not in params else params['token']
 
@@ -150,6 +159,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     from utils.dataloader import get_dataloader
     print("\n**line 147 모델 => ",net_arch)
     print('**tokenizer type = ',token,'\n')
+    print("pesudo label class개수 기준 ->", pse_cl)
     
     if net_arch != token:
         print("net_arch != tokenizer!!!")
@@ -158,7 +168,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     
     #train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u = get_dataloader(data_path, n_labeled_per_class, bs, load_mode)
     train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u = get_dataloader(data_path, n_labeled_per_class, bs, load_mode, token)
-    
+  
     # tokenizer 분석하는 코드 추가함.
     # num = []
     # for _ in range(len(iter(train_labeled_loader))): 
@@ -302,9 +312,11 @@ def oneRun(log_dir, output_dir_experiment, **params):
     
     from tqdm import tqdm
     pbar = tqdm(total=max_epoch, desc="Training", position=0, leave=True)
-    for epoch in range(max_epoch):
-        
-        pseudo_table = []
+    
+    pse_work = False
+    best_val_stop = False
+    for epoch in range(max_epoch): 
+        pse_table = []
         pse_count = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0}
         
         if step > max_step:
@@ -343,6 +355,9 @@ def oneRun(log_dir, output_dir_experiment, **params):
         #        (epoch, step, acc_test, f1_test,acc_val, f1_val, acc_train, f1_train, psl_correct_eval, psl_total_eval, pslt_global),
         #        'Tim {:}'.format(format_time(time.time() - t0)))
         
+        print('Step %d '%(step),'Tim {:}'.format(format_time(time.time() - t0)))
+        
+        
         # Record all statistics from this evaluation.
         acc_psl = (psl_correct_eval/psl_total_eval) if psl_total_eval > 0 else None
 
@@ -377,6 +392,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
         print('acc_train_cw(현재 train의 class별 acc)',acc_train_cw)
         print('cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수): ', cw_psl_total_eval.tolist())
         print('cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수): ', cw_psl_correct_eval.tolist())
+        #print('class-wise-accuracy -> ',  cw_psl_correct_eval.tolist() / cw_psl_total_eval.tolist())
         print('psl_acc(이전 PSL 평가에서의 정확도): ', round((psl_correct_eval/psl_total_eval),3), end=' ') if psl_total_eval > 0 else print('psl_acc(PSL 평가에서의 정확도): None', end=' ')
         print('\ncw_psl_acc(이전 클래스별 PSL 평가에서의 정확도): ', (cw_psl_correct_eval/cw_psl_total_eval).tolist())
 
@@ -388,7 +404,14 @@ def oneRun(log_dir, output_dir_experiment, **params):
             best_model_step = step
             best_epoch = epoch
             #early_stop_count = 0
+            if best_val_stop == False:
+                print(f"***best_acc_model_save --- epoch = {epoch}***")
+                netgroup.save_model(output_dir_path, save_name, ema_mode=ema_mode)
+                
+        if pse_work == True:
+            print(f"***pse_model_save --- epoch = {epoch}***")
             netgroup.save_model(output_dir_path, save_name, ema_mode=ema_mode)
+            pse_work = False
         # else:
         #     early_stop_count+=1
         #     if early_stop_count >= early_stop_tolerance:
@@ -432,7 +455,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     
                 
         
-
 
 
         # Process Unlabeled Data
@@ -485,10 +507,10 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
        
                     if ratio < 5:
-                        print('line 484(pseudolabel)->', probs_x_ulb_w)
-                        print("max = ", max_probs, "max_idx = ", max_idx)
-                    
-                    
+                        print('**pseudo_label -> ', [round(prob, 4) for prob in probs_x_ulb_w.squeeze().tolist()], "**")
+                        print("max = ", round(max_probs.squeeze().tolist(),4), "| max_idx = ", max_idx.squeeze().tolist())
+
+                        
                     if adaptive_threshold:
                         # Fixed hard threshold
                         pslt_global = psl_threshold_h
@@ -511,17 +533,22 @@ def oneRun(log_dir, output_dir_experiment, **params):
                 
                 # 수정필요
                 if any(any(item) for item in u_psl_masks_nets):
-                    pse_data = shuffled_train_dataset_u[ratio]
+                    pse_data = shuffled_train_dataset_u[ratio][0]
                     pse_label = max_idx[0].item()+1
                     pse_count[pse_label] += 1
-                    pseudo_table.append(pse_data, pse_label)
+                    pse_table.append((pse_data, pse_label))
                     
-                if ratio == ul_ratio:
-                        train_dataset_l =  get_pseudo_labeled_dataloader(pseudo_table, pse_count, 
-                                                                         train_dataset_l, shuffled_train_dataset_u, 
-                                                                         u_psl_masks_nets, max_idx, 
-                                                                         ratio)
+                if ratio == (ul_ratio-1):
+                    pse_class = sum(1 for value in pse_count.values() if value >= 1)
+                    #print('\npse_class -> ', pse_class)
+                    
+                    if pse_class == pse_cl:
+                        pse_work = True
+                        best_val_stop = True
+                        train_dataset_l =  get_pseudo_labeled_dataloader(pse_table, pse_count, train_dataset_l)
 
+                    else :
+                        print('\n')
                     
                 
 
@@ -591,13 +618,12 @@ def oneRun(log_dir, output_dir_experiment, **params):
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             val_epoch = epoch
-            print(best_val_loss, val_epoch+1)
+            #print(best_val_loss, val_epoch+1)
         if train_loss < best_train_loss:
             best_train_loss = train_loss
             train_epoch = epoch
-            print(best_train_loss, train_epoch+1)
+            #print(best_train_loss, train_epoch+1)
         
-        print("\n")    
         pbar.write(f"Epoch {epoch + 1}/{max_epoch}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
                    f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1: {f1_test:.4f}, "
                    f"Total Pseudo-Labels: {psl_total}, Correct Pseudo-Labels: {psl_correct}, "
@@ -641,8 +667,10 @@ def oneRun(log_dir, output_dir_experiment, **params):
     best_data = {'record_time': cur_time,
                 'best_step': best_model_step, 'test_acc':acc_test, 'test_f1': f1_test,     
                 }
-    print('\nbest_val_loss - epoch', best_val_loss, val_epoch+1)
-    print('best_trian_loss - epoch', best_train_loss, train_epoch+1)
+    
+    print('\nbest_trian_loss - epoch', best_train_loss, train_epoch+1)
+    print('best_val_loss - epoch', best_val_loss, val_epoch+1)
+ 
     print('total_data: ', len(train_dataset_l),'\nBest_step: ', best_model_step,'\nBest_epoch: ', best_epoch ,
           '\nbest_val_acc: ',best_acc, '\nbest_test_acc: ', acc_test, '\nbest_test_f1: ', f1_test)
     
@@ -722,7 +750,7 @@ def multiRun(experiment_home=None, num_runs=3, unit_test_mode=False, **params):
         experiment_home = root + '/experiment/temp/'
     log_root = experiment_home + '/log/'
     global log_dir_multiRun
-    log_dir_multiRun = log_root + cur_time + '/'
+    log_dir_multiRun = log_root + f"class{params['pse_cl']}" + '/'
 
     if not os.path.exists(experiment_home):
         os.makedirs(experiment_home)
@@ -733,7 +761,8 @@ def multiRun(experiment_home=None, num_runs=3, unit_test_mode=False, **params):
 
     # create folders for each run
     for i in range(num_runs):
-        log_dir = log_dir_multiRun + str(seeds_list[i]) + '/' + params['save_name']
+        #log_dir = log_dir_multiRun + str(seeds_list[i]) + '/' + params['save_name']
+        log_dir = log_dir_multiRun + '/' + params['save_name']
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
 
@@ -749,7 +778,8 @@ def multiRun(experiment_home=None, num_runs=3, unit_test_mode=False, **params):
     test_f1s = []
     for i in range(num_runs):
         if not unit_test_mode:
-            log_dir = log_dir_multiRun + str(seeds_list[i]) + '/'
+            #log_dir = log_dir_multiRun + str(seeds_list[i]) + '/'
+            log_dir = log_dir_multiRun + '/' + params['save_name'] + '/'
             result = oneRun(log_dir, output_dir_experiment, **params, seed=seeds_list[i])
         else:
             result = {'test_acc': random.random(), 'test_f1': random.random()}

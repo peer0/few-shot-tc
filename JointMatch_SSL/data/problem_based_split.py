@@ -6,8 +6,8 @@ np.random.seed(44)
 
 # jsonl 파일에서 데이터 로드
 #dataset = 'java_extended_data'
-#dataset = 'python_extended_data'
-dataset = 'corcod.index'
+dataset = 'python_extended_data'
+#dataset = 'corcod.index'
 
 data = pd.read_json(f'{dataset}.jsonl',lines=True)
 
