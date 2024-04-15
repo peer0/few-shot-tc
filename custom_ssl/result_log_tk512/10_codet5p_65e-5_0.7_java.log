@@ -1,0 +1,47 @@
+current work directory:  /home/imsuhan22/few-shot-tc/JointMatch_SSL/code
+java_extended_data
+save_name: 10_codet5p-110m-embedding_0.00065_0.7_java_extended_data
+
+data_path:  ../data/../data/problem_based_split/java_extended_data
+
+There are 1 GPU(s) available.
+We will use the GPU- 0 NVIDIA RTX A6000
+
+**line 147 모델 =>  Salesforce/codet5p-110m-embedding
+**tokenizer type =  Salesforce/codet5p-110m-embedding 
+
+n_labeled_per_class:  10
+train_df samples: 3851
+train_labeled_df samples: 70
+train_unlabeled_df samples: 3781
+n_classes:  7 
+
+
+net_arch:  Salesforce/codet5p-110m-embedding 
+lr:  0.00065 
+lr_linear:  0.001 
+
+line 303 => train data수 70
+line 258 => 인스턴스 수 10
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+Save model to ./experiment/few_shot/output/
+**pseudolabel ->  [0.1417, 0.147, 0.1446, 0.1326, 0.1374, 0.1572, 0.1395] **
+max =  0.1572 | max_idx =  5
+**pseudolabel ->  [0.1401, 0.1455, 0.1514, 0.1354, 0.1336, 0.1608, 0.1333] **
+max =  0.1608 | max_idx =  5
+**pseudolabel ->  [0.1357, 0.1458, 0.1452, 0.1367, 0.139, 0.1587, 0.139] **
+max =  0.1587 | max_idx =  5
+**pseudolabel ->  [0.1439, 0.1491, 0.1488, 0.1333, 0.1356, 0.1542, 0.1351] **
+max =  0.1542 | max_idx =  5
+**pseudolabel ->  [0.1469, 0.1441, 0.1484, 0.1303, 0.1313, 0.1609, 0.1381] **
+max =  0.1609 | max_idx =  5
+> /home/imsuhan22/few-shot-tc/JointMatch_SSL/code/main_SSL_load.py(530)oneRun()
+-> pse_class = sum(1 for value in pse_count.values() if value >= 1)
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) --KeyboardInterrupt--
+(Pdb) 

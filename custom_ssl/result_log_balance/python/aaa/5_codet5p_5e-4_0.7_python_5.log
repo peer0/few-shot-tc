@@ -1,0 +1,84 @@
+current work directory:  /home/imsuhan22/few-shot-tc/JointMatch_SSL/code
+Data set -> python_extended_data
+save_name: 5_codet5p-110m-embedding_0.0005_0.7_python_extended_data
+
+data_path:  ../data/problem_based_split/python_extended_data
+
+There are 2 GPU(s) available.
+We will use the GPU- 0 NVIDIA RTX A6000
+
+**line 147 모델 =>  Salesforce/codet5p-110m-embedding
+**tokenizer type =  Salesforce/codet5p-110m-embedding 
+
+pesudo label class개수 기준 -> 5
+n_labeled_per_class:  5
+train_df samples: 3974
+train_labeled_df samples: 35
+train_unlabeled_df samples: 3939
+n_classes:  7 
+
+
+net_arch:  Salesforce/codet5p-110m-embedding 
+lr:  0.0005 
+lr_linear:  0.001 
+
+line 303 => train data수 35
+line 258 => 인스턴스 수 5
+Step 0  Tim 0:00:09
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 1.0, 0.0, 0.2, 0.0, 0.0]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+***best_acc_model_save --- epoch = 0***
+Save model to ./experiment/python_extended_data/output/
+**pseudo_label ->  [0.1382, 0.1345, 0.1607, 0.1518, 0.1384, 0.1416, 0.1349] **
+max =  0.1607 | max_idx =  2
+**pseudo_label ->  [0.1339, 0.1399, 0.1611, 0.1471, 0.1381, 0.1401, 0.1398] **
+max =  0.1611 | max_idx =  2
+**pseudo_label ->  [0.1346, 0.1463, 0.1531, 0.1481, 0.1413, 0.145, 0.1316] **
+max =  0.1531 | max_idx =  2
+**pseudo_label ->  [0.13, 0.1378, 0.1602, 0.1491, 0.1405, 0.1483, 0.134] **
+max =  0.1602 | max_idx =  2
+**pseudo_label ->  [0.1388, 0.1399, 0.1513, 0.1493, 0.1417, 0.1404, 0.1386] **
+max =  0.1513 | max_idx =  2
+
+
+Epoch 1/2, Train Loss: 1.9847, Valid Loss: 1.9094, Train Acc: 0.1714, Val Acc: 0.2182, Test Acc: 0.1373, Test F1: 0.0572, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 35
+line 303 => train data수 35
+line 258 => 인스턴스 수 5
+Step 5  Tim 0:01:31
+acc_train_cw(현재 train의 class별 acc) [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.1325, 0.1586, 0.1549, 0.1582, 0.1413, 0.1231, 0.1315] **
+max =  0.1586 | max_idx =  1
+**pseudo_label ->  [0.131, 0.1585, 0.1566, 0.1567, 0.1412, 0.1242, 0.1318] **
+max =  0.1585 | max_idx =  1
+**pseudo_label ->  [0.1319, 0.1585, 0.1572, 0.1583, 0.1397, 0.1226, 0.1318] **
+max =  0.1585 | max_idx =  1
+**pseudo_label ->  [0.1326, 0.1583, 0.1552, 0.1573, 0.142, 0.1229, 0.1317] **
+max =  0.1583 | max_idx =  1
+**pseudo_label ->  [0.132, 0.1594, 0.1573, 0.1568, 0.1395, 0.1239, 0.1311] **
+max =  0.1594 | max_idx =  1
+
+
+Epoch 2/2, Train Loss: 1.9709, Valid Loss: 1.9594, Train Acc: 0.1429, Val Acc: 0.0065, Test Acc: 0.2746, Test F1: 0.0617, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 35
+
+Training complete!
+Total training took 0:02:42 (h:mm:ss)
+Load model from ./experiment/python_extended_data/output/5_codet5p-110m-embedding_0.0005_0.7_python_extended_data_net0.pth
+Save training statistics in:  ./experiment/python_extended_data/log/class5//5_codet5p-110m-embedding_0.0005_0.7_python_extended_data/training_statistics.csv
+
+best_trian_loss - epoch 1.9708900213241578 2
+best_val_loss - epoch 1.9093694939287167 1
+total_data:  35 
+Best_step:  0 
+Best_epoch:  0 
+best_val_acc:  0.2182410423452769 
+best_test_acc:  0.13729508196721313 
+best_test_f1:  0.05720498623986053
+Save best record in:  ./experiment/python_extended_data/log/class5/summary.csv
+Save best record in:  ./experiment/python_extended_data/log/summary_avgrun.csv

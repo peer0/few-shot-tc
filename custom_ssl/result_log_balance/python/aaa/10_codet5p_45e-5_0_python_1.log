@@ -1,0 +1,65 @@
+current work directory:  /home/imsuhan22/few-shot-tc/JointMatch_SSL/code
+Data set -> python_extended_data
+save_name: 10_codet5p-110m-embedding_0.00045_0.0_python_extended_data
+
+data_path:  ../data/problem_based_split/python_extended_data
+
+There are 1 GPU(s) available.
+We will use the GPU- 0 NVIDIA RTX A6000
+
+**line 147 모델 =>  Salesforce/codet5p-110m-embedding
+**tokenizer type =  Salesforce/codet5p-110m-embedding 
+
+pesudo label class개수 기준 -> 1
+n_labeled_per_class:  10
+train_df samples: 3974
+train_labeled_df samples: 70
+train_unlabeled_df samples: 3904
+n_classes:  7 
+
+
+net_arch:  Salesforce/codet5p-110m-embedding 
+lr:  0.00045 
+lr_linear:  0.001 
+
+line 303 => train data수 70
+line 258 => 인스턴스 수 10
+Step 0  Tim 0:00:09
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 0.0, 0.3, 0.0, 0.6]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+***best_acc_model_save --- epoch = 0***
+Save model to ./experiment/python_extended_data/output/
+**pseudo_label ->  [0.1337, 0.146, 0.1432, 0.1442, 0.1465, 0.1399, 0.1465] **
+max =  0.1465 | max_idx =  6
+**pseudo_label ->  [0.1402, 0.1287, 0.148, 0.133, 0.1471, 0.1437, 0.1593] **
+max =  0.1593 | max_idx =  6
+**pseudo_label ->  [0.1377, 0.1367, 0.1468, 0.148, 0.1429, 0.1382, 0.1497] **
+max =  0.1497 | max_idx =  6
+**pseudo_label ->  [0.1369, 0.1336, 0.1397, 0.1447, 0.1499, 0.1433, 0.1519] **
+max =  0.1519 | max_idx =  6
+**pseudo_label ->  [0.1336, 0.1379, 0.1444, 0.1473, 0.149, 0.1408, 0.147] **
+max =  0.149 | max_idx =  4
+
+
+Epoch 1/100, Train Loss: 1.9813, Valid Loss: 1.9796, Train Acc: 0.1286, Val Acc: 0.0977, Test Acc: 0.0307, Test F1: 0.0369, Total Pseudo-Labels: 1, Correct Pseudo-Labels: 1, Train Data Number: 70
+line 303 => train data수 70
+line 258 => 인스턴스 수 10
+Step 10  Tim 0:01:02
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.9, 0.0, 0.0, 0.3, 0.0, 0.0]
+cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수):  [0, 0, 76, 117, 929, 0, 2782]
+cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수):  [0, 0, 16, 4, 117, 0, 297]
+psl_acc(이전 PSL 평가에서의 정확도):  0.111 
+cw_psl_acc(이전 클래스별 PSL 평가에서의 정확도):  [nan, nan, 0.21052631735801697, 0.03418803587555885, 0.12594187259674072, nan, 0.10675773024559021]
+**pseudo_label ->  [0.1484, 0.1474, 0.1288, 0.134, 0.1501, 0.143, 0.1483] **
+max =  0.1501 | max_idx =  4
+**pseudo_label ->  [0.1444, 0.1476, 0.1296, 0.1343, 0.1489, 0.1437, 0.1516] **
+max =  0.1516 | max_idx =  6
+**pseudo_label ->  [0.1449, 0.1504, 0.1285, 0.1342, 0.1497, 0.1435, 0.1489] **
+max =  0.1504 | max_idx =  1
+**pseudo_label ->  [0.1479, 0.1505, 0.1265, 0.1341, 0.149, 0.1425, 0.1495] **
+max =  0.1505 | max_idx =  1
+**pseudo_label ->  [0.1455, 0.1498, 0.1292, 0.1358, 0.1489, 0.1433, 0.1474] **
+max =  0.1498 | max_idx =  1
