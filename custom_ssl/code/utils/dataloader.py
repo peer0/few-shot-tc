@@ -202,9 +202,14 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
         
     elif token == "microsoft/unixcoder-base":
         tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
+ 
+    # graphcodebert model 추가 4/17       
+    elif token == "microsoft/graphcodebert-base":
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/graphcodebert-base")
     
     else:
         print("token no name = error")
+        input()
 
 
     

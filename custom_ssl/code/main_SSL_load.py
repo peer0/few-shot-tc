@@ -336,11 +336,9 @@ def oneRun(log_dir, output_dir_experiment, **params):
         print('line 303 => train data수', len(train_dataset_l))
         print("line 258 => 인스턴스 수" , len(iter(train_labeled_loader)))
         
-        #print("=======test_loader=======")
+
         acc_test, f1_test, acc_test_cw = evaluation(test_loader)
-        #print("=======dev_loader=======")
         acc_val, f1_val, acc_val_cw = evaluation(dev_loader)
-        #print("=======train_labeled_loader=======")
         acc_train, f1_train, acc_train_cw = evaluation(train_labeled_loader)
         #print("=======finish=======")
         # print('acc_train_cw:',acc_train_cw)
@@ -623,6 +621,10 @@ def oneRun(log_dir, output_dir_experiment, **params):
             train_epoch = epoch
             #print(best_train_loss, train_epoch+1)
         
+        if (epoch+1) == 1:
+            first_train_loss = train_loss
+            first_val_loss = val_loss
+        
         pbar.write(f"Epoch {epoch + 1}/{max_epoch}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
                    f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1: {f1_test:.4f}, "
                    f"Total Pseudo-Labels: {psl_total}, Correct Pseudo-Labels: {psl_correct}, "
@@ -667,8 +669,12 @@ def oneRun(log_dir, output_dir_experiment, **params):
                 'best_step': best_model_step, 'test_acc':acc_test, 'test_f1': f1_test,     
                 }
     
-    print('\nbest_trian_loss - epoch', best_train_loss, train_epoch+1)
-    print('best_val_loss - epoch', best_val_loss, val_epoch+1)
+    
+    print("epoch1_train_loss - ", first_train_loss)
+    print('\nbest_trian_loss - epoch', best_train_loss, train_epoch+1,'\n')
+    
+    print("epoch1_val_loss - ", first_val_loss)
+    print('best_val_loss - epoch', best_val_loss, val_epoch+1, '\n')
  
     print('total_data: ', len(train_dataset_l),'\nBest_step: ', best_model_step,'\nBest_epoch: ', best_epoch ,
           '\nbest_val_acc: ',best_acc, '\nbest_test_acc: ', acc_test, '\nbest_test_f1: ', f1_test)

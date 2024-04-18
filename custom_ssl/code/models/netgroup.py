@@ -9,16 +9,16 @@ import torch.nn as nn
 import torch.nn.functional as F
 from copy import deepcopy
 from torch.optim import AdamW
-from transformers import AutoConfig, AutoModelForSequenceClassification, AutoModel
+from transformers import AutoConfig, AutoModelForSequenceClassification, AutoModel, AutoModelForMaskedLM
 from utils.ema import EMA
 from models.model import TextClassifier
-
+import pdb
 from transformers import PreTrainedModel, AutoModel
 
 
 
 #change
-class CustomModel(nn.Module):
+class CustomModel(nn.Module): #codet5p 용
     def __init__(self, transformer_model_name, n_classes=7):
         super(CustomModel, self).__init__()
 
@@ -29,6 +29,8 @@ class CustomModel(nn.Module):
         # Linear layer for classification
         # self.linear_layer = nn.Linear(config.hidden_size, n_classes)
         self.linear_layer = nn.Linear(config.embed_dim, n_classes)
+        #self.linear_layer = nn.Linear(config.hidden_size, n_classes)
+
 
     def forward(self, input_ids, attention_mask=None, labels=None):  # Add 'labels' argument
 
@@ -37,6 +39,30 @@ class CustomModel(nn.Module):
         transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask)
         # Pass through the linear layer for classification
         logits = self.linear_layer(transformer_output)
+
+        return logits
+
+
+class CustomModel_2(nn.Module): #graphcodebert 용
+    def __init__(self, transformer_model_name, n_classes=7):
+        super(CustomModel_2, self).__init__()
+
+        # Load the transformer model without the classification head
+        config = AutoConfig.from_pretrained(transformer_model_name,  trust_remote_code=True)
+        self.text_transformer = AutoModel.from_pretrained(transformer_model_name,  trust_remote_code=True)
+
+        # Linear layer for classification
+        self.linear_layer = nn.Linear(config.hidden_size, n_classes)
+
+
+    def forward(self, input_ids, attention_mask=None, labels=None):  
+        # Obtain transformer output
+        
+        transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask).last_hidden_state
+
+        # Pass through the linear layer for classification
+        
+        logits = self.linear_layer(transformer_output[:, 0, :])  # Take the first token's hidden state
 
         return logits
 
@@ -92,6 +118,15 @@ class NetGroup(nn.Module):
 
         elif net_arch == "microsoft/unixcoder-base":
             net =  AutoModelForSequenceClassification.from_pretrained("microsoft/unixcoder-base", num_labels = self.n_classes)
+            
+            
+        # graphcodebert model 추가 4/17
+        elif net_arch == "microsoft/graphcodebert-base":
+            model = CustomModel_2("microsoft/graphcodebert-base")
+            net = model
+        
+        
+
 
 
         net.to(self.device)
@@ -122,6 +157,12 @@ class NetGroup(nn.Module):
             print('\nnet_arch: ', self.net_arch, '\nlr: ', lr, '\nlr_linear: ', lr_linear,'\n')  
 
         elif self.net_arch == "microsoft/unixcoder-base":
+            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
+            print('\nnet_arch: ', self.net_arch, '\nlr: ', lr, '\nlr_linear: ', lr_linear,'\n')  
+            
+            
+        # graphcodebert model 추가 4/17           
+        elif self.net_arch == "microsoft/graphcodebert-base":
             optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
             print('\nnet_arch: ', self.net_arch, '\nlr: ', lr, '\nlr_linear: ', lr_linear,'\n')  
             
@@ -199,6 +240,13 @@ class NetGroup(nn.Module):
             # outs = net(input_ids, attention_mask=attention_mask, return_dict=True).last_hidden_state
             outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
 
+
+        # graphcodebert model 추가 4/17           
+        elif self.net_arch == "microsoft/graphcodebert-base":
+            input_ids = x['input_ids'].to(self.device)
+            attention_mask = x['attention_mask'].to(self.device)
+            # outs = net(input_ids, attention_mask=attention_mask, return_dict=True).last_hidden_state
+            outs = net(input_ids, attention_mask=attention_mask, labels=y)
 
 
         return outs

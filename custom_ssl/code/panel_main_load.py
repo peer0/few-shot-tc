@@ -24,6 +24,10 @@ elif model_name=='unixcoder':
         token = net_arch = "microsoft/unixcoder-base"
 elif model_name=='codet5p':
         token = net_arch = "Salesforce/codet5p-110m-embedding"
+        
+# graphcodebert model 추가 4/17       
+elif model_name=='graphcodebert':
+        token = net_arch = "microsoft/graphcodebert-base"
 
 
 #token = net_arch = "microsoft/codebert-base"
