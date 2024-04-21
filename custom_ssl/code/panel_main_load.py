@@ -30,6 +30,14 @@ elif model_name=='graphcodebert':
         token = net_arch = "microsoft/graphcodebert-base"
 
 
+
+
+elif model_name=='codesage':
+        token = net_arch = "codesage/codesage-base"
+        
+elif model_name=='ast_t5':
+        token = net_arch = "gonglinyuan/ast_t5_base"
+
 #token = net_arch = "microsoft/codebert-base"
 #token = net_arch = "microsoft/unixcoder-base"
 #token = net_arch = "Salesforce/codet5p-110m-embedding"
@@ -47,7 +55,8 @@ psl_threshold_h = float(sys.argv[4]) # ul의 predict의 임계값
 
 adaptive_threshold = True
 
-max_epoch = 100
+max_epoch = int(sys.argv[5])
+#max_epoch = 100
 
 #num_nets = 2 # joint match이기에 2개의 model을 이용해서 2. 
 num_nets = 1 # 여기에서는 SSL을 위한 실험이기에 1개의 모델만 이용함.
@@ -71,7 +80,7 @@ max_step = 100000
 device_idx = 0
 
 # 'ag_news', 'yahoo', 'imdb', 'empatheticdialogues', 'threecrises', 'goemotions'
-dataset = sys.argv[5]
+dataset = sys.argv[6]
 #dataset = '../data/problem_based_split/java_extended_data' 
 #dataset = '../data/problem_based_split/python_extended_data' 
 #dataset = '../data/problem_based_split/corcod.index' 
@@ -79,7 +88,9 @@ dataset = sys.argv[5]
 #experiment_home =  './experiment/java'
 experiment_home = f"./experiment/{dataset.split('/')[3]}"  #저장소 path
 
-pse_cl = sys.argv[6]
+language = {dataset.split('/')[3]}
+
+pse_cl = sys.argv[7]
         
         
 
@@ -113,4 +124,4 @@ multiRun(device_idx=device_idx, experiment_home=experiment_home, dataset=dataset
         ema_mode=ema_mode, ema_momentum=ema_momentum,
         val_interval=val_interval, max_step=max_step, pse_cl = pse_cl,
         max_epoch = max_epoch, save_name = save_name, token = token, net_arch = net_arch, labeling_mode = labeling_mode
-        ,load_mode = load_mode, seeds_list = seeds_list) 
+        ,load_mode = load_mode, seeds_list = seeds_list, model_name = model_name, language = language) 

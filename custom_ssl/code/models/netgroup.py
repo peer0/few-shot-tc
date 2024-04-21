@@ -9,7 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from copy import deepcopy
 from torch.optim import AdamW
-from transformers import AutoConfig, AutoModelForSequenceClassification, AutoModel, AutoModelForMaskedLM
+from transformers import AutoConfig, AutoModelForSequenceClassification, AutoModel, AutoModelForMaskedLM, AutoModelForSeq2SeqLM, AutoTokenizer
 from utils.ema import EMA
 from models.model import TextClassifier
 import pdb
@@ -120,13 +120,20 @@ class NetGroup(nn.Module):
             net =  AutoModelForSequenceClassification.from_pretrained("microsoft/unixcoder-base", num_labels = self.n_classes)
             
             
+            
         # graphcodebert model 추가 4/17
         elif net_arch == "microsoft/graphcodebert-base":
             model = CustomModel_2("microsoft/graphcodebert-base")
             net = model
         
         
-
+        
+        # codesage, ast-t5 추가 4/19
+        elif net_arch == "codesage/codesage-base":
+            net = AutoModel.from_pretrained("codesage/codesage-base", trust_remote_code=True,  num_labels = self.n_classes)
+            
+        elif net_arch == "gonglinyuan/ast_t5_base":
+            net = AutoModelForSeq2SeqLM.from_pretrained("gonglinyuan/ast_t5_base", trust_remote_code=True, num_labels = self.n_classes)
 
 
         net.to(self.device)
@@ -151,6 +158,7 @@ class NetGroup(nn.Module):
             print('\nnet_arch: ', self.net_arch, '\nlr: ', lr, '\nlr_linear: ', lr_linear,'\n')   
 
 
+
         #T5, Unixcoder 추가
         elif self.net_arch =="Salesforce/codet5p-110m-embedding":
             optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
@@ -161,8 +169,22 @@ class NetGroup(nn.Module):
             print('\nnet_arch: ', self.net_arch, '\nlr: ', lr, '\nlr_linear: ', lr_linear,'\n')  
             
             
+            
+            
         # graphcodebert model 추가 4/17           
         elif self.net_arch == "microsoft/graphcodebert-base":
+            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
+            print('\nnet_arch: ', self.net_arch, '\nlr: ', lr, '\nlr_linear: ', lr_linear,'\n')  
+            
+            
+            
+            
+        # codesage, ast-t5 추가 4/19  
+        elif self.net_arch == "codesage/codesage-base":
+            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
+            print('\nnet_arch: ', self.net_arch, '\nlr: ', lr, '\nlr_linear: ', lr_linear,'\n')  
+                
+        elif self.net_arch == "gonglinyuan/ast_t5_base":
             optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
             print('\nnet_arch: ', self.net_arch, '\nlr: ', lr, '\nlr_linear: ', lr_linear,'\n')  
             
@@ -227,6 +249,8 @@ class NetGroup(nn.Module):
             # outs = net(input_ids, attention_mask=attention_mask, return_dict=True).last_hidden_state
             outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
 
+
+
         #T5, Unixcoder 추가
         elif self.net_arch == "Salesforce/codet5p-110m-embedding":
             input_ids = x['input_ids'].to(self.device)
@@ -241,6 +265,7 @@ class NetGroup(nn.Module):
             outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
 
 
+
         # graphcodebert model 추가 4/17           
         elif self.net_arch == "microsoft/graphcodebert-base":
             input_ids = x['input_ids'].to(self.device)
@@ -249,8 +274,24 @@ class NetGroup(nn.Module):
             outs = net(input_ids, attention_mask=attention_mask, labels=y)
 
 
+
+        # codesage, ast-t5 추가 4/19  
+        elif self.net_arch == "codesage/codesage-base":
+            pdb.set_trace()
+            input_ids = x['input_ids'].to(self.device)
+            attention_mask = x['attention_mask'].to(self.device)
+            outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
+            
+        elif self.net_arch == "gonglinyuan/ast_t5_base":
+            input_ids = x['input_ids'].to(self.device)
+            attention_mask = x['attention_mask'].to(self.device)
+            outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
+
+
         return outs
- ########## ########## ########## 수정 필요  ########## ########## ##########
+    
+    
+    
 
       
 

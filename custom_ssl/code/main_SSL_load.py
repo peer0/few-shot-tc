@@ -255,6 +255,9 @@ def oneRun(log_dir, output_dir_experiment, **params):
         # print('target_all', target_all)
         preds_all = torch.cat(preds_all).detach().cpu()
         target_all = torch.cat(target_all).detach().cpu()
+       
+        
+
         
         
         
@@ -274,6 +277,17 @@ def oneRun(log_dir, output_dir_experiment, **params):
         else:
             return acc, f1, list(accuracy_classwise_)
 
+
+
+
+    # def update_csv(data, csv_path):
+    #     # 데이터프레임 생성
+    #     df = pd.DataFrame(data)
+    #     # CSV 파일이 이미 존재하는지 확인
+    #     csv_exists = os.path.isfile(csv_path)
+    #     # CSV 파일에 추가 모드로 데이터프레임 저장
+    #     df.to_csv(csv_path, mode='a', index=False, header=not csv_exists)
+    #     print('\nSaved data to CSV:', csv_path)
 
 
     ## Training
@@ -315,6 +329,40 @@ def oneRun(log_dir, output_dir_experiment, **params):
     
     pse_work = False
     best_val_stop = False
+    pse_epoch = []
+    pse_add_epoch = []
+
+
+
+    
+    # data = {
+    # 'pse_cl' : [],
+    # 'lr' : [],
+    
+    # 'best_train_loss': [],
+    # 'epoch': [],
+    # 'train_loss(1epoch)': [],
+    # 'train_loss(100epoch)': [],
+    
+    # 'best_val_loss': [],
+    # 'val_epoch' : [],
+    # 'val_loss(1epoch)': [],
+    # 'val_loss(100epoch)': [],
+    
+    # 'train_acc' : [],
+    # 'val_acc' : [],
+    # 'test Acc': [],
+    # 'test F1': [],
+    
+    # 'epoch99기준 train_class별 acc': [],
+    # 'epoch 99기준 추가된 pesuod label 수' : [],
+    # 'epoch 99기준 예측 label(갯수)': [],
+    # }
+    
+    # csv_path = f"../result_log_balance/{params['language']}/{params['model_name']}/class{params['pse_cl']}"
+    
+
+    
     for epoch in range(max_epoch): 
         pse_table = []
         pse_count = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0}
@@ -393,6 +441,12 @@ def oneRun(log_dir, output_dir_experiment, **params):
         #print('class-wise-accuracy -> ',  cw_psl_correct_eval.tolist() / cw_psl_total_eval.tolist())
         print('psl_acc(이전 PSL 평가에서의 정확도): ', round((psl_correct_eval/psl_total_eval),3), end=' ') if psl_total_eval > 0 else print('psl_acc(PSL 평가에서의 정확도): None', end=' ')
         print('\ncw_psl_acc(이전 클래스별 PSL 평가에서의 정확도): ', (cw_psl_correct_eval/cw_psl_total_eval).tolist())
+
+
+        # if epoch+1 == 100:
+        #     data['epoch99기준 train_class별 acc'].append(acc_train_cw)
+        #     data['epoch 99기준 예측 class'].append(cw_psl_total_eval.tolist())
+
 
         # Early stopping & Save best model
         # - best criterion: acc_val 
@@ -539,8 +593,13 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
                 if ratio == (ul_ratio-1):   
                     pse_class = sum(1 for value in pse_count.values() if value >= 1)
+                    
+                    if pse_class > 0:
+                        pse_epoch.append(epoch+1)
+
                     #print('\npse_class -> ', pse_class)
                     if pse_class >= int(pse_cl):
+                        pse_add_epoch.append(epoch+1)                                          
                         train_dataset_l =  get_pseudo_labeled_dataloader(pse_table, pse_count, train_dataset_l)
                         pse_work = True
                         best_val_stop = True
@@ -625,6 +684,16 @@ def oneRun(log_dir, output_dir_experiment, **params):
             first_train_loss = train_loss
             first_val_loss = val_loss
         
+        # if epoch + 1 == 100:
+        #     data['train_loss(100epoch)'].append(train_loss)
+        #     data['val_loss(100epoch)'].append(val_loss)
+        #     data['train_acc'].append(acc_train)
+        #     data['val_acc'].append(acc_val)
+        #     data['test Acc'].append(acc_test)
+        #     data['test F1'].append(f1_test)
+        #     data['epoch 99기준 예측 label(갯수)'].append(psl_total)
+            
+            
         pbar.write(f"Epoch {epoch + 1}/{max_epoch}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
                    f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1: {f1_test:.4f}, "
                    f"Total Pseudo-Labels: {psl_total}, Correct Pseudo-Labels: {psl_correct}, "
@@ -670,12 +739,26 @@ def oneRun(log_dir, output_dir_experiment, **params):
                 }
     
     
-    print("epoch1_train_loss - ", first_train_loss)
-    print('\nbest_trian_loss - epoch', best_train_loss, train_epoch+1,'\n')
     
-    print("epoch1_val_loss - ", first_val_loss)
-    print('best_val_loss - epoch', best_val_loss, val_epoch+1, '\n')
- 
+    
+    # data['best_train_loss'].append(best_train_loss)
+    # data['epoch'].append(train_epoch+1)    
+    # data['train_loss(1epoch)'].append(first_train_loss)
+    # data['best_val_loss'].append(best_val_loss)
+    # data['val_epoch'].append(val_epoch+1)  
+    # data['val_loss(1epoch)'].append(first_val_loss)
+    
+    
+    
+    print("\nEpoch-1_train_loss =>", first_train_loss)
+    print('best_trian_loss, epoch =>', best_train_loss, train_epoch+1,'\n')
+    
+    print("Epoch-1_val_loss =>", first_val_loss)
+    print('best_val_loss, epoch => ', best_val_loss, val_epoch+1, '\n')
+    
+    print("pse_epoch => ", pse_epoch)
+    print("추가되는 pse_epoch => ", pse_add_epoch,'\n')
+    
     print('total_data: ', len(train_dataset_l),'\nBest_step: ', best_model_step,'\nBest_epoch: ', best_epoch ,
           '\nbest_val_acc: ',best_acc, '\nbest_test_acc: ', acc_test, '\nbest_test_f1: ', f1_test)
     
@@ -689,7 +772,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
         best_df.to_csv(best_csv_path, mode='a', index=False, header=False)
     best_df.to_csv(training_stats_path, mode='a', index=False, header=True)
     print('Save best record in: ', best_csv_path, end='')
-        
+     
+    # update_csv(data, csv_path)   
 
 
 
@@ -755,7 +839,7 @@ def multiRun(experiment_home=None, num_runs=3, unit_test_mode=False, **params):
         experiment_home = root + '/experiment/temp/'
     log_root = experiment_home + '/log/'
     global log_dir_multiRun
-    log_dir_multiRun = log_root + f"class{params['pse_cl']}" + '/'
+    log_dir_multiRun = log_root + f"{params['model_name']}/class{params['pse_cl']}" + '/'
 
     if not os.path.exists(experiment_home):
         os.makedirs(experiment_home)
@@ -776,7 +860,7 @@ def multiRun(experiment_home=None, num_runs=3, unit_test_mode=False, **params):
     if not os.path.exists(output_dir_experiment):
         os.makedirs(output_dir_experiment)
 
-
+    
     ## Obtain averaged results over multiple runs
     results = []
     test_accs = []
@@ -813,3 +897,5 @@ def multiRun(experiment_home=None, num_runs=3, unit_test_mode=False, **params):
     csv_path = log_root + 'summary_avgrun.csv'
     df.to_csv(csv_path, mode='a', index=False, header=True)
     print('\nSave best record in: ', csv_path)
+    
+    
