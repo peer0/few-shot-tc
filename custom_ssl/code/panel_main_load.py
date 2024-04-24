@@ -29,14 +29,17 @@ elif model_name=='codet5p':
 elif model_name=='graphcodebert':
         token = net_arch = "microsoft/graphcodebert-base"
 
-
-
-
+# codesage, ast-t5 추가 4/19  
 elif model_name=='codesage':
-        token = net_arch = "codesage/codesage-base"
-        
-elif model_name=='ast_t5':
+        token = net_arch = "codesage/codesage-base"     
+elif model_name=='ast-t5':
         token = net_arch = "gonglinyuan/ast_t5_base"
+        
+# CodeLLama 추가 4/24   
+elif model_name=='codellama':
+        token = net_arch = "codellama/CodeLlama-7b-hf"
+
+          
 
 #token = net_arch = "microsoft/codebert-base"
 #token = net_arch = "microsoft/unixcoder-base"

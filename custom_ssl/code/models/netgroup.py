@@ -9,7 +9,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from copy import deepcopy
 from torch.optim import AdamW
-from transformers import AutoConfig, AutoModelForSequenceClassification, AutoModel, AutoModelForMaskedLM, AutoModelForSeq2SeqLM, AutoTokenizer
+from transformers import AutoConfig, AutoModelForSequenceClassification, AutoModel, AutoModelForSeq2SeqLM , AutoModelForCausalLM
+
 from utils.ema import EMA
 from models.model import TextClassifier
 import pdb
@@ -27,9 +28,7 @@ class CustomModel(nn.Module): #codet5p 용
         self.text_transformer = AutoModel.from_pretrained(transformer_model_name,  trust_remote_code=True)
 
         # Linear layer for classification
-        # self.linear_layer = nn.Linear(config.hidden_size, n_classes)
         self.linear_layer = nn.Linear(config.embed_dim, n_classes)
-        #self.linear_layer = nn.Linear(config.hidden_size, n_classes)
 
 
     def forward(self, input_ids, attention_mask=None, labels=None):  # Add 'labels' argument
@@ -63,6 +62,32 @@ class CustomModel_2(nn.Module): #graphcodebert 용
         # Pass through the linear layer for classification
         
         logits = self.linear_layer(transformer_output[:, 0, :])  # Take the first token's hidden state
+
+        return logits
+
+
+class CustomModel_3(nn.Module): #ast-t5 용
+    def __init__(self, transformer_model_name, n_classes=7):
+        super(CustomModel_3, self).__init__()
+
+        # Load the transformer model without the classification head
+        config = AutoModelForSeq2SeqLM.from_pretrained(transformer_model_name,  trust_remote_code=True)
+        self.text_transformer =AutoModelForSeq2SeqLM.from_pretrained(transformer_model_name,  trust_remote_code=True)
+
+        # Linear layer for classification
+        # self.linear_layer = nn.Linear(config.hidden_size, n_classes)
+        #self.linear_layer = nn.Linear(config.embed_dim, n_classes)
+        #self.linear_layer = nn.Linear(config.encoder_embed_dim, n_classes)
+        self.linear_layer = nn.Linear(config.d_model, n_classes)
+
+
+    def forward(self, input_ids, attention_mask=None, labels=None):  # Add 'labels' argument
+
+        # Obtain transformer output
+        # transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask, labels=labels).last_hidden_state.mean(dim=1)
+        transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask)
+        # Pass through the linear layer for classification
+        logits = self.linear_layer(transformer_output)
 
         return logits
 
@@ -112,9 +137,7 @@ class NetGroup(nn.Module):
 
         #T5, Unicoder 추가
         elif net_arch == "Salesforce/codet5p-110m-embedding":
-            model = CustomModel("Salesforce/codet5p-110m-embedding")
-            net = model
-            #net = AutoModel.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True, num_labels = self.n_classes)
+            net = CustomModel("Salesforce/codet5p-110m-embedding")
 
         elif net_arch == "microsoft/unixcoder-base":
             net =  AutoModelForSequenceClassification.from_pretrained("microsoft/unixcoder-base", num_labels = self.n_classes)
@@ -123,8 +146,7 @@ class NetGroup(nn.Module):
             
         # graphcodebert model 추가 4/17
         elif net_arch == "microsoft/graphcodebert-base":
-            model = CustomModel_2("microsoft/graphcodebert-base")
-            net = model
+            net = CustomModel_2("microsoft/graphcodebert-base")
         
         
         
@@ -133,7 +155,17 @@ class NetGroup(nn.Module):
             net = AutoModel.from_pretrained("codesage/codesage-base", trust_remote_code=True,  num_labels = self.n_classes)
             
         elif net_arch == "gonglinyuan/ast_t5_base":
-            net = AutoModelForSeq2SeqLM.from_pretrained("gonglinyuan/ast_t5_base", trust_remote_code=True, num_labels = self.n_classes)
+            #net  = CustomModel_3("gonglinyuan/ast_t5_base")
+            net = AutoModelForSeq2SeqLM.from_pretrained("gonglinyuan/ast_t5_base", trust_remote_code=True,  num_labels = self.n_classes)
+
+
+
+
+        # CodeLLama 추가 4/24
+        elif net_arch == "codellama/CodeLlama-7b-hf":
+            net = AutoModelForCausalLM.from_pretrained("codellama/CodeLlama-7b-hf", num_labels = self.n_classes)
+
+
 
 
         net.to(self.device)
@@ -186,7 +218,14 @@ class NetGroup(nn.Module):
                 
         elif self.net_arch == "gonglinyuan/ast_t5_base":
             optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
-            print('\nnet_arch: ', self.net_arch, '\nlr: ', lr, '\nlr_linear: ', lr_linear,'\n')  
+            print('\nnet_arch: ', self.net_arch, '\nlr: ', lr, '\nlr_linear: ', lr_linear,'\n')
+            
+            
+            
+        # CodeLLama 추가 4/24                
+        elif self.net_arch == "codellama/CodeLlama-7b-hf":
+            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
+            print('\nnet_arch: ', self.net_arch, '\nlr: ', lr, '\nlr_linear: ', lr_linear,'\n')    
             
             
     #test
@@ -276,17 +315,74 @@ class NetGroup(nn.Module):
 
 
         # codesage, ast-t5 추가 4/19  
+        # elif self.net_arch == "codesage/codesage-base":
+        #     input_ids = x['input_ids'].to(self.device)
+        #     attention_mask = x['attention_mask'].to(self.device)
+        #     #outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
+        #     #여기에 추가해야함 
+        #     outs = net(input_ids, attention_mask=attention_mask, return_dict=True)
+        #     input_dim = outs['last_hidden_state'].size(2)
+        #     output_dim = 7  # 출력 클래스 개수입니다.
+        #     linear_layer = nn.Linear(input_dim, output_dim)
+
+        #     # GPU 사용을 위해 모델 및 텐서를 CUDA로 이동합니다.
+        #     linear_layer.cuda()
+
+        #     # 선형 레이어 적용
+        #     outs = linear_layer(outs['last_hidden_state'].mean(dim=1))
+        
+        
         elif self.net_arch == "codesage/codesage-base":
-            pdb.set_trace()
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
-            outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
+            # 모델 호출 및 결과 받기
+            outs = net(input_ids, attention_mask=attention_mask, return_dict=True)
+            input_dim = outs['last_hidden_state'].size(2)
+            output_dim = 7  # 출력 클래스 개수입니다.
+            
+            # 선형 레이어 생성 및 GPU로 이동
+            if not hasattr(self, 'linear_layer'):
+                self.linear_layer = nn.Linear(input_dim, output_dim).to(self.device)
+            
+            # 선형 레이어 적용
+            outs = self.linear_layer(outs['last_hidden_state'].mean(dim=1))
+            
+            
             
         elif self.net_arch == "gonglinyuan/ast_t5_base":
+            # input_ids = x['input_ids'].to(self.device)
+            # attention_mask = x['attention_mask'].to(self.device)
+            
+            # pdb.set_trace()
+            # outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).encoder_last_hidden_state
+            
+            # output_dim = 7  # 출력 클래스 개수입니다.
+            # linear_layer = nn.Linear(input_dim, output_dim)
+
+            # # GPU 사용을 위해 모델 및 텐서를 CUDA로 이동합니다.
+            # linear_layer.cuda()
+
+            # # 선형 레이어 적용
+            # outs = linear_layer(outs.mean(dim=1))
+            
+            
+            input_ids = x['input_ids'].to(self.device)
+            attention_mask = x['attention_mask'].to(self.device)
+            outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).encoder_last_hidden_state
+            input_dim = outs.size(2)
+            output_dim = 7  # 출력 클래스 개수입니다.
+            if not hasattr(self, 'linear_layer'):
+                self.linear_layer = nn.Linear(input_dim, output_dim).to(self.device)
+
+            outs = self.linear_layer(outs.mean(dim=1))
+
+
+            
+        # CodeLLama 추가 4/24
+        elif self.net_arch == "codellama/CodeLlama-7b-hf":
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
             outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
-
 
         return outs
     

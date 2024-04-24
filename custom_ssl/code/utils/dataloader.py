@@ -208,15 +208,21 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     elif token == "microsoft/graphcodebert-base":
         tokenizer = AutoTokenizer.from_pretrained("microsoft/graphcodebert-base")
         
-        
-        
 
     # codesage, ast-t5 추가 4/19          
     elif token == "codesage/codesage-base":
         tokenizer = AutoTokenizer.from_pretrained("codesage/codesage-base")
     
     elif token == "gonglinyuan/ast_t5_base":
-        tokenizer = AutoTokenizer.from_pretrained("gonglinyuan/ast_t5_base")
+        tokenizer = AutoTokenizer.from_pretrained("gonglinyuan/ast_t5_base", trust_remote_code = True)
+    
+    
+    # CodeLLama 추가 4/24    
+    elif token =="codellama/CodeLlama-7b-hf":
+        #tokenizer = AutoTokenizer.from_pretrained(token)
+        tokenizer = AutoTokenizer.from_pretrained("codellama/CodeLlama-7b-hf")   
+    
+    
     
     else:
         print("token no name = error")

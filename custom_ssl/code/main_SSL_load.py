@@ -481,30 +481,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
         step += len(iter(train_labeled_loader))
 
-        #for batch_label in iter(train_labeled_loader):
-            # --- Evaluation: Check Performance on Validation set every val_interval batches ---##
-
-            ## --- Training --- ##
-            #step += 1
-            ## Process Labeled Data
-            #x_lb, y_lb = batch_label['x_w'], batch_label['label']
-            #x_lb, y_lb = batch_label['x'], batch_label['label']
-
-            
-            # if len(y_lb) == bs :
-            #     # forward pass
-            #     outs_x_lb = netgroup.forward(x_lb, y_lb.to(device))
-            #     # compute loss for labeled data
-            #     sup_loss_nets = [ce_loss(outs_x_lb[i], y_lb.to(device)) for i in range(num_nets)]
-            #     # update netgorup from loss of labeled data
-            #     netgroup.update(sup_loss_nets)
-            #     if ema_mode:
-            #         netgroup.update_ema()
-                    
-            
-            # else : 
-            #     print('train batch instace수가 7안됨 pass')
-                    
                 
         
 
