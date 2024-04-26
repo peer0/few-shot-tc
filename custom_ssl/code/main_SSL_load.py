@@ -167,7 +167,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
         
     
     #train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u = get_dataloader(data_path, n_labeled_per_class, bs, load_mode)
-    train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u = get_dataloader(data_path, n_labeled_per_class, bs, load_mode, token)
+    train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u, tokenizer = get_dataloader(data_path, n_labeled_per_class, bs, load_mode, token)
   
     # tokenizer 분석하는 코드 추가함.
     # num = []
@@ -280,16 +280,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
 
 
-    # def update_csv(data, csv_path):
-    #     # 데이터프레임 생성
-    #     df = pd.DataFrame(data)
-    #     # CSV 파일이 이미 존재하는지 확인
-    #     csv_exists = os.path.isfile(csv_path)
-    #     # CSV 파일에 추가 모드로 데이터프레임 저장
-    #     df.to_csv(csv_path, mode='a', index=False, header=not csv_exists)
-    #     print('\nSaved data to CSV:', csv_path)
-
-
     ## Training
     import time
     import torch.nn.functional as F
@@ -333,33 +323,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
     pse_add_epoch = []
 
 
-
-    
-    # data = {
-    # 'pse_cl' : [],
-    # 'lr' : [],
-    
-    # 'best_train_loss': [],
-    # 'epoch': [],
-    # 'train_loss(1epoch)': [],
-    # 'train_loss(100epoch)': [],
-    
-    # 'best_val_loss': [],
-    # 'val_epoch' : [],
-    # 'val_loss(1epoch)': [],
-    # 'val_loss(100epoch)': [],
-    
-    # 'train_acc' : [],
-    # 'val_acc' : [],
-    # 'test Acc': [],
-    # 'test F1': [],
-    
-    # 'epoch99기준 train_class별 acc': [],
-    # 'epoch 99기준 추가된 pesuod label 수' : [],
-    # 'epoch 99기준 예측 label(갯수)': [],
-    # }
-    
-    # csv_path = f"../result_log_balance/{params['language']}/{params['model_name']}/class{params['pse_cl']}"
     
 
     
@@ -376,7 +339,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
         #     #break
     
         # 결합된 데이터에 대한 DataLoader 생성
-        tokenizer = AutoTokenizer.from_pretrained(token)
+        #tokenizer = AutoTokenizer.from_pretrained(token, trust_remote_code=True)
         train_sampler = BalancedBatchSampler(train_dataset_l,bs)
         
         # MyCollator_SSL은 기존의 MyCollator는 data를 augmentation을 함.
@@ -384,15 +347,11 @@ def oneRun(log_dir, output_dir_experiment, **params):
         print('line 303 => train data수', len(train_dataset_l))
         print("line 258 => 인스턴스 수" , len(iter(train_labeled_loader)))
         
-
+        
         acc_test, f1_test, acc_test_cw = evaluation(test_loader)
         acc_val, f1_val, acc_val_cw = evaluation(dev_loader)
         acc_train, f1_train, acc_train_cw = evaluation(train_labeled_loader)
-        #print("=======finish=======")
-        # print('acc_train_cw:',acc_train_cw)
-        # evaluation(train_labeled_loader)
-        # exit()
-        # restore training mode 
+
         if ema_mode:
             netgroup.train_ema()
         netgroup.train()
@@ -508,6 +467,9 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     # unlabel data의 예측값
                     
                     # symbolic-based pseudo-label 모듈 사용할 부분 .forward 대신에 netgroup.py에서 symbolic-based pseudo-label 모듈 호출후 process_code이용하면 될거라고 생각함.#################################### 
+                    pdb.set_trace()
+                    decoder_input_ids = x_ulb_s.to(device)
+                    batch_unlabel['label'].to(device)
                     outs_x_ulb_w_nets = netgroup.forward(x_ulb_s)
 
                 # Generate pseudo labels and masks for all nets in one batch of unlabeled data

@@ -14,7 +14,7 @@ load_mode = 'semi_SSL'
 n_labeled_per_class = int(sys.argv[1]) #few shot 수
 #n_labeled_per_class = 10
 
-bs = 7  # 4, 8 # batch size
+
 
 
 model_name = sys.argv[2]
@@ -35,11 +35,27 @@ elif model_name=='codesage':
 elif model_name=='ast-t5':
         token = net_arch = "gonglinyuan/ast_t5_base"
         
-# CodeLLama 추가 4/24   
+# CodeLLama, Starcoder, Deepseekcoder  추가 4/24   
 elif model_name=='codellama':
         token = net_arch = "codellama/CodeLlama-7b-hf"
 
-          
+elif model_name=="starcoder":
+        token = net_arch = "bigcode/starcoder"
+
+elif model_name=="deepseek":
+        token = net_arch = "deepseek-ai/deepseek-coder-6.7b-base"
+
+
+
+
+
+
+     
+if model_name == 'ast-t5':
+        bs = 1  # 4, 8 # batch size   
+
+else:
+        bs = 7  
 
 #token = net_arch = "microsoft/codebert-base"
 #token = net_arch = "microsoft/unixcoder-base"

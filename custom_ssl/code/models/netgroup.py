@@ -14,8 +14,7 @@ from transformers import AutoConfig, AutoModelForSequenceClassification, AutoMod
 from utils.ema import EMA
 from models.model import TextClassifier
 import pdb
-from transformers import PreTrainedModel, AutoModel
-
+from transformers import PreTrainedModel, AutoModel, BertTokenizer, AutoTokenizer
 
 
 #change
@@ -152,18 +151,25 @@ class NetGroup(nn.Module):
         
         # codesage, ast-t5 추가 4/19
         elif net_arch == "codesage/codesage-base":
-            net = AutoModel.from_pretrained("codesage/codesage-base", trust_remote_code=True,  num_labels = self.n_classes)
+            net = AutoModelForSequenceClassification.from_pretrained("codesage/codesage-base", trust_remote_code=True,  num_labels = self.n_classes)
             
         elif net_arch == "gonglinyuan/ast_t5_base":
-            #net  = CustomModel_3("gonglinyuan/ast_t5_base")
-            net = AutoModelForSeq2SeqLM.from_pretrained("gonglinyuan/ast_t5_base", trust_remote_code=True,  num_labels = self.n_classes)
+            net = AutoModelForSeq2SeqLM.from_pretrained("gonglinyuan/ast_t5_base", trust_remote_code = True,  num_labels = self.n_classes)
+
+            
 
 
 
-
-        # CodeLLama 추가 4/24
+        # CodeLLama, Starcoder, Deepseekcoder  추가 4/24
         elif net_arch == "codellama/CodeLlama-7b-hf":
-            net = AutoModelForCausalLM.from_pretrained("codellama/CodeLlama-7b-hf", num_labels = self.n_classes)
+            net = AutoModelForSequenceClassification.from_pretrained("codellama/CodeLlama-7b-hf", num_labels = self.n_classes)
+        
+        elif net_arch == "bigcode/starcoder":
+            net = AutoModelForCausalLM.from_pretrained("bigcode/starcoder", num_labels = self.n_classes)
+            
+        elif net_arch == "deepseek-ai/deepseek-coder-6.7b-base":
+            net = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-6.7b-base", trust_remote_code=True, num_labels = self.n_classes)
+
 
 
 
@@ -222,21 +228,22 @@ class NetGroup(nn.Module):
             
             
             
-        # CodeLLama 추가 4/24                
+        # CodeLLama, Starcoder, Deepseekcoder  추가 4/24                
         elif self.net_arch == "codellama/CodeLlama-7b-hf":
             optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
-            print('\nnet_arch: ', self.net_arch, '\nlr: ', lr, '\nlr_linear: ', lr_linear,'\n')    
+            print('\nnet_arch: ', self.net_arch, '\nlr: ', lr, '\nlr_linear: ', lr_linear,'\n')
+            
+        elif self.net_arch == "bigcode/starcoder":
+            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
+            print('\nnet_arch: ', self.net_arch, '\nlr: ', lr, '\nlr_linear: ', lr_linear,'\n')               
+
+        elif self.net_arch == "deepseek-ai/deepseek-coder-6.7b-base":
+            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
+            print('\nnet_arch: ', self.net_arch, '\nlr: ', lr, '\nlr_linear: ', lr_linear,'\n')                
             
             
-    #test
+            
         return optimizer_net
-    
- ########## ########## ########## 수정 필요  ########## ########## ##########
-
-
-
-
-
 
 
 
@@ -300,7 +307,6 @@ class NetGroup(nn.Module):
         elif self.net_arch == "microsoft/unixcoder-base":
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
-            # outs = net(input_ids, attention_mask=attention_mask, return_dict=True).last_hidden_state
             outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
 
 
@@ -309,80 +315,62 @@ class NetGroup(nn.Module):
         elif self.net_arch == "microsoft/graphcodebert-base":
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
-            # outs = net(input_ids, attention_mask=attention_mask, return_dict=True).last_hidden_state
             outs = net(input_ids, attention_mask=attention_mask, labels=y)
 
 
 
-        # codesage, ast-t5 추가 4/19  
-        # elif self.net_arch == "codesage/codesage-base":
-        #     input_ids = x['input_ids'].to(self.device)
-        #     attention_mask = x['attention_mask'].to(self.device)
-        #     #outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
-        #     #여기에 추가해야함 
-        #     outs = net(input_ids, attention_mask=attention_mask, return_dict=True)
-        #     input_dim = outs['last_hidden_state'].size(2)
-        #     output_dim = 7  # 출력 클래스 개수입니다.
-        #     linear_layer = nn.Linear(input_dim, output_dim)
-
-        #     # GPU 사용을 위해 모델 및 텐서를 CUDA로 이동합니다.
-        #     linear_layer.cuda()
-
-        #     # 선형 레이어 적용
-        #     outs = linear_layer(outs['last_hidden_state'].mean(dim=1))
-        
-        
+        # codesage, ast-t5 추가 4/19    
         elif self.net_arch == "codesage/codesage-base":
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
-            # 모델 호출 및 결과 받기
-            outs = net(input_ids, attention_mask=attention_mask, return_dict=True)
-            input_dim = outs['last_hidden_state'].size(2)
-            output_dim = 7  # 출력 클래스 개수입니다.
-            
-            # 선형 레이어 생성 및 GPU로 이동
-            if not hasattr(self, 'linear_layer'):
-                self.linear_layer = nn.Linear(input_dim, output_dim).to(self.device)
-            
-            # 선형 레이어 적용
-            outs = self.linear_layer(outs['last_hidden_state'].mean(dim=1))
-            
-            
-            
-        elif self.net_arch == "gonglinyuan/ast_t5_base":
-            # input_ids = x['input_ids'].to(self.device)
-            # attention_mask = x['attention_mask'].to(self.device)
-            
-            # pdb.set_trace()
-            # outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).encoder_last_hidden_state
-            
-            # output_dim = 7  # 출력 클래스 개수입니다.
-            # linear_layer = nn.Linear(input_dim, output_dim)
-
-            # # GPU 사용을 위해 모델 및 텐서를 CUDA로 이동합니다.
-            # linear_layer.cuda()
-
-            # # 선형 레이어 적용
-            # outs = linear_layer(outs.mean(dim=1))
-            
-            
+            outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
+             
+ 
+        elif self.net_arch == "gonglinyuan/ast_t5_base": 
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
+
+            #token = AutoTokenizer.from_pretrained("gonglinyuan/ast_t5_base", trust_remote_code = True)
+            
+            
+            #or_label = {1: 'constant', 2: 'logn', 3: 'linear', 4: 'nlogn', 5: 'quadratic', 6: 'cubic', 7: 'np'}
+            #mapped_value = or_label[y.item()]
+            #yy =  token(mapped_value, return_tensors="pt")['input_ids'].to(self.device)
+            # pdb.set_trace()
             outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).encoder_last_hidden_state
+            pdb.set_trace()    
             input_dim = outs.size(2)
             output_dim = 7  # 출력 클래스 개수입니다.
             if not hasattr(self, 'linear_layer'):
                 self.linear_layer = nn.Linear(input_dim, output_dim).to(self.device)
-
             outs = self.linear_layer(outs.mean(dim=1))
+            
+
+            
+            
 
 
             
-        # CodeLLama 추가 4/24
-        elif self.net_arch == "codellama/CodeLlama-7b-hf":
+        # CodeLLama, Starcoder, Deepseekcoder  추가 4/24
+        elif self.net_arch == "codellama/CodeLlama-7b-hf":    
+            input_ids = x['input_ids'].to(self.device)
+            attention_mask = x['attention_mask'].to(self.device)
+            
+            #outs = TextClassificationDataset(input_ids,attention_mask= attention_mask,labels=y) 
+            outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
+            
+            
+        elif self.net_arch == "bigcode/starcoder":
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
             outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
+         
+        elif self.net_arch == "deepseek-ai/deepseek-coder-6.7b-base":
+            input_ids = x['input_ids'].to(self.device)
+            attention_mask = x['attention_mask'].to(self.device)
+            outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits    
+
+
 
         return outs
     
@@ -394,9 +382,10 @@ class NetGroup(nn.Module):
 
     # forward the group of networks from the same batch input
     def forward(self, x, y=None):
-        outs = []
+        outs = []  
         for i in range(self.num_nets):
             outs.append(self.forward_net(self.nets[i], x, y))
+
         return outs
     
 

@@ -217,10 +217,19 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
         tokenizer = AutoTokenizer.from_pretrained("gonglinyuan/ast_t5_base", trust_remote_code = True)
     
     
-    # CodeLLama 추가 4/24    
-    elif token =="codellama/CodeLlama-7b-hf":
-        #tokenizer = AutoTokenizer.from_pretrained(token)
-        tokenizer = AutoTokenizer.from_pretrained("codellama/CodeLlama-7b-hf")   
+    # CodeLLama, Starcoder, Deepseekcoder  추가 4/24    
+    elif token == "codellama/CodeLlama-7b-hf":
+        tokenizer = AutoTokenizer.from_pretrained("codellama/CodeLlama-7b-hf", trust_remote_code=True)
+        tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+        tokenizer.pad_token = '[PAD]'  # 패딩 토큰을 정의
+        tokenizer.padding_side = "right"  # 패딩 방향을 설정 (오른쪽으로)
+
+    elif token == "bigcode/starcoder":
+        tokenizer = AutoTokenizer.from_pretrained("bigcode/starcoder", trust_remote_code=True)
+        
+        
+    elif token == "deepseek-ai/deepseek-coder-6.7b-base":
+        tokenizer = AutoTokenizer.from_pretrained("deepseek-ai/deepseek-coder-6.7b-base", trust_remote_code=True)
     
     
     
@@ -247,22 +256,13 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
 
     
     
-    
-    
-    # if 'imdb' in data_path:
-    #     train_l_df = pd.read_csv(os.path.join(data_path,'train_{}.csv'.format(n_labeled_per_class)))
-    #     print('In this settting, we directly load the same labeled data split as in the SAT paper for fair comparison.')
+
         
     # # check statistics info
     print('n_labeled_per_class: ', n_labeled_per_class)
     print('train_df samples: %d' % (train_df.shape[0]))
     print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
     print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
-
-    # print('Check n_smaples_per_class in the original training set: ', train_df['label'].value_counts().sort_index().to_dict())
-    # print('Check n_smaples_per_class in the labeled training set: ', train_l_df['label'].value_counts().sort_index().to_dict())
-    # print('Check n_smaples_per_class in the unlabeled training set: ', train_u_df['label'].value_counts().sort_index().to_dict())
-
 
 
     # data augmentation 이용하려면 load mode추가해서 밑에와 같이 사용할 수 있는지 체크.
@@ -327,7 +327,7 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     
     
     
-    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, shuffled_train_dataset_u
+    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, shuffled_train_dataset_u, tokenizer
 
 
 

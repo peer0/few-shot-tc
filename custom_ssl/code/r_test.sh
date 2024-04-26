@@ -1,4 +1,4 @@
-for nshot in 10; do
+for nshot in 1; do
 	for language in python ; do
 		for pse_cl in 1; do
 			for thres in  0; do
@@ -14,3 +14,8 @@ for nshot in 10; do
 		done
 	done
 done
+
+
+
+#'ast-t5'
+
