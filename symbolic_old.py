@@ -2,10 +2,15 @@ import re
 import ast
 import csv
 import argparse
+from sklearn.metrics import confusion_matrix, accuracy_score, f1_score
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
 
 class TimeComplexityCalculator:
     def __init__(self, code):
         self.code = code
+        self.tree = ast.parse(code)
 
     def extract_functions(self):
         functions = []
@@ -86,9 +91,13 @@ class TimeComplexityCalculator:
                     time_complexity_part.append(f"{function_call_counts[call_name]}")
             time_complexity_parts.append("(" + " * ".join(time_complexity_part) + ")")
 
-        if time_complexity_parts:
-            total_complexity = " + ".join(time_complexity_parts)
-
+        # hsan: check for logn and nlogn complexities
+        logn_nlogn_complexity = self.detect_time_complexity_for_logn_nlogn()
+        if logn_nlogn_complexity:
+            time_complexity_part.append(logn_nlogn_complexity)
+        
+        total_complexity = " + ".join(time_complexity_parts) if time_complexity_parts else ""        
+        
         return total_complexity
 
     def calculate_time_complexity(self):
@@ -110,10 +119,8 @@ class TimeComplexityCalculator:
     def detect_time_complexity_for_logn_nlogn(self):
     # 주어진 소스코드를 AST (Abstract Syntax Tree)로 파싱
         tree = ast.parse(self.code)
-
         # for 루프의 개수를 세는 변수
         for_loop_count = 0
-
         # 배열 관련 작업 여부를 확인하는 변수
         has_array_operation = False
 
@@ -144,7 +151,7 @@ class TimeComplexityCalculator:
                     elif isinstance(node.func, ast.Name) and (node.func.id == 'bisect_left' or node.func.id == 'bisect_right'):
                         return 'logn'
 
-        return 'np'
+
 
     def classify_time_complexity(self, time_complexity):
         # '+' 기호로 복잡도 표현식을 분리
@@ -192,6 +199,8 @@ def process_code(code):
 
 
 def save_result(src_csv_path, dest_csv_path):
+    y_true = []
+    y_pred = []
     with open(dest_csv_path, mode='w', newline='', encoding='utf-8') as dest_file:
         writer = csv.writer(dest_file)
         writer.writerow(['src', 'ground_truth', 'predicted_tc'])
@@ -203,14 +212,58 @@ def save_result(src_csv_path, dest_csv_path):
                 ground_truth_label = row['complexity']
                 predicted_label = process_code(src_code)
                 writer.writerow([src_code, ground_truth_label, predicted_label])
+                y_true.append(ground_truth_label)
+                y_pred.append(predicted_label)
+
+    y_true = [int(i) for i in y_true]   # hsan: to match the datatype
+    accuracy = accuracy_score(y_true, y_pred)
+
+    # Calculate Micro-F1 and Macro-F1 scores
+    micro_f1 = f1_score(y_true, y_pred, average='micro')
+    macro_f1 = f1_score(y_true, y_pred, average='macro')
+
+    classes = np.unique(np.concatenate((y_true, y_pred)))
+    classes = list(map(int, classes))
+    print(f"Classes: {classes}")
+    classwise_accuracy = {}
+    for cls in classes:
+        class_y_pred = []
+        class_y_true = []
+        indices = []
+        for i in range(len(y_true)):
+            if y_true[i] == cls:
+                indices.append(i)
+        for i in indices:
+            class_y_pred.append(y_pred[i])
+            class_y_true.append(y_true[i])
+
+        class_accuracy = accuracy_score(class_y_true, class_y_pred)
+        classwise_accuracy[cls] = class_accuracy
+
+
+    conf_matrix = confusion_matrix(y_true, y_pred, labels=classes)
+    plt.figure(figsize=(10, 7))
+    sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', xticklabels=classes, yticklabels=classes)
+    plt.xlabel('Predicted labels')
+    plt.ylabel('True labels')
+    plt.title('Confusion Matrix')
+    output_file = 'confusion_matrix_python2.png'
+    plt.savefig(output_file, bbox_inches='tight')  # Saves the plot as a PNG file
+
+    print(f"Accuracy: {accuracy}")
+    print(f"Micro-F1 Score: {micro_f1}")
+    print(f"Macro-F1 Score: {macro_f1}")
+    print("Class-wise Accuracy:")
+    for cls, acc in classwise_accuracy.items():
+        print(f"{cls}: {acc}")
 
 
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Calculate and save code complexity.")
-    parser.add_argument("--src_csv_path", default="D:\\workspace\\jointmatch\\data\\int_label\\codecomplex_python\\test.csv", help="Path to the source CSV file")
-    parser.add_argument("--dest_csv_path", default="D:\\workspace\\jointmatch\\data\\result.csv", help="Path to the destination CSV file to save results")
+    parser.add_argument("--src_csv_path", default="D:\\workspace\\jointmatch\\data\\int_label\\codecomplex_python\\train.csv", help="Path to the source CSV file")
+    parser.add_argument("--dest_csv_path", default="D:\\workspace\\few-shot-tc\\result\\python_result2.csv", help="Path to the destination CSV file to save results")
 
     args = parser.parse_args()
 
