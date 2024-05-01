@@ -352,7 +352,6 @@ class NetGroup(nn.Module):
         elif self.net_arch == "codellama/CodeLlama-7b-hf":    
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
-            pdb.set_trace()
             outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
             
         elif self.net_arch == "bigcode/starcoder":

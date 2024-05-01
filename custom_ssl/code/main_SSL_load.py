@@ -30,7 +30,7 @@ def get_pseudo_labeled_dataloader(pse_table, pse_count, train_labeled_dataset):
     pse_key = [key for key, value in pse_count.items() if value >= 1]
     min_value = min(value for value in pse_count.values() if value != 0)
 
-    print("\n\nBalance pseudo label class -> ", pse_key, " value -> ", min_value)
+    print("Balance pseudo label class -> ", pse_key, " value -> ", min_value)
     print("add data -> " ,len(pse_key)*min_value)
     
     for i in pse_key:
@@ -159,6 +159,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     from utils.dataloader import get_dataloader
     print("\n**line 147 모델 => ",net_arch)
     print('**tokenizer type = ',token,'\n')
+    
     print("pesudo label class개수 기준 ->", pse_cl)
     
     if net_arch != token:
@@ -344,6 +345,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
         
         # MyCollator_SSL은 기존의 MyCollator는 data를 augmentation을 함.
         train_labeled_loader = DataLoader(dataset=train_dataset_l, batch_size=bs, shuffle= train_sampler, collate_fn=MyCollator_SSL(tokenizer))
+        print('\n\n')
         print('line 303 => train data수', len(train_dataset_l))
         print("line 258 => 인스턴스 수" , len(iter(train_labeled_loader)))
         
@@ -395,11 +397,11 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
         # check classwise psl accuracy and total psl accuracy for the current eval
         print('acc_train_cw(현재 train의 class별 acc)',acc_train_cw)
-        print('cw_psl_total_eval(이전 pseudo label 클래스별 총 샘플 수): ', cw_psl_total_eval.tolist())
-        print('cw_psl_correct_eval(이전 pseudo label 클래스별 맞은 샘플 수): ', cw_psl_correct_eval.tolist())
+        print('cw_psl_total_eval(pseudo label 클래스별 총 샘플 수): ', cw_psl_total_eval.tolist())
+        print('cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수): ', cw_psl_correct_eval.tolist())
         #print('class-wise-accuracy -> ',  cw_psl_correct_eval.tolist() / cw_psl_total_eval.tolist())
-        print('psl_acc(이전 PSL 평가에서의 정확도): ', round((psl_correct_eval/psl_total_eval),3), end=' ') if psl_total_eval > 0 else print('psl_acc(PSL 평가에서의 정확도): None', end=' ')
-        print('\ncw_psl_acc(이전 클래스별 PSL 평가에서의 정확도): ', (cw_psl_correct_eval/cw_psl_total_eval).tolist())
+        print('psl_acc(PSL 평가에서의 정확도): ', round((psl_correct_eval/psl_total_eval),3), end=' ') if psl_total_eval > 0 else print('psl_acc(PSL 평가에서의 정확도): None', end=' ')
+        print('\ncw_psl_acc(클래스별 PSL 평가에서의 정확도): ', (cw_psl_correct_eval/cw_psl_total_eval).tolist())
 
 
         # if epoch+1 == 100:
@@ -416,11 +418,11 @@ def oneRun(log_dir, output_dir_experiment, **params):
             best_epoch = epoch
             #early_stop_count = 0
             if best_val_stop == False:
-                print(f"***best_acc_model_save --- epoch = {epoch}***")
+                print(f"***best_acc_model_save --- epoch = {epoch+1}***")
                 netgroup.save_model(output_dir_path, save_name, ema_mode=ema_mode)
                 
         if pse_work == True:
-            print(f"***pse_model_save --- epoch = {epoch}***")
+            print(f"***pse_model_save --- epoch = {epoch+1}***")
             netgroup.save_model(output_dir_path, save_name, ema_mode=ema_mode)
             pse_work = False
         # else:
@@ -544,8 +546,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
                         train_dataset_l =  get_pseudo_labeled_dataloader(pse_table, pse_count, train_dataset_l)
                         pse_work = True
                         best_val_stop = True
-                    else :
-                        print('\n')
+                    #else :
+                    #    print('\n')
                     
                 
 
@@ -615,11 +617,10 @@ def oneRun(log_dir, output_dir_experiment, **params):
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             val_epoch = epoch
-            #print(best_val_loss, val_epoch+1)
+            
         if train_loss < best_train_loss:
             best_train_loss = train_loss
             train_epoch = epoch
-            #print(best_train_loss, train_epoch+1)
         
         if (epoch+1) == 1:
             first_train_loss = train_loss
@@ -628,15 +629,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
         if (epoch+1) == 100:
             last_train_loss = train_loss
             last_val_loss = val_loss
-        
-        # if epoch + 1 == 100:
-        #     data['train_loss(100epoch)'].append(train_loss)
-        #     data['val_loss(100epoch)'].append(val_loss)
-        #     data['train_acc'].append(acc_train)
-        #     data['val_acc'].append(acc_val)
-        #     data['test Acc'].append(acc_test)
-        #     data['test F1'].append(f1_test)
-        #     data['epoch 99기준 예측 label(갯수)'].append(psl_total)
+
             
             
         pbar.write(f"Epoch {epoch + 1}/{max_epoch}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "

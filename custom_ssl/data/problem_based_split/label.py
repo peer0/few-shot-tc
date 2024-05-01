@@ -5,8 +5,8 @@ dataset = '.'
 
 #datatype = 'train'
 
-#data_name = 'corcod.index'
-data_name = 'java_extended_data'
+data_name = 'corcod.index'
+#data_name = 'java_extended_data'
 #data_name = 'python_extended_data'
 
 #original_file_path = f'../{dataset}/{data_name}/{datatype}.csv'
