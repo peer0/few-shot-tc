@@ -94,6 +94,8 @@ def train(output_dir_path, **params):
 
     best_valacc_acc = 0.0
     best_valacc_loss = 0.0
+    best_acc_testacc = 0.0
+    best_loss_testacc = 0.0
     best_valloss_acc = 0.0
     best_valloss_loss = 0.0
     best_acc_model_epoch = 0
@@ -113,32 +115,33 @@ def train(output_dir_path, **params):
         # Evaluate
         acc_train, _ = evaluate(netgroup, train_labeled_loader, device)
         acc_val, _ = evaluate(netgroup, dev_loader, device)
+        acc_test, f1_test = evaluate(netgroup, test_loader, device)
+        train_dataset_l, psl_total, psl_correct = pseudo_labeling(netgroup, train_dataset_l, train_unlabeled_loader, params['psl_threshold_h'], psl_total, device, pbar)
+        
         if acc_val > best_valacc_acc:
+            best_acc_testacc = acc_test
             best_valacc_acc = acc_val
-            best_valacc_loss = val_loss
             best_acc_model_epoch = epoch + 1
             best_train_dataset_l = train_dataset_l
             early_stop_count = 0
             torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["acc_save_name"]))
-        elif val_loss > best_valloss_loss:
-            best_valloss_acc = acc_val
+        elif val_loss < best_valloss_loss:
+            best_loss_testacc = acc_test
             best_valloss_loss = val_loss
             best_loss_model_epoch = epoch + 1
             torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["loss_save_name"]))
         else:
             early_stop_count += 1
-        acc_test, f1_test = evaluate(netgroup, test_loader, device)
-        train_dataset_l, psl_total, psl_correct = pseudo_labeling(netgroup, train_dataset_l, train_unlabeled_loader, params['psl_threshold_h'], psl_total, device, pbar)
 
         pbar.write(f"Epoch {epoch + 1}/{params['max_epoch']}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
                    f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1: {f1_test:.4f}, "
                    f"Total Pseudo-Labels: {psl_total}, Correct Pseudo-Labels: {psl_correct}, "
                    f"Train Data Number: {len(train_dataset_l)}")
         pbar.update(1)
-    pbar.write(f"(Valid Acc) Best Epoch: {best_acc_model_epoch}, Best Loss: {best_valacc_loss}, Best Accuracy: {best_valacc_acc}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}")
-    pbar.write(f"(Valid Loss) Best Epoch: {best_loss_model_epoch}, Best Loss: {best_valloss_loss}, Best Accuracy: {best_valloss_acc}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}")
+    pbar.write(f"(Valid Acc) Best Epoch: {best_acc_model_epoch}, Best Valid Acc: {best_valacc_acc}, Best Test Accuracy: {best_acc_testacc}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
+    pbar.write(f"(Valid Loss) Best Epoch: {best_loss_model_epoch}, Best Valid Loss: {best_valloss_loss}, Best Test Accuracy: {best_loss_testacc}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
     pbar.close()
-    return best_acc_model_epoch, best_loss_model_epoch, best_valacc_acc, best_valloss_acc
+    return best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc
 
 
 def evaluate(netgroup, loader, device):
@@ -170,12 +173,12 @@ def main(config_file='config.json', **kwargs):
     print("Merged parameters:", params)
 
     # Train
-    best_acc_model_epoch, best_loss_model_epoch, best_valacc_acc, best_valloss_acc = train(output_dir_path, **params)
+    best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc = train(output_dir_path, **params)
 
     # Save best model info
     with open(os.path.join(output_dir_path, "best_model_info.txt"), "w") as f:
-        f.write(f"(Valid Acc) Best Epoch: {best_acc_model_epoch}, Best Accuracy: {best_valacc_acc}")
-        f.write(f"(Valid Loss) Best Epoch: {best_loss_model_epoch}, Best Accuracy: {best_valloss_acc}")
+        f.write(f"(Valid Acc) Best Epoch: {best_acc_model_epoch}, Best Accuracy: {best_acc_testacc}")
+        f.write(f"(Valid Loss) Best Epoch: {best_loss_model_epoch}, Best Accuracy: {best_loss_testacc}")
 
     print("Training complete!")
 
