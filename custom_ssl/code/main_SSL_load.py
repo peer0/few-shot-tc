@@ -467,10 +467,13 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     # unlabel data의 예측값
                     
                     # symbolic-based pseudo-label 모듈 사용할 부분 .forward 대신에 netgroup.py에서 symbolic-based pseudo-label 모듈 호출후 process_code이용하면 될거라고 생각함.#################################### 
-                    pdb.set_trace()
-                    decoder_input_ids = x_ulb_s.to(device)
-                    batch_unlabel['label'].to(device)
+                    
+                    #decoder_input_ids = x_ulb_s.to(device)
+                    #batch_unlabel['label'].to(device)
+                    #pdb.set_trace()
+                    
                     outs_x_ulb_w_nets = netgroup.forward(x_ulb_s)
+
 
                 # Generate pseudo labels and masks for all nets in one batch of unlabeled data
                 pseudo_labels_nets = []
@@ -621,6 +624,10 @@ def oneRun(log_dir, output_dir_experiment, **params):
         if (epoch+1) == 1:
             first_train_loss = train_loss
             first_val_loss = val_loss
+            
+        if (epoch+1) == 100:
+            last_train_loss = train_loss
+            last_val_loss = val_loss
         
         # if epoch + 1 == 100:
         #     data['train_loss(100epoch)'].append(train_loss)
@@ -687,12 +694,17 @@ def oneRun(log_dir, output_dir_experiment, **params):
     # data['val_loss(1epoch)'].append(first_val_loss)
     
     
+    print('\nbest_trian_loss, epoch =>', best_train_loss, train_epoch+1)
+    print("Epoch-1_train_loss =>", first_train_loss)
+    print("Epoch-100_train_loss =>", last_train_loss, '\n')
     
-    print("\nEpoch-1_train_loss =>", first_train_loss)
-    print('best_trian_loss, epoch =>', best_train_loss, train_epoch+1,'\n')
     
+    
+    print('\nbest_val_loss, epoch => ', best_val_loss, val_epoch+1)
     print("Epoch-1_val_loss =>", first_val_loss)
-    print('best_val_loss, epoch => ', best_val_loss, val_epoch+1, '\n')
+    print("Epoch-100_val_loss =>", last_val_loss, '\n')
+    
+ 
     
     print("pse_epoch => ", pse_epoch)
     print("추가되는 pse_epoch => ", pse_add_epoch,'\n')

@@ -64,29 +64,25 @@ class CustomModel_2(nn.Module): #graphcodebert 용
 
         return logits
 
-
 class CustomModel_3(nn.Module): #ast-t5 용
     def __init__(self, transformer_model_name, n_classes=7):
         super(CustomModel_3, self).__init__()
 
         # Load the transformer model without the classification head
-        config = AutoModelForSeq2SeqLM.from_pretrained(transformer_model_name,  trust_remote_code=True)
-        self.text_transformer =AutoModelForSeq2SeqLM.from_pretrained(transformer_model_name,  trust_remote_code=True)
-
+        self.text_transformer = AutoModelForSeq2SeqLM.from_pretrained(transformer_model_name, trust_remote_code = True)
+        
         # Linear layer for classification
-        # self.linear_layer = nn.Linear(config.hidden_size, n_classes)
-        #self.linear_layer = nn.Linear(config.embed_dim, n_classes)
-        #self.linear_layer = nn.Linear(config.encoder_embed_dim, n_classes)
-        self.linear_layer = nn.Linear(config.d_model, n_classes)
+        self.linear_layer = nn.Linear(768, n_classes)
 
 
     def forward(self, input_ids, attention_mask=None, labels=None):  # Add 'labels' argument
-
+    
+    
         # Obtain transformer output
         # transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask, labels=labels).last_hidden_state.mean(dim=1)
-        transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask)
+        transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask, labels = labels)
         # Pass through the linear layer for classification
-        logits = self.linear_layer(transformer_output)
+        logits = self.linear_layer(transformer_output.encoder_last_hidden_state.mean(dim=1))
 
         return logits
 
@@ -124,22 +120,22 @@ class NetGroup(nn.Module):
     # initialize one network
     def init_net(self, net_arch):
         if net_arch == 'bert-base-uncased':
-            net = AutoModelForSequenceClassification.from_pretrained('bert-base-uncased', num_labels = self.n_classes)
+            net = AutoModelForSequenceClassification.from_pretrained(net_arch, num_labels = self.n_classes)
 
         elif net_arch == 'bert-base-uncased-2':
             net = TextClassifier(num_labels = self.n_classes)
 
         elif net_arch == 'microsoft/codebert-base':
-            net =  AutoModelForSequenceClassification.from_pretrained('microsoft/codebert-base', num_labels = self.n_classes)
+            net =  AutoModelForSequenceClassification.from_pretrained(net_arch, num_labels = self.n_classes)
 
 
 
         #T5, Unicoder 추가
         elif net_arch == "Salesforce/codet5p-110m-embedding":
-            net = CustomModel("Salesforce/codet5p-110m-embedding")
+            net = CustomModel(net_arch)
 
         elif net_arch == "microsoft/unixcoder-base":
-            net =  AutoModelForSequenceClassification.from_pretrained("microsoft/unixcoder-base", num_labels = self.n_classes)
+            net =  AutoModelForSequenceClassification.from_pretrained(net_arch, num_labels = self.n_classes)
             
             
             
@@ -151,26 +147,26 @@ class NetGroup(nn.Module):
         
         # codesage, ast-t5 추가 4/19
         elif net_arch == "codesage/codesage-base":
-            net = AutoModelForSequenceClassification.from_pretrained("codesage/codesage-base", trust_remote_code=True,  num_labels = self.n_classes)
+            net = AutoModelForSequenceClassification.from_pretrained(net_arch, trust_remote_code=True,  num_labels = self.n_classes)
             
         elif net_arch == "gonglinyuan/ast_t5_base":
-            net = AutoModelForSeq2SeqLM.from_pretrained("gonglinyuan/ast_t5_base", trust_remote_code = True,  num_labels = self.n_classes)
-
+            #net = CustomModel_3(net_arch)
+            net = AutoModelForSeq2SeqLM.from_pretrained(net_arch, trust_remote_code = True)
             
 
 
 
         # CodeLLama, Starcoder, Deepseekcoder  추가 4/24
         elif net_arch == "codellama/CodeLlama-7b-hf":
-            net = AutoModelForSequenceClassification.from_pretrained("codellama/CodeLlama-7b-hf", num_labels = self.n_classes)
+            net = AutoModelForSequenceClassification.from_pretrained(net_arch, num_labels = self.n_classes)
         
         elif net_arch == "bigcode/starcoder":
-            net = AutoModelForCausalLM.from_pretrained("bigcode/starcoder", num_labels = self.n_classes)
+            #net = AutoModelForCausalLM.from_pretrained(net_arch, num_labels = self.n_classes)
+            net = AutoModelForSequenceClassification.from_pretrained(net_arch, num_labels = self.n_classes)
             
         elif net_arch == "deepseek-ai/deepseek-coder-6.7b-base":
-            net = AutoModelForCausalLM.from_pretrained("deepseek-ai/deepseek-coder-6.7b-base", trust_remote_code=True, num_labels = self.n_classes)
-
-
+            #net = AutoModelForCausalLM.from_pretrained(net_arch, trust_remote_code=True, num_labels = self.n_classes)
+            net = AutoModelForSequenceClassification.from_pretrained(net_arch, num_labels = self.n_classes)
 
 
 
@@ -301,7 +297,6 @@ class NetGroup(nn.Module):
         elif self.net_arch == "Salesforce/codet5p-110m-embedding":
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
-            # outs = net(input_ids, attention_mask=attention_mask, return_dict=True).last_hidden_state
             outs = net(input_ids, attention_mask=attention_mask, labels=y)
 
         elif self.net_arch == "microsoft/unixcoder-base":
@@ -329,20 +324,22 @@ class NetGroup(nn.Module):
         elif self.net_arch == "gonglinyuan/ast_t5_base": 
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
-
+            
+            #outs = net(input_ids, attention_mask=attention_mask, labels=y)
+            
             #token = AutoTokenizer.from_pretrained("gonglinyuan/ast_t5_base", trust_remote_code = True)
-            
-            
             #or_label = {1: 'constant', 2: 'logn', 3: 'linear', 4: 'nlogn', 5: 'quadratic', 6: 'cubic', 7: 'np'}
             #mapped_value = or_label[y.item()]
             #yy =  token(mapped_value, return_tensors="pt")['input_ids'].to(self.device)
-            # pdb.set_trace()
+            
             outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).encoder_last_hidden_state
-            pdb.set_trace()    
             input_dim = outs.size(2)
             output_dim = 7  # 출력 클래스 개수입니다.
+        
+            
             if not hasattr(self, 'linear_layer'):
                 self.linear_layer = nn.Linear(input_dim, output_dim).to(self.device)
+                
             outs = self.linear_layer(outs.mean(dim=1))
             
 
@@ -355,10 +352,8 @@ class NetGroup(nn.Module):
         elif self.net_arch == "codellama/CodeLlama-7b-hf":    
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
-            
-            #outs = TextClassificationDataset(input_ids,attention_mask= attention_mask,labels=y) 
+            pdb.set_trace()
             outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
-            
             
         elif self.net_arch == "bigcode/starcoder":
             input_ids = x['input_ids'].to(self.device)

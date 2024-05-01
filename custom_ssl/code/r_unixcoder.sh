@@ -1,6 +1,6 @@
 for nshot in 5 10; do
-	for language in java ; do
-		for pse_cl in 1 4 6 7; do
+	for language in corcod ; do
+		for pse_cl in 7; do
 			for thres in  0.7; do
 				for max_epoch in 100; do 				
 					for model in 'unixcoder' ; do
