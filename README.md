@@ -18,12 +18,11 @@ git config --global user.email "jungin3486@gmail.com"
 ```
 
 ```
-pip3 install virtualenv 
+conda create -n jointmatch python=3.8 -y
 
-virtualenv jointmatch --python=3.9
-source jointmatch/bin/activate
+conda activate jointmatch
 
-pip install torch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1
+conda install pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 -c pytorch
 
 pip install -r requirements.txt
 ```
