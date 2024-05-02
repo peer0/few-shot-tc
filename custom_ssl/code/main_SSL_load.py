@@ -622,11 +622,11 @@ def oneRun(log_dir, output_dir_experiment, **params):
             best_train_loss = train_loss
             train_epoch = epoch
         
-        if (epoch+1) == 1:
+        if epoch == 0:
             first_train_loss = train_loss
             first_val_loss = val_loss
-            
-        if (epoch+1) == 100:
+           
+        if epoch+1 == max_epoch:
             last_train_loss = train_loss
             last_val_loss = val_loss
 
@@ -689,13 +689,13 @@ def oneRun(log_dir, output_dir_experiment, **params):
     
     print('\nbest_trian_loss, epoch =>', best_train_loss, train_epoch+1)
     print("Epoch-1_train_loss =>", first_train_loss)
-    print("Epoch-100_train_loss =>", last_train_loss, '\n')
+    print("max_epoch_train_loss =>", last_train_loss, '\n')
     
     
     
     print('\nbest_val_loss, epoch => ', best_val_loss, val_epoch+1)
     print("Epoch-1_val_loss =>", first_val_loss)
-    print("Epoch-100_val_loss =>", last_val_loss, '\n')
+    print("max_epoch_val_loss =>", last_val_loss, '\n')
     
  
     
