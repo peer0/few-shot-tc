@@ -131,7 +131,7 @@ for idx, data in enumerate(train_dataset):
         not_correct_idx.append(idx)
     
     
-    if idx == 2:
+    if idx == 3:
         break
     
 print(f"correct => {correct}, idx => {correct_idx}")
