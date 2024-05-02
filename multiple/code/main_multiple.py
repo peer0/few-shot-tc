@@ -4,12 +4,11 @@ import sys
 
 import numpy as np
 import pandas as pd
-import preprocessor as p
+# import preprocessor as p
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
-
 
 #### Set Path ####
 # go to the directory of this file
@@ -466,6 +465,11 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     psl_total = torch.sum(u_psl_mask).item()
 
                     u_label_psl = pseudo_label[u_psl_mask]
+                    # print(u_label_psl.size())
+                    # if u_label_psl.size(0) != 0:
+                    #     u_label_psl_hard = torch.argmax(u_label_psl, dim=-1)
+                    # else:
+                    #     print("Warning: u_label_psl tensor is empty.")
                     u_label_psl_hard = torch.argmax(u_label_psl, dim=-1)
                     psl_correct = torch.sum(u_label_psl_hard == gt_labels_u).item()
 

@@ -24,11 +24,15 @@ labeling_mode = 'soft' #2024-01-30추가
 # net_arch = 'microsoft/codebert-base'
 # net_arch = 'microsoft/unixcoder-base'
 # net_arch = 'Salesforce/codet5p-110m-embedding'
-net_arch = ['Salesforce/codet5p-110m-embedding','Salesforce/codet5p-110m-embedding']
+net_arch = ['microsoft/codebert-base','microsoft/codebert-base']
 
 device_idx = 0
-experiment_home = './experiment/cc_java_dual'
+# experiment_home = './experiment/cc_rand_java_dual_syn_back'
+experiment_home = './experiment/cc_rand_java_dual_trans_back'
+# experiment_home = './experiment/cc_rand_java_dual_origin'
+# experiment_home = './experiment/cc_pb_java_dual_origin'
 dataset = 'code_complex/random_split/java_extended_data' 
+# dataset = 'code_complex/problem_based_split/java_extended_data' 
 
 # JointMatch
 num_runs = 1

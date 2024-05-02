@@ -56,15 +56,15 @@ class MyCollator(object):
         labels = torch.LongTensor(labels) - 1
         if sents_aug1 is not None:
             # further add stochastic synoym replacement augmentation
-            sents_aug1 = [naw.SynonymAug(aug_src='wordnet', aug_p=0.05).augment(sent)[0] for sent in sents_aug1]
+            sents_aug1 = [naw.SynonymAug(aug_src='wordnet', aug_p=0.05).augment(str(sent))[0] for sent in sents_aug1]
             tokenized_aug1 = self.tokenizer(sents_aug1, padding=True, truncation='longest_first', max_length=255, return_tensors='pt')
         else:
             # add stochastic synoym replacement augmentation
-            sents_aug1 = [naw.SynonymAug(aug_src='wordnet', aug_p=0.05).augment(sent)[0] for sent in sents]
+            sents_aug1 = [naw.SynonymAug(aug_src='wordnet', aug_p=0.05).augment(str(sent))[0] for sent in sents]
             tokenized_aug1 = self.tokenizer(sents_aug1, padding=True, truncation='longest_first', max_length=255, return_tensors='pt')            
         if sents_aug2 is not None: 
             # further add stochastic synoym replacement augmentation
-            sents_aug2 = [naw.SynonymAug(aug_src='wordnet', aug_p=0.05).augment(sent)[0] for sent in sents_aug2]
+            sents_aug2 = [naw.SynonymAug(aug_src='wordnet', aug_p=0.05).augment(str(sent))[0] for sent in sents_aug2]
             tokenized_aug2 = self.tokenizer(sents_aug2, padding=True, truncation='longest_first', max_length=255, return_tensors='pt')
         else:
             tokenized_aug2 = None
@@ -131,6 +131,7 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
     # tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
     
+    # train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
     train_df = pd.read_csv(os.path.join(data_path,'train_chatgpt.csv'))
     dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
     test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
@@ -139,9 +140,6 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
     num_class = len(set(labels))
     train_labeled_idxs, train_unlabeled_idxs = train_split(labels, n_labeled_per_class)
     train_l_df, train_u_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True), train_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
-    if 'imdb' in data_path:
-        train_l_df = pd.read_csv(os.path.join(data_path,'train_{}.csv'.format(n_labeled_per_class)))
-        print('In this settting, we directly load the same labeled data split as in the SAT paper for fair comparison.')
         
     # check statistics info
     print('n_labeled_per_class: ', n_labeled_per_class)
@@ -155,9 +153,13 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi'):
 
     ##load_mode == 'semi'때는 SEMIDataset class 실행 -> synonym_aug와back_translation데이터 가져옴
     if load_mode == 'semi':
-        train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['translation'].to_list(), train_l_df['back-translation'], labels=train_l_df['label'].to_list())
-        train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['translation'].to_list(), train_u_df['back-translation'], labels=train_u_df['label'].to_list())
-        
+        train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['synonym_aug'].to_list(), train_l_df['back_translation'], labels=train_l_df['label'].to_list())
+        train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['synonym_aug'].to_list(), train_u_df['back_translation'], labels=train_u_df['label'].to_list())
+        # train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['translation'].to_list(), train_l_df['back-translation'], labels=train_l_df['label'].to_list())
+        # train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['translation'].to_list(), train_u_df['back-translation'], labels=train_u_df['label'].to_list())
+        # train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['synonym_aug'].to_list(), train_l_df['back-translation'], labels=train_l_df['label'].to_list())
+        # train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['synonym_aug'].to_list(), train_u_df['back-translation'], labels=train_u_df['label'].to_list())
+
         train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator(tokenizer))
         #2024-01-26
         # sampler = BalancedBatchSampler(train_dataset_u,bs)
