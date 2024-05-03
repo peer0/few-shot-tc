@@ -61,9 +61,9 @@ def main(model_name):
     # 데이터 로드
     test_df = pd.read_csv('../data/problem_based_split/python_extended_data/test.csv')
 
-    
     # 레이블 매핑
     label_map = {1: 'constant',2: 'logn',3: 'linear',4: 'nlogn',5: 'quadratic',6: 'cubic',7: 'np'}
+    #label_map = {7: 'np'}
     test_df['label'] = test_df['label'].map(label_map)
 
     
@@ -78,9 +78,9 @@ def main(model_name):
     correct_idx = []
     not_correct_idx = []
     found_patterns = []
-    time_complexity_expressions = [r"O\(1\)",r"O\(log n\)",r"O\(n\)", r"O\(n log n\)",r"O\(n\^2\)",r"O\(n\^3\)", r"O\(polynomial\)"]
-    complexity_to_pattern = {r"O\(1\)": 'constant',r"O\(log n\)": 'logn',r"O\(n\)": 'linear',r"O\(n log n\)": 'nlogn',r"O\(n\^2\)": 'quadratic',r"O\(n\^3\)": 'cubic',r"O\(polynomial\)": 'np'}
-    pattern_to_complexity = {'constant': r"O\(1\)", 'logn': r"O\(log n\)", 'linear': r"O\(n\)", 'nlogn': r"O\(n log n\)", 'quadratic': r"O\(n\^2\)", 'cubic': r"O\(n\^3\)", 'np': r"O\(polynomial\)"}
+    time_complexity_expressions = [r"O\(1\)",r"O\(log n\)",r"O\(n\)", r"O\(n log n\)",r"O\(n\^2\)",r"O\(n\^3\)", r"O\(2\^n\)"]
+    complexity_to_pattern = {r"O\(1\)": 'constant',r"O\(log n\)": 'logn',r"O\(n\)": 'linear',r"O\(n log n\)": 'nlogn',r"O\(n\^2\)": 'quadratic',r"O\(n\^3\)": 'cubic',r"O\(2\^n\)": 'np'}
+    pattern_to_complexity = {'constant': r"O\(1\)", 'logn': r"O\(log n\)", 'linear': r"O\(n\)", 'nlogn': r"O\(n log n\)", 'quadratic': r"O\(n\^2\)", 'cubic': r"O\(n\^3\)", 'np': r"O\(2\^n\)"}
     
     from tqdm import tqdm
     pbar = tqdm(total=len(test_dataset), desc="Training", position=0, leave=True)
@@ -92,7 +92,7 @@ def main(model_name):
             f'content': 
             f"{data[0]}" 
             f"Can you tell me the time complexity of the code based on "
-            f"\n1. O(1) \n2. O(log n) \n3. O(n) \n4. O(n log n) \n5. O(n^2) \n6. O(n^3) \n7. O(np)?\n"
+            f"\n1. O(1) \n2. O(log n) \n3. O(n) \n4. O(n log n) \n5. O(n^2) \n6. O(n^3) \n7. O(2^n)?\n"
             f"Say something like, “**The time complexity of this code is (time complexity of code)."    }]
         
         inputs = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt").to(device)
@@ -140,7 +140,7 @@ def main(model_name):
     print(f"\nAccuracy => {correct / len(test_dataset)}")
     
     for item, count in item_counts.items():
-        print(f"{item}accuracy => {correct_elements[item]/count}")
+        print(f"{item}-accuracy => {correct_elements[item]/count}")
    
    
    
