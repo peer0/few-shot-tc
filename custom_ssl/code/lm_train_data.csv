@@ -1,0 +1,952 @@
+content,label,problem,from,idx,problem_title,problem_description,input_output_specification,tags
+"# ---------------------------iye ha aam zindegi---------------------------------------------
+import math
+import random
+import heapq,bisect
+import sys
+from collections import deque, defaultdict
+from fractions import Fraction
+import sys
+import threading
+from collections import defaultdict
+threading.stack_size(10**8)
+mod = 10 ** 9 + 7
+mod1 = 998244353
+
+# ------------------------------warmup----------------------------
+import os
+import sys
+from io import BytesIO, IOBase
+sys.setrecursionlimit(300000)
+
+BUFSIZE = 8192
+
+
+class FastIO(IOBase):
+    newlines = 0
+
+    def __init__(self, file):
+        self._fd = file.fileno()
+        self.buffer = BytesIO()
+        self.writable = ""x"" in file.mode or ""r"" not in file.mode
+        self.write = self.buffer.write if self.writable else None
+
+    def read(self):
+        while True:
+            b = os.read(self._fd, max(os.fstat(self._fd).st_size, BUFSIZE))
+            if not b:
+                break
+            ptr = self.buffer.tell()
+            self.buffer.seek(0, 2), self.buffer.write(b), self.buffer.seek(ptr)
+        self.newlines = 0
+        return self.buffer.read()
+
+    def readline(self):
+        while self.newlines == 0:
+            b = os.read(self._fd, max(os.fstat(self._fd).st_size, BUFSIZE))
+            self.newlines = b.count(b""\n"") + (not b)
+            ptr = self.buffer.tell()
+            self.buffer.seek(0, 2), self.buffer.write(b), self.buffer.seek(ptr)
+        self.newlines -= 1
+        return self.buffer.readline()
+
+    def flush(self):
+        if self.writable:
+            os.write(self._fd, self.buffer.getvalue())
+            self.buffer.truncate(0), self.buffer.seek(0)
+
+
+class IOWrapper(IOBase):
+    def __init__(self, file):
+        self.buffer = FastIO(file)
+        self.flush = self.buffer.flush
+        self.writable = self.buffer.writable
+        self.write = lambda s: self.buffer.write(s.encode(""ascii""))
+        self.read = lambda: self.buffer.read().decode(""ascii"")
+        self.readline = lambda: self.buffer.readline().decode(""ascii"")
+
+
+sys.stdin, sys.stdout = IOWrapper(sys.stdin), IOWrapper(sys.stdout)
+input = lambda: sys.stdin.readline().rstrip(""\r\n"")
+
+
+# -------------------game starts now----------------------------------------------------import math
+class TreeNode:
+    def __init__(self, k, v):
+        self.key = k
+        self.value = v
+        self.left = None
+        self.right = None
+        self.parent = None
+        self.height = 1
+        self.num_left = 1
+        self.num_total = 1
+
+
+class AvlTree:
+
+    def __init__(self):
+        self._tree = None
+
+    def add(self, k, v):
+        if not self._tree:
+            self._tree = TreeNode(k, v)
+            return
+        node = self._add(k, v)
+        if node:
+            self._rebalance(node)
+
+    def _add(self, k, v):
+        node = self._tree
+        while node:
+            if k < node.key:
+                if node.left:
+                    node = node.left
+                else:
+                    node.left = TreeNode(k, v)
+                    node.left.parent = node
+                    return node.left
+            elif node.key < k:
+                if node.right:
+                    node = node.right
+                else:
+                    node.right = TreeNode(k, v)
+                    node.right.parent = node
+                    return node.right
+            else:
+                node.value = v
+                return
+
+    @staticmethod
+    def get_height(x):
+        return x.height if x else 0
+
+    @staticmethod
+    def get_num_total(x):
+        return x.num_total if x else 0
+
+    def _rebalance(self, node):
+
+        n = node
+        while n:
+            lh = self.get_height(n.left)
+            rh = self.get_height(n.right)
+            n.height = max(lh, rh) + 1
+            balance_factor = lh - rh
+            n.num_total = 1 + self.get_num_total(n.left) + self.get_num_total(n.right)
+            n.num_left = 1 + self.get_num_total(n.left)
+
+            if balance_factor > 1:
+                if self.get_height(n.left.left) < self.get_height(n.left.right):
+                    self._rotate_left(n.left)
+                self._rotate_right(n)
+            elif balance_factor < -1:
+                if self.get_height(n.right.right) < self.get_height(n.right.left):
+                    self._rotate_right(n.right)
+                self._rotate_left(n)
+            else:
+                n = n.parent
+
+    def _remove_one(self, node):
+        """"""
+        Side effect!!! Changes node. Node should have exactly one child
+        """"""
+        replacement = node.left or node.right
+        if node.parent:
+            if AvlTree._is_left(node):
+                node.parent.left = replacement
+            else:
+                node.parent.right = replacement
+            replacement.parent = node.parent
+            node.parent = None
+        else:
+            self._tree = replacement
+            replacement.parent = None
+        node.left = None
+        node.right = None
+        node.parent = None
+        self._rebalance(replacement)
+
+    def _remove_leaf(self, node):
+        if node.parent:
+            if AvlTree._is_left(node):
+                node.parent.left = None
+            else:
+                node.parent.right = None
+            self._rebalance(node.parent)
+        else:
+            self._tree = None
+        node.parent = None
+        node.left = None
+        node.right = None
+
+    def remove(self, k):
+        node = self._get_node(k)
+        if not node:
+            return
+        if AvlTree._is_leaf(node):
+            self._remove_leaf(node)
+            return
+        if node.left and node.right:
+            nxt = AvlTree._get_next(node)
+            node.key = nxt.key
+            node.value = nxt.value
+            if self._is_leaf(nxt):
+                self._remove_leaf(nxt)
+            else:
+                self._remove_one(nxt)
+            self._rebalance(node)
+        else:
+            self._remove_one(node)
+
+    def get(self, k):
+        node = self._get_node(k)
+        return node.value if node else -1
+
+    def _get_node(self, k):
+        if not self._tree:
+            return None
+        node = self._tree
+        while node:
+            if k < node.key:
+                node = node.left
+            elif node.key < k:
+                node = node.right
+            else:
+                return node
+        return None
+
+    def get_at(self, pos):
+        x = pos + 1
+        node = self._tree
+        while node:
+            if x < node.num_left:
+                node = node.left
+            elif node.num_left < x:
+                x -= node.num_left
+                node = node.right
+            else:
+                return (node.key, node.value)
+        raise IndexError(""Out of ranges"")
+
+    @staticmethod
+    def _is_left(node):
+        return node.parent.left and node.parent.left == node
+
+    @staticmethod
+    def _is_leaf(node):
+        return node.left is None and node.right is None
+
+    def _rotate_right(self, node):
+        if not node.parent:
+            self._tree = node.left
+            node.left.parent = None
+        elif AvlTree._is_left(node):
+            node.parent.left = node.left
+            node.left.parent = node.parent
+        else:
+            node.parent.right = node.left
+            node.left.parent = node.parent
+        bk = node.left.right
+        node.left.right = node
+        node.parent = node.left
+        node.left = bk
+        if bk:
+            bk.parent = node
+        node.height = max(self.get_height(node.left), self.get_height(node.right)) + 1
+        node.num_total = 1 + self.get_num_total(node.left) + self.get_num_total(node.right)
+        node.num_left = 1 + self.get_num_total(node.left)
+
+    def _rotate_left(self, node):
+        if not node.parent:
+            self._tree = node.right
+            node.right.parent = None
+        elif AvlTree._is_left(node):
+            node.parent.left = node.right
+            node.right.parent = node.parent
+        else:
+            node.parent.right = node.right
+            node.right.parent = node.parent
+        bk = node.right.left
+        node.right.left = node
+        node.parent = node.right
+        node.right = bk
+        if bk:
+            bk.parent = node
+        node.height = max(self.get_height(node.left), self.get_height(node.right)) + 1
+        node.num_total = 1 + self.get_num_total(node.left) + self.get_num_total(node.right)
+        node.num_left = 1 + self.get_num_total(node.left)
+
+    @staticmethod
+    def _get_next(node):
+        if not node.right:
+            return node.parent
+        n = node.right
+        while n.left:
+            n = n.left
+        return n
+
+
+# -----------------------------------------------binary seacrh tree---------------------------------------
+class SegmentTree1:
+    def __init__(self, data, default=2**51, func=lambda a, b: a & b):
+        """"""initialize the segment tree with data""""""
+        self._default = default
+        self._func = func
+        self._len = len(data)
+        self._size = _size = 1 << (self._len - 1).bit_length()
+
+        self.data = [default] * (2 * _size)
+        self.data[_size:_size + self._len] = data
+        for i in reversed(range(_size)):
+            self.data[i] = func(self.data[i + i], self.data[i + i + 1])
+
+    def __delitem__(self, idx):
+        self[idx] = self._default
+
+    def __getitem__(self, idx):
+        return self.data[idx + self._size]
+
+    def __setitem__(self, idx, value):
+        idx += self._size
+        self.data[idx] = value
+        idx >>= 1
+        while idx:
+            self.data[idx] = self._func(self.data[2 * idx], self.data[2 * idx + 1])
+            idx >>= 1
+
+    def __len__(self):
+        return self._len
+
+    def query(self, start, stop):
+        if start == stop:
+            return self.__getitem__(start)
+        stop += 1
+        start += self._size
+        stop += self._size
+
+        res = self._default
+        while start < stop:
+            if start & 1:
+                res = self._func(res, self.data[start])
+                start += 1
+            if stop & 1:
+                stop -= 1
+                res = self._func(res, self.data[stop])
+            start >>= 1
+            stop >>= 1
+        return res
+
+    def __repr__(self):
+        return ""SegmentTree({0})"".format(self.data)
+
+
+# -------------------game starts now----------------------------------------------------import math
+class SegmentTree:
+    def __init__(self, data, default=0, func=lambda a,b:max(a,b)):
+        """"""initialize the segment tree with data""""""
+        self._default = default
+        self._func = func
+        self._len = len(data)
+        self._size = _size = 1 << (self._len - 1).bit_length()
+
+        self.data = [default] * (2 * _size)
+        self.data[_size:_size + self._len] = data
+        for i in reversed(range(_size)):
+            self.data[i] = func(self.data[i + i], self.data[i + i + 1])
+
+    def __delitem__(self, idx):
+        self[idx] = self._default
+
+    def __getitem__(self, idx):
+        return self.data[idx + self._size]
+
+    def __setitem__(self, idx, value):
+        idx += self._size
+        self.data[idx] = value
+        idx >>= 1
+        while idx:
+            self.data[idx] = self._func(self.data[2 * idx], self.data[2 * idx + 1])
+            idx >>= 1
+
+    def __len__(self):
+        return self._len
+
+    def query(self, start, stop):
+        if start == stop:
+            return self.__getitem__(start)
+        stop += 1
+        start += self._size
+        stop += self._size
+
+        res = self._default
+        while start < stop:
+            if start & 1:
+                res = self._func(res, self.data[start])
+                start += 1
+            if stop & 1:
+                stop -= 1
+                res = self._func(res, self.data[stop])
+            start >>= 1
+            stop >>= 1
+        return res
+
+    def __repr__(self):
+        return ""SegmentTree({0})"".format(self.data)
+
+
+# -------------------------------iye ha chutiya zindegi-------------------------------------
+class Factorial:
+    def __init__(self, MOD):
+        self.MOD = MOD
+        self.factorials = [1, 1]
+        self.invModulos = [0, 1]
+        self.invFactorial_ = [1, 1]
+
+    def calc(self, n):
+        if n <= -1:
+            print(""Invalid argument to calculate n!"")
+            print(""n must be non-negative value. But the argument was "" + str(n))
+            exit()
+        if n < len(self.factorials):
+            return self.factorials[n]
+        nextArr = [0] * (n + 1 - len(self.factorials))
+        initialI = len(self.factorials)
+        prev = self.factorials[-1]
+        m = self.MOD
+        for i in range(initialI, n + 1):
+            prev = nextArr[i - initialI] = prev * i % m
+        self.factorials += nextArr
+        return self.factorials[n]
+
+    def inv(self, n):
+        if n <= -1:
+            print(""Invalid argument to calculate n^(-1)"")
+            print(""n must be non-negative value. But the argument was "" + str(n))
+            exit()
+        p = self.MOD
+        pi = n % p
+        if pi < len(self.invModulos):
+            return self.invModulos[pi]
+        nextArr = [0] * (n + 1 - len(self.invModulos))
+        initialI = len(self.invModulos)
+        for i in range(initialI, min(p, n + 1)):
+            next = -self.invModulos[p % i] * (p // i) % p
+            self.invModulos.append(next)
+        return self.invModulos[pi]
+
+    def invFactorial(self, n):
+        if n <= -1:
+            print(""Invalid argument to calculate (n^(-1))!"")
+            print(""n must be non-negative value. But the argument was "" + str(n))
+            exit()
+        if n < len(self.invFactorial_):
+            return self.invFactorial_[n]
+        self.inv(n)  # To make sure already calculated n^-1
+        nextArr = [0] * (n + 1 - len(self.invFactorial_))
+        initialI = len(self.invFactorial_)
+        prev = self.invFactorial_[-1]
+        p = self.MOD
+        for i in range(initialI, n + 1):
+            prev = nextArr[i - initialI] = (prev * self.invModulos[i % p]) % p
+        self.invFactorial_ += nextArr
+        return self.invFactorial_[n]
+
+
+class Combination:
+    def __init__(self, MOD):
+        self.MOD = MOD
+        self.factorial = Factorial(MOD)
+
+    def ncr(self, n, k):
+        if k < 0 or n < k:
+            return 0
+        k = min(k, n - k)
+        f = self.factorial
+        return f.calc(n) * f.invFactorial(max(n - k, k)) * f.invFactorial(min(k, n - k)) % self.MOD
+
+
+# --------------------------------------iye ha combinations ka zindegi---------------------------------
+def powm(a, n, m):
+    if a == 1 or n == 0:
+        return 1
+    if n % 2 == 0:
+        s = powm(a, n // 2, m)
+        return s * s % m
+    else:
+        return a * powm(a, n - 1, m) % m
+
+
+# --------------------------------------iye ha power ka zindegi---------------------------------
+def sort_list(list1, list2):
+    zipped_pairs = zip(list2, list1)
+
+    z = [x for _, x in sorted(zipped_pairs)]
+
+    return z
+
+
+# --------------------------------------------------product----------------------------------------
+def product(l):
+    por = 1
+    for i in range(len(l)):
+        por *= l[i]
+    return por
+
+
+# --------------------------------------------------binary----------------------------------------
+def binarySearchCount(arr, n, key):
+    left = 0
+    right = n - 1
+
+    count = 0
+
+    while (left <= right):
+        mid = int((right + left) / 2)
+
+        # Check if middle element is
+        # less than or equal to key
+        if (arr[mid] < key):
+            count = mid + 1
+            left = mid + 1
+
+        # If key is smaller, ignore right half
+        else:
+            right = mid - 1
+
+    return count
+
+
+# --------------------------------------------------binary----------------------------------------
+def countdig(n):
+    c = 0
+    while (n > 0):
+        n //= 10
+        c += 1
+    return c
+def binary(x, length):
+    y = bin(x)[2:]
+    return y if len(y) >= length else ""0"" * (length - len(y)) + y
+
+def countGreater(arr, n, k):
+    l = 0
+    r = n - 1
+
+    # Stores the index of the left most element
+    # from the array which is greater than k
+    leftGreater = n
+
+    # Finds number of elements greater than k
+    while (l <= r):
+        m = int(l + (r - l) / 2)
+        if (arr[m] >= k):
+            leftGreater = m
+            r = m - 1
+
+        # If mid element is less than
+        # or equal to k update l
+        else:
+            l = m + 1
+
+    # Return the count of elements
+    # greater than k
+    return (n - leftGreater)
+
+
+# --------------------------------------------------binary------------------------------------
+for ik in range(1):
+    n,k=map(int,input().split())
+    cards=list(map(int,input().split()))
+    l=list(map(int,input().split()))
+    h=list(map(int,input().split()))
+    h=[0]+h
+    count=defaultdict(int)
+    rt=defaultdict(int)
+    def find(x,y):
+        dp=[[0 for i in range(y+1)]for i in range(x+1)]
+        for i in range(1,x+1):
+            for j in range(y+1):
+                for t in range(min(j+1,k+1)):
+                    dp[i][j]=max(dp[i][j],dp[i-1][j-t]+h[t])
+        return dp[x][y]
+    for i in range(n*k):
+        count[cards[i]]+=1
+    for i in range(n):
+        rt[l[i]]+=1
+    ans=0
+    for i in rt:
+        if count[i]==0:
+            continue
+        ans+=find(rt[i],count[i])
+    print(ans)",6,0999_F,CODEFORCES,3770,Cards and Joy,"There are $$$n$$$ players sitting at the card table. Each player has a favorite number. The favorite number of the $$$j$$$-th player is $$$f_j$$$.
+There are $$$k \cdot n$$$ cards on the table. Each card contains a single integer: the $$$i$$$-th card contains number $$$c_i$$$. Also, you are given a sequence $$$h_1, h_2, \dots, h_k$$$. Its meaning will be explained below.
+The players have to distribute all the cards in such a way that each of them will hold exactly $$$k$$$ cards. After all the cards are distributed, each player counts the number of cards he has that contains his favorite number. The joy level of a player equals $$$h_t$$$ if the player holds $$$t$$$ cards containing his favorite number. If a player gets no cards with his favorite number (i.e., $$$t=0$$$), his joy level is $$$0$$$.
+Print the maximum possible total joy levels of the players after the cards are distributed. Note that the sequence $$$h_1, \dots, h_k$$$ is the same for all the players.
+The first line of input contains two integers $$$n$$$ and $$$k$$$ ($$$1 \le n \le 500, 1 \le k \le 10$$$) — the number of players and the number of cards each player will get.
+The second line contains $$$k \cdot n$$$ integers $$$c_1, c_2, \dots, c_{k \cdot n}$$$ ($$$1 \le c_i \le 10^5$$$) — the numbers written on the cards.
+The third line contains $$$n$$$ integers $$$f_1, f_2, \dots, f_n$$$ ($$$1 \le f_j \le 10^5$$$) — the favorite numbers of the players.
+The fourth line contains $$$k$$$ integers $$$h_1, h_2, \dots, h_k$$$ ($$$1 \le h_t \le 10^5$$$), where $$$h_t$$$ is the joy level of a player if he gets exactly $$$t$$$ cards with his favorite number written on them. It is guaranteed that the condition $$$h_{t - 1} < h_t$$$ holds for each $$$t \in [2..k]$$$.
+Print one integer — the maximum possible total joy levels of the players among all possible card distributions.
+In the first example, one possible optimal card distribution is the following:
+","input
+Thus, the answer is $$$2 + 6 + 6 + 7 = 21$$$.
+output
+In the second example, no player can get a card with his favorite number. Thus, the answer is $$$0$$$.
+",dp
+"from random import randint
+for _ in range(int(input())):
+    n, m = map(int, input().split())
+    A = [list(map(int, input().split())) for _ in range(n)]
+    ans = 0
+    for _ in range(100):
+        for j in range(m):
+            x = randint(0, n - 1)
+            if x:
+                B = []
+                for i in range(n):
+                    B.append(A[i][j])
+                B = B[x:] + B[:x]
+                for i in range(n):
+                    A[i][j] = B[i]
+        c = 0
+        for i in range(n):
+            c += max(A[i])
+        ans = max(ans, c)
+    print(ans)",7,1209_E1,CODEFORCES,4614,Rotate Columns (easy version),"This is an easier version of the next problem. The difference is only in constraints.
+You are given a rectangular $$$n \times m$$$ matrix $$$a$$$. In one move you can choose any column and cyclically shift elements in this column. You can perform this operation as many times as you want (possibly zero). You can perform this operation to a column multiple times.
+After you are done with cyclical shifts, you compute for every row the maximal value in it. Suppose that for $$$i$$$-th row it is equal $$$r_i$$$. What is the maximal possible value of $$$r_1+r_2+\ldots+r_n$$$?
+The first line contains an integer $$$t$$$ ($$$1 \le t \le 40$$$), the number of test cases in the input.
+The first line of each test case contains integers $$$n$$$ and $$$m$$$ ($$$1 \le n \le 4$$$, $$$1 \le m \le 100$$$) — the number of rows and the number of columns in the given matrix $$$a$$$. 
+Each of the following $$$n$$$ lines contains $$$m$$$ integers, the elements of $$$a$$$ ($$$1 \le a_{i, j} \le 10^5$$$).
+Print $$$t$$$ integers: answers for all test cases in the order they are given in the input.
+","input
+In the first test case, you can shift the third column down by one, this way there will be $$$r_1 = 5$$$ and $$$r_2 = 7$$$.
+output
+In the second case you can don't rotate anything at all, this way there will be $$$r_1 = r_2 = 10$$$ and $$$r_3 = 9$$$.
+","bitmasks, bruteforce, dp, greedy, sortings"
+"n=int(input())
+a=int(input())
+
+s=0
+t=a
+b=[]
+for i in range(n):
+    s+=t%10
+    b.append(t%10)
+    t//=10
+    # print(""***"")
+b.reverse()    
+# print(b)
+i=2
+ans=False
+# print(s)
+if(s==0): ans=True
+while(i<=s):
+    # print(i)
+    if(s%i!=0): 
+        i+=1
+        continue
+    l=s//i
+    c=0
+    su=0
+    for j in range(n):
+        if(su>l):
+            break
+        else:
+            su+=b[j]
+            if(su==l):
+                su=0
+                c+=1
+    if(c==i):
+        ans=True
+    # print(i,""**"")    
+    i+=1
+if(ans): print(""YES"")
+else:print(""NO"")",5,1030_C,CODEFORCES,3458,Vasya and Golden Ticket,"Recently Vasya found a golden ticket — a sequence which consists of $$$n$$$ digits $$$a_1a_2\dots a_n$$$. Vasya considers a ticket to be lucky if it can be divided into two or more non-intersecting segments with equal sums. For example, ticket $$$350178$$$ is lucky since it can be divided into three segments $$$350$$$, $$$17$$$ and $$$8$$$: $$$3+5+0=1+7=8$$$. Note that each digit of sequence should belong to exactly one segment.
+Help Vasya! Tell him if the golden ticket he found is lucky or not.
+The first line contains one integer $$$n$$$ ($$$2 \le n \le 100$$$) — the number of digits in the ticket.
+The second line contains $$$n$$$ digits $$$a_1 a_2 \dots a_n$$$ ($$$0 \le a_i \le 9$$$) — the golden ticket. Digits are printed without spaces.
+If the golden ticket is lucky then print ""YES"", otherwise print ""NO"" (both case insensitive).
+","input
+In the first example the ticket can be divided into $$$7$$$, $$$34$$$ and $$$52$$$: $$$7=3+4=5+2$$$.
+output
+In the second example it is impossible to divide ticket into segments with equal sum.
+",implementation
+"import sys
+# from math import log2,floor,ceil,sqrt
+# import bisect
+# from collections import deque
+
+# from types import GeneratorType
+# def bootstrap(func, stack=[]):
+#     def wrapped_function(*args, **kwargs):
+#         if stack:
+#             return func(*args, **kwargs)
+#         else:
+#             call = func(*args, **kwargs)
+#             while True:
+#                 if type(call) is GeneratorType:
+#                     stack.append(call)
+#                     call = next(call)
+#                 else:
+#                     stack.pop()
+#                     if not stack:
+#                         break
+#                     call = stack[-1].send(call)
+#             return call
+#     return wrapped_function
+
+Ri = lambda : [int(x) for x in sys.stdin.readline().split()]
+ri = lambda : sys.stdin.readline().strip()
+
+def input(): return sys.stdin.readline().strip()
+def list2d(a, b, c): return [[c] * b for i in range(a)]
+def list3d(a, b, c, d): return [[[d] * c for j in range(b)] for i in range(a)]
+def list4d(a, b, c, d, e): return [[[[e] * d for j in range(c)] for j in range(b)] for i in range(a)]
+def ceil(x, y=1): return int(-(-x // y))
+def INT(): return int(input())
+def MAP(): return map(int, input().split())
+def LIST(N=None): return list(MAP()) if N is None else [INT() for i in range(N)]
+def Yes(): print('Yes')
+def No(): print('No')
+def YES(): print('YES')
+def NO(): print('NO')
+INF = 10 ** 18
+MOD = 10**8
+N = 5*10**6
+
+def solve(n):
+    arr = []
+    while n> 0:
+        arr.append(n%2)
+        n=n//2
+    return arr
+
+l,r = Ri()
+arrl = solve(l)
+arrr = solve(r)
+if len(arrr) > len(arrl):
+    ans = (1<<len(arrr))-1
+    print(ans)
+else:
+    ind = -1
+    for i in range(len(arrr)-1,-1,-1):
+        if arrr[i] != arrl[i]:
+            ind = i
+            break
+    if ind == -1:
+        print(0)
+    else:
+        ans = (1 << (ind+1)) -1
+        print(ans)
+
+
+",2,0276_D,CODEFORCES,857,Little Girl and Maximum XOR,"A little girl loves problems on bitwise operations very much. Here's one of them.
+You are given two integers l and r. Let's consider the values of  for all pairs of integers a and b (l ≤ a ≤ b ≤ r). Your task is to find the maximum value among all considered ones.
+Expression  means applying bitwise excluding or operation to integers x and y. The given operation exists in all modern programming languages, for example, in languages C++ and Java it is represented as ""^"", in Pascal — as ""xor"".
+The single line contains space-separated integers l and r (1 ≤ l ≤ r ≤ 1018).
+","input
+Please, do not use the %lld specifier to read or write 64-bit integers in C++. It is preferred to use the cin, cout streams or the %I64d specifier.
+output
+In a single line print a single integer — the maximum value of  for all pairs of integers a, b (l ≤ a ≤ b ≤ r).
+","bitmasks, dp, greedy, implementation, math"
+"n, m = map(int, input().split())
+a = [0] + list(map(int, input().split()))
+a.sort()
+ans = 0
+h = a[-1]
+for i in range(n, 0, -1):
+	if a[i - 1] < h - 1:
+		ans = ans + a[i] - h + a[i - 1]
+		h = a[i - 1]
+	else:
+		ans = ans + a[i] - 1
+		h = h - 1
+print(ans)",4,1061_B,CODEFORCES,2852,Views Matter,"You came to the exhibition and one exhibit has drawn your attention. It consists of $$$n$$$ stacks of blocks, where the $$$i$$$-th stack consists of $$$a_i$$$ blocks resting on the surface.
+The height of the exhibit is equal to $$$m$$$. Consequently, the number of blocks in each stack is less than or equal to $$$m$$$.
+There is a camera on the ceiling that sees the top view of the blocks and a camera on the right wall that sees the side view of the blocks.
+Find the maximum number of blocks you can remove such that the views for both the cameras would not change.
+Note, that while originally all blocks are stacked on the floor, it is not required for them to stay connected to the floor after some blocks are removed. There is no gravity in the whole exhibition, so no block would fall down, even if the block underneath is removed. It is not allowed to move blocks by hand either.
+The first line contains two integers $$$n$$$ and $$$m$$$ ($$$1 \le n \le 100\,000$$$, $$$1 \le m \le 10^9$$$) — the number of stacks and the height of the exhibit.
+The second line contains $$$n$$$ integers $$$a_1, a_2, \ldots, a_n$$$ ($$$1 \le a_i \le m$$$) — the number of blocks in each stack from left to right.
+Print exactly one integer — the maximum number of blocks that can be removed.
+","input
+The following pictures illustrate the first example and its possible solution.
+output
+Blue cells indicate removed blocks. There are $$$10$$$ blue cells, so the answer is $$$10$$$.
+","greedy, implementation, sortings"
+"import os
+import sys
+
+def log(*args, **kwargs):
+    if os.environ.get('CODEFR'):
+        print(*args, **kwargs)
+
+
+n, k = tuple(map(int, input().split()))
+
+s = '0'*((n-k)//2) + '1'
+
+for i in range(n):
+    print(s[i % len(s)], end='')
+print()
+
+",3,1159_D,CODEFORCES,2133,The minimal unique substring,"Let $$$s$$$ be some string consisting of symbols ""0"" or ""1"". Let's call a string $$$t$$$ a substring of string $$$s$$$, if there exists such number $$$1 \leq l \leq |s| - |t| + 1$$$ that $$$t = s_l s_{l+1} \ldots s_{l + |t| - 1}$$$. Let's call a substring $$$t$$$ of string $$$s$$$ unique, if there exist only one such $$$l$$$. 
+For example, let $$$s = $$$""1010111"". A string $$$t = $$$""010"" is an unique substring of $$$s$$$, because $$$l = 2$$$ is the only one suitable number. But, for example $$$t = $$$""10"" isn't a unique substring of $$$s$$$, because $$$l = 1$$$ and $$$l = 3$$$ are suitable. And for example $$$t =$$$""00"" at all isn't a substring of $$$s$$$, because there is no suitable $$$l$$$.
+Today Vasya solved the following problem at the informatics lesson: given a string consisting of symbols ""0"" and ""1"", the task is to find the length of its minimal unique substring. He has written a solution to this problem and wants to test it. He is asking you to help him.
+You are given $$$2$$$ positive integers $$$n$$$ and $$$k$$$, such that $$$(n \bmod 2) = (k \bmod 2)$$$, where $$$(x \bmod 2)$$$ is operation of taking remainder of $$$x$$$ by dividing on $$$2$$$. Find any string $$$s$$$ consisting of $$$n$$$ symbols ""0"" or ""1"", such that the length of its minimal unique substring is equal to $$$k$$$.
+The first line contains two integers $$$n$$$ and $$$k$$$, separated by spaces ($$$1 \leq k \leq n \leq 100\,000$$$, $$$(k \bmod 2) = (n \bmod 2)$$$).
+Print a string $$$s$$$ of length $$$n$$$, consisting of symbols ""0"" and ""1"". Minimal length of the unique substring of $$$s$$$ should be equal to $$$k$$$. You can find any suitable string. It is guaranteed, that there exists at least one such string.
+In the first test, it's easy to see, that the only unique substring of string $$$s = $$$""1111"" is all string $$$s$$$, which has length $$$4$$$.
+","input
+In the second test a string $$$s = $$$""01010"" has minimal unique substring $$$t =$$$""101"", which has length $$$3$$$.
+output
+In the third test a string $$$s = $$$""1011011"" has minimal unique substring $$$t =$$$""110"", which has length $$$3$$$.
+","bruteforce, constructivealgorithms, greedy, math, strings"
+"# n = int(input())
+# digits = list([])
+# new_digits= set({})
+# for i in range(n):
+#     n = int(input())
+#     if n in range(1,10):
+#         print(1)
+#         print(n)
+#     else:
+#         while n > 0 :
+#             digit = n % 10
+#             digits.append(digit)
+#             n = int(n /10)
+#         i = 0
+#         for d in digits:
+#             new_digits.add(d * 10**i)
+#             i += 1
+#         if 0 in new_digits:
+#              new_digits.remove(0)
+#         print(len(new_digits))
+#         for d in new_digits:
+#             print(d,end="" "")
+#         print('')
+#         new_digits.clear()
+#         digits.clear()
+
+# we need to find the index of these values in the given array
+# n = int(input())
+# a = list(map(int,input().split(' ')))
+# b = list([])
+# for i in range(1,n+1):
+#     b.append(i)
+# results = []
+# for l in b:
+#     results.append(a.index(l) + 1)
+#
+# for r in results:
+#     print(r,end="" "")
+
+
+# k = int(input())
+# l = int(input())
+# m = int(input())
+# n = int(input())
+# d = int(input())
+# nums = list([])
+# for i in range(1,d+1):
+#     nums.append(i)
+# results = set({})
+# for num in nums:
+#     if num % k == 0 :
+#         results.add(num)
+#     elif num % l == 0 :
+#         results.add(num)
+#     elif num % m == 0 :
+#         results.add(num)
+#     elif num % n == 0 :
+#         results.add(num)
+# print(len(results))
+
+# function problem
+# n = int(input())
+# result = 0
+#
+# if n %2 == 0:
+#     result = int(n /2)
+# else:
+#     result = -1 * (int(n / 2) + 1)
+# print(result)
+
+
+
+
+# General arrival
+# n = int(input())
+# a = list(map(int,input().split(' ')))
+# b = list(dict.fromkeys(a))
+# finding the max number and index
+# max_index = 0
+# i = 0
+# maxi = a[0]
+# while i < len(b):
+#     if b[i] >= maxi:
+#         maxi = b[i]
+#         max_index = i
+#     i += 1
+
+# finding the min number and index
+# min_index = 0
+# i = 0
+# mini = max(b)
+# while i < len(b):
+#     if b[i] <= mini:
+#         mini = b[i]
+#         min_index = i
+#     i += 1
+# if len(a) == 2:
+#     print(len(a) - 1)
+# else:
+#     print( (max_index - 0) + ((len(b) - 1) - min_index) )
+# print(b)
+
+
+
+def is_prime(num):
+    if num > 1:
+        for i in range(2, num):
+            if (num % i) == 0:
+               return  False
+        else:
+            return True
+    else:
+        return False
+
+n = int(input())
+temp = 0
+first = 0
+second = 0
+if n % 2 == 0:
+    temp = int(n/2)
+    first = temp
+    second = n - temp
+    while is_prime(first) or is_prime(second):
+        first -= 1
+        second += 1
+        if first + second == n and (not is_prime(first) and not is_prime(second)):
+            break
+else:
+    temp = int(n / 2)
+    first = temp
+    second = n - first
+    while is_prime(first) or is_prime(second):
+        first -= 1
+        second += 1
+        if first + second == n and (not is_prime(first) and not is_prime(second)):
+            break
+print(first,end="" "")
+print(second)",1,0472_A,CODEFORCES,144,Design Tutorial: Learn from Math,"One way to create a task is to learn from math. You can generate some random math statement or modify some theorems to get something new and build a new task from that.
+For example, there is a statement called the ""Goldbach's conjecture"". It says: ""each even number no less than four can be expressed as the sum of two primes"". Let's modify it. How about a statement like that: ""each integer no less than 12 can be expressed as the sum of two composite numbers."" Not like the Goldbach's conjecture, I can prove this theorem.
+You are given an integer n no less than 12, express it as a sum of two composite numbers.
+The only line contains an integer n (12 ≤ n ≤ 106).
+Output two composite integers x and y (1 < x, y < n) such that x + y = n. If there are multiple solutions, you can output any of them.
+","input
+In the first example, 12 = 4 + 8 and both 4, 8 are composite numbers. You can output ""6 6"" or ""8 4"" as well.
+output
+In the second example, 15 = 6 + 9. Note that you can't output ""1 14"" because 1 is not a composite number.
+","math, numbertheory"
