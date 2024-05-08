@@ -171,7 +171,7 @@ def train_split(labels, n_labeled_per_class, unlabeled_per_class=None): #unlabel
     return train_labeled_idxs, train_unlabeled_idxs
 
 
-def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', token = None):
+def get_dataloader(data_path,dataset, n_labeled_per_class, bs, load_mode='semi_SSL', token = None):
     if token == "microsoft/codebert-base":
         tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
     elif token == "Salesforce/codet5p-110m-embedding":
@@ -216,27 +216,3 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u
 
 
-
-# Unit Test
-if __name__ == '__main__':
-    # go to the directory of data
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    os.chdir('../../data')
-    print('current work directory: ', os.getcwd())
-
-    n_labeled_per_class = 10
-    bs = 32 #batch size
-    data_path_list = ['ag_news', 'yahoo', 'imdb']
-    #load_mode_list = ['semi'] # ['semi', 'baseline']
-    load_mode_list = ['semi_SSL'] # ['semi', 'baseline']
-
-    for data_path in data_path_list:
-        for load_mode in load_mode_list:
-            print('\ndata_path: ', data_path)
-            print('load_mode: ', load_mode)
-            train_loader_l, train_loader_u, dev_loader, test_loader, num_class = get_dataloader(data_path, n_labeled_per_class, bs, load_mode)
-
-            # check if the dataloader can work
-            train_loader_l = iter(train_loader_l)
-            batch = next(train_loader_l)
-            print('batch: ', batch)

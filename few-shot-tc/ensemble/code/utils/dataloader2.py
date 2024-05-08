@@ -1,3 +1,4 @@
+#initial labeled data + forwhile aug (자연스러운셋팅)
 import os
 import sys
 import random
@@ -214,8 +215,9 @@ def get_dataloader(data_path, dataset, n_labeled_per_class, bs, load_mode='semi_
     
     train_l_df, train_u_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True), train_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
     print("initial labeled dataset개수:", len(train_l_df))
-    
-    # train_l_df의 'idx' 값이 aug_df에도 있는 행만 선택(aug_df에 없으면 for나 while이 없는 코드임)
+    print("initial labeled data index별 개수:",train_l_df['idx'].value_counts().to_dict())
+
+    #train_l_df의 'idx' 값이 aug_df에도 있는 행만 선택(aug_df에 없으면 for나 while이 없는 코드임)
     aug_df = aug_df[aug_df['idx'].isin(train_l_df['idx'])]
     concat_df = pd.concat([train_l_df, aug_df], ignore_index=True)
 
@@ -225,7 +227,9 @@ def get_dataloader(data_path, dataset, n_labeled_per_class, bs, load_mode='semi_
         concat_df.loc[mask, 'label'] = train_l_df.loc[train_l_df['idx'] == idx, 'label'].values[0]
 
     print("initial labeled dataset+aug개수:", len(concat_df))
-    concat_df.to_csv(f'{aug_path}/cc_{dataset}_concat_df1.csv', index=False)#확인용    
+    print("initial labeled data+aug index별 개수:",concat_df['idx'].value_counts().to_dict())
+    concat_df['label'] = concat_df['label'].astype(int)
+    train_l_df = concat_df 
     
     # # check statistics info
     print('n_labeled_per_class: ', n_labeled_per_class)

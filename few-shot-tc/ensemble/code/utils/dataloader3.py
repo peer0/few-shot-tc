@@ -1,3 +1,4 @@
+#initial labeled data + forwhile aug (인위적인셋팅)
 import os
 import sys
 import random
@@ -7,7 +8,8 @@ import numpy as np
 import nlpaug.augmenter.word as naw
 from transformers import BertTokenizer, AutoTokenizer
 from torch.utils.data import Dataset, DataLoader, Sampler
-
+import json
+import csv
 
 class SEMIDataset(Dataset):
     def __init__(self, sents, sents_aug1, sents_aug2, labels=None):
@@ -171,7 +173,22 @@ def train_split(labels, n_labeled_per_class, unlabeled_per_class=None): #unlabel
     return train_labeled_idxs, train_unlabeled_idxs
 
 
-def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', token = None):
+
+def jsonl_to_csv(jsonl_file, csv_file):
+    with open(jsonl_file, 'r') as f:
+        data = f.readlines()
+    
+    with open(csv_file, 'w', newline='') as csvfile:
+        fieldnames = ['src', 'forwhile', 'index']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        
+        writer.writeheader()
+        for line in data:
+            json_data = json.loads(line)
+            writer.writerow({'src': json_data['src'], 'forwhile': json_data['forwhile'], 'index': json_data['index']})
+
+
+def get_dataloader(data_path, dataset, n_labeled_per_class, bs, load_mode='semi_SSL', token = None):
     if token == "microsoft/codebert-base":
         tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
     elif token == "Salesforce/codet5p-110m-embedding":
@@ -182,14 +199,18 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
     dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
     test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
-    aug_df = pd.read_csv('../data/aug/cc_java_looptranslation.csv')
+ 
+    aug_path = f'../data/aug/{dataset}'
+    jsonl_file = f'{aug_path}/cc_{dataset}_looptranslation.jsonl'
+    csv_file = f'{aug_path}/cc_{dataset}_looptranslation.csv'
+    jsonl_to_csv(jsonl_file, csv_file)
+    aug_df = pd.read_csv(f'{aug_path}/cc_{dataset}_looptranslation.csv')
     # 'forwhile' 열을 'content'로, 'index'를 'idx'로 변경
     aug_df = aug_df.rename(columns={'forwhile': 'content', 'index': 'idx'})
     aug_df = aug_df[~aug_df['content'].str.contains('ERROR')] #Error가 포함되어 있는 데이터는 제거
     
     #aug_df에 idx가 존재하지 않으면 train_df에서 해당 데이터를 제거(content에 forwhile문이 하나라도 있는 것만 포함시키기)
     train_df = train_df[train_df['idx'].isin(aug_df['idx'])]
-    
     labels = list(train_df["label"])
     num_class = len(set(labels))
     train_labeled_idxs, train_unlabeled_idxs = train_split(labels, n_labeled_per_class)
@@ -197,11 +218,12 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     
     train_l_df, train_u_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True), train_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
     print("initial labeled dataset개수:", len(train_l_df))
+    print("initial labeled data index별 개수:",train_l_df['idx'].value_counts().to_dict())
     
     # train_l_df의 'idx' 값이 aug_df에도 있는 행만 선택(aug_df에 없으면 for나 while이 없는 코드임)
     aug_df = aug_df[aug_df['idx'].isin(train_l_df['idx'])]
     concat_df = pd.concat([train_l_df, aug_df], ignore_index=True)
-
+    
     # 'idx'가 같은 행에서 'Label' 값을 train_l_df의 값으로 업데이트(aug 데이터엔 label값이 비어있어서 채워줌)
     for idx in concat_df['idx'].unique():
         if idx in train_l_df['idx'].values:
@@ -209,7 +231,9 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
             concat_df.loc[mask, 'label'] = train_l_df.loc[train_l_df['idx'] == idx, 'label'].values[0]
 
     print("initial labeled dataset+aug개수:", len(concat_df))
-    concat_df.to_csv('../data/aug/concat_df2.csv', index=False)#확인용 
+    print("initial labeled data+aug index별 개수:",concat_df['idx'].value_counts().to_dict())
+    concat_df['label'] = concat_df['label'].astype(int)
+    train_l_df = concat_df
     
     
     # # check statistics info
@@ -236,28 +260,3 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
 
     return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u
 
-
-
-# Unit Test
-if __name__ == '__main__':
-    # go to the directory of data
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    os.chdir('../../data')
-    print('current work directory: ', os.getcwd())
-
-    n_labeled_per_class = 10
-    bs = 32 #batch size
-    data_path_list = ['ag_news', 'yahoo', 'imdb']
-    #load_mode_list = ['semi'] # ['semi', 'baseline']
-    load_mode_list = ['semi_SSL'] # ['semi', 'baseline']
-
-    for data_path in data_path_list:
-        for load_mode in load_mode_list:
-            print('\ndata_path: ', data_path)
-            print('load_mode: ', load_mode)
-            train_loader_l, train_loader_u, dev_loader, test_loader, num_class = get_dataloader(data_path, n_labeled_per_class, bs, load_mode)
-
-            # check if the dataloader can work
-            train_loader_l = iter(train_loader_l)
-            batch = next(train_loader_l)
-            print('batch: ', batch)
