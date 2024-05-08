@@ -10,7 +10,7 @@ from transformers import AutoTokenizer
 
 from models.netgroup import NetGroup
 from utils.helper import format_time
-from utils.dataloader2 import get_dataloader
+from utils.dataloader3 import get_dataloader
 from criterions.criterions import ce_loss, consistency_loss
 from utils.helper import freematch_fairness_loss
 from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
