@@ -322,6 +322,9 @@ def oneRun(log_dir, output_dir_experiment, **params):
     best_val_stop = False
     pse_epoch = []
     pse_add_epoch = []
+    
+    train_losses = []
+    val_losses = []
 
 
     
@@ -614,6 +617,10 @@ def oneRun(log_dir, output_dir_experiment, **params):
         train_loss = train_one_epoch(netgroup, train_labeled_loader, device)   
         val_loss = calculate_loss(netgroup, dev_loader, device)
         
+        train_losses.append(train_loss)
+        val_losses.append(val_loss)
+        
+        
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             val_epoch = epoch
@@ -747,6 +754,16 @@ def oneRun(log_dir, output_dir_experiment, **params):
         plt.legend()
         plt.savefig(log_dir+plot_type+'.png', bbox_inches='tight')
 
+    # loss 값의 변화를 그래프로 시각화합니다.
+    plt.figure(figsize=(20,14))
+    plt.plot(train_losses, label='Train Loss')
+    plt.plot(val_losses, label='Validation Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Training and Validation Loss')
+    plt.legend()
+    plt.savefig(log_dir+'loss_plot.png', bbox_inches='tight')
+    
     # Visualize and save confusion matrix
     df_cm = pd.DataFrame(confmat_test, index = [i for i in range(n_classes)],
                     columns = [i for i in range(n_classes)], dtype=int)
@@ -755,6 +772,10 @@ def oneRun(log_dir, output_dir_experiment, **params):
     sns.heatmap(df_cm_norm, annot=True, annot_kws={"size": 10}, fmt='.2f', cmap='Reds')
     plt.savefig(log_dir+'confmat_norm.png', bbox_inches='tight')
     # df_cm.to_csv(log_dir+'confmat.csv', index=True, header=True)
+
+
+
+
 
     # return best_data to record multiRun results
     return best_data

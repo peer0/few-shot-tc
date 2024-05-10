@@ -5,6 +5,7 @@ import re
 import pandas as pd
 from collections import Counter
 import pdb
+from transformers import pipeline
 
 
 # 데이터셋 클래스 정의
@@ -57,18 +58,18 @@ def main(model_name):
     model_name = model_name
     print("\n\nModel name => ", model_name,'\n\n')
     tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+    
+    #model = pipeline("text-generation", model="bigcode/starcoder", device_map="auto")
     model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True, device_map="auto")
 
     # 데이터 로드
     test_df = pd.read_csv('../data/problem_based_split/python_extended_data/test.csv')
 
-    
     # 레이블 매핑
     label_map = {1: 'constant',2: 'logn',3: 'linear',4: 'nlogn',5: 'quadratic',6: 'cubic',7: 'np'}
     #label_map = {7: 'np'}
     test_df['label'] = test_df['label'].map(label_map)
-    
-    print('\nData_label => ', Counter(test_df.label))
+
     
     # 데이터셋 생성
     test_dataset = SEMI_SSL_Dataset(test_df['content'].to_list(), labels=test_df['label'].to_list())
@@ -134,7 +135,6 @@ def main(model_name):
  
     pbar.close()    
 
-    
     print(f"Correct predictions: {correct} \nindices: {correct_idx}")
     print(f"Incorrect predictions: {not_correct} \nindices: {not_correct_idx}")
 
@@ -150,12 +150,4 @@ def main(model_name):
    
     
 if __name__ == "__main__":
-    #main("deepseek-ai/deepseek-coder-1.3b-instruct")
-    #main("bigcode/starcoder")
-    main("codellama/CodeLlama-7b-Instruct-hf")
-    
-    #5월 7일 추가
-    #main("deepseek-ai/deepseek-coder-6.7b-instruct")
-    #main("deepseek-ai/deepseek-coder-33b-instruct")
-    #main("Phind/Phind-CodeLlama-34B-v2")
-    
+    main("bigcode/starcoder")

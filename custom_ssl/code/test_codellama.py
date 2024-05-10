@@ -5,7 +5,7 @@ import re
 import pandas as pd
 from collections import Counter
 import pdb
-
+from transformers import pipeline
 
 # 데이터셋 클래스 정의
 class SEMI_SSL_Dataset(Dataset):
@@ -57,18 +57,16 @@ def main(model_name):
     model_name = model_name
     print("\n\nModel name => ", model_name,'\n\n')
     tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-    model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True, device_map="auto")
+    model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True).to(device)
 
     # 데이터 로드
     test_df = pd.read_csv('../data/problem_based_split/python_extended_data/test.csv')
 
-    
     # 레이블 매핑
     label_map = {1: 'constant',2: 'logn',3: 'linear',4: 'nlogn',5: 'quadratic',6: 'cubic',7: 'np'}
     #label_map = {7: 'np'}
     test_df['label'] = test_df['label'].map(label_map)
-    
-    print('\nData_label => ', Counter(test_df.label))
+
     
     # 데이터셋 생성
     test_dataset = SEMI_SSL_Dataset(test_df['content'].to_list(), labels=test_df['label'].to_list())
@@ -97,6 +95,14 @@ def main(model_name):
             f"Can you tell me the time complexity of the code based on "
             f"\n1. O(1) \n2. O(log n) \n3. O(n) \n4. O(n log n) \n5. O(n^2) \n6. O(n^3) \n7. O(2^n)?\n"
             f"Say something like, “**The time complexity of this code is (time complexity of code)."    }]
+        
+        # user = (f"{data[0]} "
+        #         f"Can you tell me the time complexity of the code based on "
+        #         f"\n1. O(1) \n2. O(log n) \n3. O(n) \n4. O(n log n) \n5. O(n^2) \n6. O(n^3) \n7. O(2^n)?\n"
+        #         f"Say something like, '**The time complexity of this code is (time complexity of code).'")
+        
+        messages = f"<s>[INST] {messages} [/INST]"
+        
         
         inputs = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt").to(device)
         outputs = model.generate(inputs, max_new_tokens=512, do_sample=False, top_k=50, top_p=0.95, num_return_sequences=1, eos_token_id=tokenizer.eos_token_id)
@@ -134,7 +140,6 @@ def main(model_name):
  
     pbar.close()    
 
-    
     print(f"Correct predictions: {correct} \nindices: {correct_idx}")
     print(f"Incorrect predictions: {not_correct} \nindices: {not_correct_idx}")
 
@@ -150,12 +155,4 @@ def main(model_name):
    
     
 if __name__ == "__main__":
-    #main("deepseek-ai/deepseek-coder-1.3b-instruct")
-    #main("bigcode/starcoder")
-    main("codellama/CodeLlama-7b-Instruct-hf")
-    
-    #5월 7일 추가
-    #main("deepseek-ai/deepseek-coder-6.7b-instruct")
-    #main("deepseek-ai/deepseek-coder-33b-instruct")
-    #main("Phind/Phind-CodeLlama-34B-v2")
-    
+    main("codellama/CodeLlama-7b-hf")

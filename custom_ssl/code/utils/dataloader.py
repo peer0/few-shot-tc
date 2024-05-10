@@ -254,7 +254,6 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
 
     train_l_df, train_u_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True), train_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
 
-    pdb.set_trace()
     
     
 
