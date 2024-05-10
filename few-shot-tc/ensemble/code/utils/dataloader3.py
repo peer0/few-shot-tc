@@ -173,44 +173,19 @@ def train_split(labels, n_labeled_per_class, unlabeled_per_class=None): #unlabel
     return train_labeled_idxs, train_unlabeled_idxs
 
 
-def manually_train_split(train_df, aug_df, labels, n_labeled_per_class, unlabeled_per_class=None):
-    """Split the dataset into labeled and unlabeled subsets manually.
-    Args:
-        train_df: DataFrame of the training data
-        aug_df: DataFrame of the augmented data
-        labels: labels of the training data
-        n_labeled_per_class: number of labeled examples per class
-        unlabeled_per_class: number of unlabeled examples per class
-    Returns:
-        train_labeled_idxs: list of labeled example indices
-        train_unlabeled_idxs: list of unlabeled example indices
-    """
-    labels = np.array(labels)
-    all_classes = set(labels)
-
+def manually_train_split(aug_df, train_df, n_labeled_per_class):
     train_labeled_idxs = []
-    train_unlabeled_idxs = []
+    for label in train_df['label'].unique():
+        # 각 레이블에 해당하는 데이터를 가져옵니다.
+        label_df = train_df[train_df['label'] == label]
+        # aug_df에 있는 데이터만 선택합니다.
+        label_df = label_df[label_df['idx'].isin(aug_df['idx'])]
+        # 각 클래스에서 n_labeled_per_class 만큼의 데이터를 무작위로 선택합니다.
+        label_idxs = label_df.sample(n_labeled_per_class, replace=False).index.tolist()
+        train_labeled_idxs.extend(label_idxs)
 
-    #train_labeled_idx에만 aug_df에 존재하는 idx만을 포함하도록 수정
-    l_labels = list(train_df["label"])
-    train_df = train_df[train_df['idx'].isin(aug_df['idx'])]
-    
-
-    for i in all_classes:
-        idxs = np.where(labels == i)[0]
-        l_idxs = np.where(np.array(l_labels) == i)[0]
-        np.random.shuffle(idxs)
-
-        train_labeled_idxs.extend(l_idxs[:n_labeled_per_class])
-        remaining_idxs = np.setdiff1d(idxs, l_idxs[:n_labeled_per_class])
-
-        if unlabeled_per_class:
-            train_unlabeled_idxs.extend(remaining_idxs[:unlabeled_per_class])
-        else: 
-            train_unlabeled_idxs.extend(remaining_idxs)
-
-    np.random.shuffle(train_labeled_idxs)
-    np.random.shuffle(train_unlabeled_idxs)
+    # train_unlabeled_idxs는 train_labeled_idxs에 사용되지 않은 데이터를 포함합니다.
+    train_unlabeled_idxs = [idx for idx in train_df.index if idx not in train_labeled_idxs]
 
     return train_labeled_idxs, train_unlabeled_idxs
 
@@ -250,14 +225,17 @@ def get_dataloader(data_path, dataset, n_labeled_per_class, bs, load_mode='semi_
     aug_df = aug_df.rename(columns={'forwhile': 'content', 'index': 'idx'})
     aug_df = aug_df[~aug_df['content'].str.contains('ERROR')] #Error가 포함되어 있는 데이터는 제거
     
-    #aug_df에 idx가 존재하지 않으면 train_df에서 해당 데이터를 제거(content에 forwhile문이 하나라도 있는 것만 포함시키기)
-    # train_df = train_df[train_df['idx'].isin(aug_df['idx'])]
+    # l_train_df = train_df[train_df['idx'].isin(aug_df['idx'])] 
+    # l_labels = list(l_train_df["label"])
     labels = list(train_df["label"])
     num_class = len(set(labels))
-    train_labeled_idxs, train_unlabeled_idxs = manually_train_split(train_df,aug_df,labels, n_labeled_per_class)
     
+    #train_labeled_idxs는 aug_df에 있는 데이터만 선택
+    
+    train_labeled_idxs, train_unlabeled_idxs = manually_train_split(aug_df, train_df, n_labeled_per_class)
     
     train_l_df, train_u_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True), train_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
+    
     print("initial labeled dataset개수:", len(train_l_df))
     print("initial labeled data index별 개수:",train_l_df['idx'].value_counts().to_dict())
     
