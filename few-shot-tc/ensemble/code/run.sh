@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#test용
 for seed in 42; do
     for nshot in 5 10; do
         for language in python; do
