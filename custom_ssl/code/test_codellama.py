@@ -57,16 +57,18 @@ def main(model_name):
     model_name = model_name
     print("\n\nModel name => ", model_name,'\n\n')
     tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
-    model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True).to(device)
+    model = AutoModelForCausalLM.from_pretrained(model_name, trust_remote_code=True, device_map="auto")
 
     # 데이터 로드
     test_df = pd.read_csv('../data/problem_based_split/python_extended_data/test.csv')
 
+    
     # 레이블 매핑
     label_map = {1: 'constant',2: 'logn',3: 'linear',4: 'nlogn',5: 'quadratic',6: 'cubic',7: 'np'}
     #label_map = {7: 'np'}
     test_df['label'] = test_df['label'].map(label_map)
-
+    
+    print('\nData_label => ', Counter(test_df.label))
     
     # 데이터셋 생성
     test_dataset = SEMI_SSL_Dataset(test_df['content'].to_list(), labels=test_df['label'].to_list())
@@ -85,7 +87,7 @@ def main(model_name):
     
     from tqdm import tqdm
     pbar = tqdm(total=len(test_dataset), desc="Training", position=0, leave=True)
-    
+    code_generator = pipeline('text-generation', model=model, tokenizer=tokenizer)
     # 데이터셋 순회
     for idx, data in enumerate(test_dataset):
         messages = [
@@ -95,19 +97,11 @@ def main(model_name):
             f"Can you tell me the time complexity of the code based on "
             f"\n1. O(1) \n2. O(log n) \n3. O(n) \n4. O(n log n) \n5. O(n^2) \n6. O(n^3) \n7. O(2^n)?\n"
             f"Say something like, “**The time complexity of this code is (time complexity of code)."    }]
-        
-        # user = (f"{data[0]} "
-        #         f"Can you tell me the time complexity of the code based on "
-        #         f"\n1. O(1) \n2. O(log n) \n3. O(n) \n4. O(n log n) \n5. O(n^2) \n6. O(n^3) \n7. O(2^n)?\n"
-        #         f"Say something like, '**The time complexity of this code is (time complexity of code).'")
-        
-        messages = f"<s>[INST] {messages} [/INST]"
-        
-        
-        inputs = tokenizer.apply_chat_template(messages, add_generation_prompt=True, return_tensors="pt").to(device)
-        outputs = model.generate(inputs, max_new_tokens=512, do_sample=False, top_k=50, top_p=0.95, num_return_sequences=1, eos_token_id=tokenizer.eos_token_id)
-        result = tokenizer.decode(outputs[0][len(inputs[0]):], skip_special_tokens=True).split('\n')
-        sentence = result[0]
+       
+       
+        input_string = messages
+        generated_code = code_generator(input_string, max_length=200)[0]['generated_text']
+        sentence = generated_code
 
         # 시간 복잡도 패턴 찾기
         output_list, found_patterns = get_time_complexity_pattern(found_patterns,sentence, time_complexity_expressions)
@@ -130,7 +124,7 @@ def main(model_name):
             not_correct_idx.append(idx)
         
           
-        print(f"Code-data_idx = {idx} \nModel output => ", result)
+        #print(f"Code-data_idx = {idx} \nModel output => ", result)
         print("We use sentence(result[0]) => ", sentence)
         print(f"***Label = {true_label} | Predict = {predicted_complexity}*** \ncorrect ==> {true_label == predicted_complexity}")
         print(f"Lable symobol => { pattern_to_complexity[true_label]} | Output_list => {output_list}\n\n")  
@@ -140,6 +134,7 @@ def main(model_name):
  
     pbar.close()    
 
+    
     print(f"Correct predictions: {correct} \nindices: {correct_idx}")
     print(f"Incorrect predictions: {not_correct} \nindices: {not_correct_idx}")
 
@@ -155,4 +150,6 @@ def main(model_name):
    
     
 if __name__ == "__main__":
-    main("codellama/CodeLlama-7b-hf")
+    main("codellama/CodeLlama-7b-Instruct-hf")
+    
+    

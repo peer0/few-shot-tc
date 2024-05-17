@@ -1,0 +1,95 @@
+current work directory:  /home/imsuhan22/few-shot-tc/custom_ssl/code
+Data set -> python_extended_data
+save_name: 10_codesage-base_0.0004_0.7_python_extended_data
+
+data_path:  ../data/problem_based_split/python_extended_data
+
+There are 2 GPU(s) available.
+We will use the GPU- 0 Quadro RTX 8000
+
+**line 147 모델 =>  codesage/codesage-base
+**tokenizer type =  codesage/codesage-base 
+
+pesudo label class개수 기준 -> 5
+n_labeled_per_class:  10
+train_df samples: 3974
+train_labeled_df samples: 70
+train_unlabeled_df samples: 3904
+n_classes:  7 
+
+
+net_arch:  codesage/codesage-base 
+lr:  0.0004 
+lr_linear:  0.001 
+
+
+
+
+line 303 => train data수 70
+line 258 => 인스턴스 수 10
+Step 0  Tim 0:01:03
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.3, 0.2, 0.0, 0.3, 0.2, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+***best_acc_model_save --- epoch = 1***
+Save model to ./experiment/python_extended_data/output/
+**pseudo_label ->  [0.047, 0.368, 0.3598, 0.0159, 0.009, 0.1723, 0.0281] **
+max =  0.368 | max_idx =  1
+**pseudo_label ->  [0.1266, 0.2388, 0.294, 0.0077, 0.1056, 0.0899, 0.1374] **
+max =  0.294 | max_idx =  2
+**pseudo_label ->  [0.0026, 0.749, 0.0546, 0.0289, 0.122, 0.0271, 0.0159] **
+max =  0.749 | max_idx =  1
+**pseudo_label ->  [0.0278, 0.1766, 0.054, 0.0199, 0.4204, 0.2829, 0.0185] **
+max =  0.4204 | max_idx =  4
+**pseudo_label ->  [0.0121, 0.0499, 0.2013, 0.0366, 0.3406, 0.2619, 0.0976] **
+max =  0.3406 | max_idx =  4
+Balance pseudo label class ->  [1, 2, 3, 4, 5, 6, 7]  value ->  2
+add data ->  14
+Epoch 1/50, Train Loss: 13.2078, Valid Loss: 5.4239, Train Acc: 0.1429, Val Acc: 0.0945, Test Acc: 0.3156, Test F1: 0.1873, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 84
+
+
+
+line 303 => train data수 84
+line 258 => 인스턴스 수 12
+Step 10  Tim 0:06:36
+acc_train_cw(현재 train의 class별 acc) [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [2, 59, 48, 11, 21, 70, 5]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [1, 4, 6, 1, 3, 11, 1]
+psl_acc(PSL 평가에서의 정확도):  0.125 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [0.5, 0.06779661029577255, 0.125, 0.09090909361839294, 0.1428571492433548, 0.15714286267757416, 0.20000000298023224]
+***pse_model_save --- epoch = 2***
+Save model to ./experiment/python_extended_data/output/
+**pseudo_label ->  [0.8329, 0.0013, 0.0003, 0.1174, 0.0072, 0.0402, 0.0008] **
+max =  0.8329 | max_idx =  0
+**pseudo_label ->  [0.8473, 0.0021, 0.0002, 0.0699, 0.0082, 0.0716, 0.0008] **
+max =  0.8473 | max_idx =  0
+**pseudo_label ->  [0.842, 0.002, 0.0003, 0.1195, 0.0072, 0.0258, 0.003] **
+max =  0.842 | max_idx =  0
+**pseudo_label ->  [0.9556, 0.0006, 0.0002, 0.0199, 0.0025, 0.0206, 0.0006] **
+max =  0.9556 | max_idx =  0
+**pseudo_label ->  [0.9358, 0.0011, 0.0001, 0.039, 0.0027, 0.0205, 0.0008] **
+max =  0.9358 | max_idx =  0
+Epoch 2/50, Train Loss: 4.0999, Valid Loss: 3.4930, Train Acc: 0.1429, Val Acc: 0.0912, Test Acc: 0.0779, Test F1: 0.0206, Total Pseudo-Labels: 1, Correct Pseudo-Labels: 0, Train Data Number: 84
+
+
+
+line 303 => train data수 84
+line 258 => 인스턴스 수 12
+Step 22  Tim 0:12:43
+acc_train_cw(현재 train의 class별 acc) [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [3902, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [694, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.178 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [0.17785750329494476, nan, nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.0002, 0.4813, 0.0029, 0.2679, 0.0161, 0.2116, 0.02] **
+max =  0.4813 | max_idx =  1
+**pseudo_label ->  [0.0001, 0.3534, 0.0028, 0.4984, 0.0119, 0.1078, 0.0256] **
+max =  0.4984 | max_idx =  3
+**pseudo_label ->  [0.0004, 0.3034, 0.0118, 0.1752, 0.0398, 0.4307, 0.0388] **
+max =  0.4307 | max_idx =  5
+**pseudo_label ->  [0.0002, 0.4277, 0.005, 0.152, 0.0091, 0.3809, 0.025] **
+max =  0.4277 | max_idx =  1
+**pseudo_label ->  [0.0001, 0.3435, 0.0036, 0.3248, 0.0175, 0.2857, 0.0248] **
+max =  0.3435 | max_idx =  1

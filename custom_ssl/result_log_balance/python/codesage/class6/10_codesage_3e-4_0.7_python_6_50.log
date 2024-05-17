@@ -1,0 +1,49 @@
+current work directory:  /home/imsuhan22/few-shot-tc/custom_ssl/code
+Data set -> python_extended_data
+save_name: 10_codesage-base_0.0003_0.7_python_extended_data
+
+data_path:  ../data/problem_based_split/python_extended_data
+
+There are 2 GPU(s) available.
+We will use the GPU- 0 Quadro RTX 8000
+
+**line 147 모델 =>  codesage/codesage-base
+**tokenizer type =  codesage/codesage-base 
+
+pesudo label class개수 기준 -> 6
+n_labeled_per_class:  10
+train_df samples: 3974
+train_labeled_df samples: 70
+train_unlabeled_df samples: 3904
+n_classes:  7 
+
+
+net_arch:  codesage/codesage-base 
+lr:  0.0003 
+lr_linear:  0.001 
+
+
+
+
+line 303 => train data수 70
+line 258 => 인스턴스 수 10
+Step 0  Tim 0:01:15
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.3, 0.2, 0.0, 0.3, 0.2, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+***best_acc_model_save --- epoch = 1***
+Save model to ./experiment/python_extended_data/output/
+**pseudo_label ->  [0.047, 0.368, 0.3598, 0.0159, 0.009, 0.1723, 0.0281] **
+max =  0.368 | max_idx =  1
+**pseudo_label ->  [0.1266, 0.2388, 0.294, 0.0077, 0.1056, 0.0899, 0.1374] **
+max =  0.294 | max_idx =  2
+**pseudo_label ->  [0.0026, 0.749, 0.0546, 0.0289, 0.122, 0.0271, 0.0159] **
+max =  0.749 | max_idx =  1
+**pseudo_label ->  [0.0278, 0.1766, 0.054, 0.0199, 0.4204, 0.2829, 0.0185] **
+max =  0.4204 | max_idx =  4
+**pseudo_label ->  [0.0121, 0.0499, 0.2013, 0.0366, 0.3406, 0.2619, 0.0976] **
+max =  0.3406 | max_idx =  4
+Balance pseudo label class ->  [1, 2, 3, 4, 5, 6, 7]  value ->  2
+add data ->  14

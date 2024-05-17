@@ -756,6 +756,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
     # loss 값의 변화를 그래프로 시각화합니다.
     plt.figure(figsize=(20,14))
+    #epochs = range(1, max_epoch + 1)  # epoch 수
     plt.plot(train_losses, label='Train Loss')
     plt.plot(val_losses, label='Validation Loss')
     plt.xlabel('Epoch')
@@ -763,7 +764,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     plt.title('Training and Validation Loss')
     plt.legend()
     plt.savefig(log_dir+'loss_plot.png', bbox_inches='tight')
-    
+        
     # Visualize and save confusion matrix
     df_cm = pd.DataFrame(confmat_test, index = [i for i in range(n_classes)],
                     columns = [i for i in range(n_classes)], dtype=int)
