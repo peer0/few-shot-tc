@@ -90,18 +90,40 @@ def main(model_name):
     code_generator = pipeline('text-generation', model=model, tokenizer=tokenizer)
     # 데이터셋 순회
     for idx, data in enumerate(test_dataset):
+        # messages = [
+        #     {f'role': 'user', 
+        #     f'content': 
+        #     f"{data[0]}" 
+        #     f"Can you tell me the time complexity of the code based on "
+        #     f"\n1. O(1) \n2. O(log n) \n3. O(n) \n4. O(n log n) \n5. O(n^2) \n6. O(n^3) \n7. O(2^n)?\n"
+        #     f"Say something like, “**The time complexity of this code is (time complexity of code)."    }]
+
+    
         messages = [
-            {f'role': 'user', 
+        {
+            "role": "system",
+            "content": "You are a friendly chatbot who always responds in the style of a pirate",
+        },
+         {f'role': 'user', 
             f'content': 
             f"{data[0]}" 
             f"Can you tell me the time complexity of the code based on "
             f"\n1. O(1) \n2. O(log n) \n3. O(n) \n4. O(n log n) \n5. O(n^2) \n6. O(n^3) \n7. O(2^n)?\n"
-            f"Say something like, “**The time complexity of this code is (time complexity of code)."    }]
-       
-       
-        input_string = messages
-        generated_code = code_generator(input_string, max_length=200)[0]['generated_text']
-        sentence = generated_code
+            f"Say something like, “**The time complexity of this code is (time complexity of code)."    },
+ ]
+            
+        tokenized_chat = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True, return_tensors="pt")
+        #print(tokenizer.decode(sentence[0]))
+        sentence = model.generate(tokenized_chat, max_new_tokens=128)
+        
+        print(tokenizer.decode(sentence))
+    
+        # input_string = messages
+        # generated_code = code_generator(input_string, max_length=200)[0]['generated_text']
+        # sentence = generated_code
+
+        pdb.set_trace()
+        
 
         # 시간 복잡도 패턴 찾기
         output_list, found_patterns = get_time_complexity_pattern(found_patterns,sentence, time_complexity_expressions)
