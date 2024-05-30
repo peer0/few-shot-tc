@@ -2,6 +2,7 @@ import os
 import time
 import argparse
 import json
+import random
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -17,11 +18,16 @@ from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
 from symbolic import process_code
 
 
-def pseudo_labeling(netgroup, train_dataset_l,train_unlabeled_loader, psl_threshold_h, psl_total, device, pbar, language):
+def pseudo_labeling(netgroup,train_unlabeled_loader, psl_threshold_h, device, pbar, language):
     psl_correct = 0
+    psl_total = 0
     idx = 0
+    pseudo_label_temp = []
+    pseudo_labels = {1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[]}
     train_dataset_u = train_unlabeled_loader.dataset
     for batch_unlabel in train_unlabeled_loader:
+        # in the loader, the range of labels are from 0 to 6
+        # in the dataset, the range of labels are from 1 to 7
         origin_sent = train_dataset_u.sents[idx]
         answer_label = train_dataset_u.labels[idx]-1
         x_ulb_s = batch_unlabel['x']
@@ -36,18 +42,23 @@ def pseudo_labeling(netgroup, train_dataset_l,train_unlabeled_loader, psl_thresh
         for target_idx, target_probs in zip(max_idx, max_probs):
             target_idx = int(target_idx)
             if target_probs >= psl_threshold_h:
-                psl_total += 1
                 if target_idx == batch_unlabel['label'].item():
                     psl_correct += 1
-                #import pdb; pdb.set_trace()
                 # Update dataset with pseudo-label
-                train_dataset_l.add_data(origin_sent, target_idx + 1)  # Add pseudo-labeled data to the labeled dataset
+                pseudo_label_temp.append({"sentence":origin_sent, "label":int(target_idx + 1)})  # Add pseudo-labeled data to the labeled dataset
             else:
                 symbolic_prediction = process_code(origin_sent, language)
                 if symbolic_prediction != "ERROR":
-                    train_dataset_l.add_data(origin_sent, symbolic_prediction)
+                    if symbolic_prediction-1 == batch_unlabel['label'].item():
+                        psl_correct += 1
+                    pseudo_label_temp.append({"sentence":origin_sent, "label":int(symbolic_prediction)})  # Add pseudo-labeled data to the labeled dataset
         idx+=1
-    return train_dataset_l, psl_total, psl_correct
+
+    for i in pseudo_label_temp:
+        pseudo_labels[i['label']].append(i['sentence'])
+
+
+    return pseudo_labels, len(pseudo_label_temp), psl_correct
 
 def calculate_loss(netgroup, data_loader, device):
     netgroup.eval()
@@ -78,13 +89,14 @@ def train(output_dir_path, **params):
         language = 'java'
     torch.manual_seed(params['seed'])
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    psl_total = 0
 
     train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader(
         '../data/' + params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
         params['net_arch'])
     print(n_classes)
-    print(f"Train Data Number: {len(train_labeled_loader)}")
+    print(f"Complexity Class Number: {n_classes}")
+    print(f"Initial Train Data Number: {len(train_dataset_l)}")
+    print(f"Initial Unlabeled Train Data Number: {len(train_dataset_u)}")
     print(f"Valid Data Number: {len(dev_loader)}")
     print(f"Test Data Number: {len(test_loader)}")
 
@@ -94,27 +106,19 @@ def train(output_dir_path, **params):
     tokenizer = AutoTokenizer.from_pretrained(params['net_arch'])
     best_train_dataset_l = train_dataset_l
 
-    # Initialize optimizer
-    #optimizer = torch.optim.Adam(netgroup.parameters(), lr=params['lr'])
-
     # Load data
     train_unlabeled_loader = DataLoader(dataset=train_dataset_u, batch_size=1, shuffle=False,
                                         collate_fn=MyCollator_SSL(tokenizer))
 
-    best_valacc_acc = 0.0
-    best_valacc_loss = 0.0
-    best_acc_testacc = 0.0
-    best_loss_testacc = 0.0
-    best_valloss_acc = 0.0
-    best_valloss_loss = 0.0
-    best_acc_model_epoch = 0
-    best_loss_model_epoch = 0
-    early_stop_count = 0
+    
+    best_checkpoint_acc_val = 0.0
+    best_checkpoint_val_loss = 1000.0
+    best_checkpoint_acc_test = 0.0
+    best_checkpoint_epoch = 0.0
+
     pbar = tqdm(total=params["max_epoch"], desc="Training", position=0, leave=True)
     for epoch in range(params["max_epoch"]):
-        if early_stop_count >= params["early_stop_tolerance"]:
-            print('Early stopping trigger at epoch:', epoch)
-            break
+        epoch_train_num = len(train_dataset_l)
         # Update train labeled loader with new pseudo-labeled data
         # train_labeled_loader.dataset.update_data(train_dataset_u)
         train_sampler = BalancedBatchSampler(train_dataset_l,params['bs'])
@@ -125,31 +129,45 @@ def train(output_dir_path, **params):
         acc_train, _ = evaluate(netgroup, train_labeled_loader, device)
         acc_val, _ = evaluate(netgroup, dev_loader, device)
         acc_test, f1_test = evaluate(netgroup, test_loader, device)
-        train_dataset_l, psl_total, psl_correct = pseudo_labeling(netgroup, train_dataset_l, train_unlabeled_loader, params['psl_threshold_h'], psl_total, device, pbar, language)
+        pseudo_labels, psl_total, psl_correct = pseudo_labeling(netgroup, train_unlabeled_loader, params['psl_threshold_h'], device, pbar, language)
+
+        # Find the minimum length of the lists of codes that are not empty
+        min_length = min(len(codes) for codes in pseudo_labels.values() if codes)
+
+        # Calculate how many labels can provide at least 'min_length' amount of codes
+        labels_with_min_length = sum(1 for codes in pseudo_labels.values() if len(codes) >= min_length)
+
+        # Randomly select 'min_length' codes from each label's list and add to the train dataset
+        for label, codes in pseudo_labels.items():
+            if len(codes) > 0:  # Ensure the list is not empty
+                selected_codes = random.sample(codes, min_length)
+                for code in selected_codes:
+                    train_dataset_l.add_data(code, label)
+        print(f"Epoch {epoch} Train Data Number after pseudo-labeling: {len(train_dataset_l)}")
+
         
-        if acc_val > best_valacc_acc:
-            best_acc_testacc = acc_test
-            best_valacc_acc = acc_val
-            best_acc_model_epoch = epoch + 1
-            best_train_dataset_l = train_dataset_l
-            early_stop_count = 0
-            torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["acc_save_name"]))
-        elif val_loss < best_valloss_loss:
-            best_loss_testacc = acc_test
-            best_valloss_loss = val_loss
-            best_loss_model_epoch = epoch + 1
-            torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["loss_save_name"]))
-        else:
-            early_stop_count += 1
+
+        if params["checkpoint"] == 'loss':
+            if val_loss < best_checkpoint_val_loss:
+                best_checkpoint_acc_test = acc_test
+                best_checkpoint_epoch = epoch + 1
+                best_train_dataset_l = train_dataset_l
+                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["acc_save_name"]))
+        elif params["checkpoint"] == 'acc':
+            if acc_val > best_checkpoint_acc_val:
+                best_checkpoint_acc_test = acc_test
+                best_checkpoint_epoch = epoch + 1
+                best_train_dataset_l = train_dataset_l
+                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["loss_save_name"]))
 
         pbar.write(f"Epoch {epoch + 1}/{params['max_epoch']}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
                    f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1: {f1_test:.4f}, "
                    f"Total Pseudo-Labels: {psl_total}, Correct Pseudo-Labels: {psl_correct}, "
-                   f"Train Data Number: {len(train_dataset_l)}")
+                   f"Train Data Number: {epoch_train_num} + {min_length} x {labels_with_min_length} = {len(train_dataset_l)}")
         pbar.update(1)
-    pbar.write(f"(Valid Acc) Best Epoch: {best_acc_model_epoch}, Best Valid Acc: {best_valacc_acc}, Best Test Accuracy: {best_acc_testacc}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
-    pbar.write(f"(Valid Loss) Best Epoch: {best_loss_model_epoch}, Best Valid Loss: {best_valloss_loss}, Best Test Accuracy: {best_loss_testacc}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
+    pbar.write(f"(Valid {params['checkpoint']}) Best Epoch: {best_checkpoint_epoch}, Best Test Accuracy: {best_checkpoint_acc_test}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
     pbar.close()
+    return best_checkpoint_epoch, best_checkpoint_acc_test 
     return best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc
 
 
@@ -182,12 +200,11 @@ def main(config_file='config.json', **kwargs):
     print("Merged parameters:", params)
 
     # Train
-    best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc = train(output_dir_path, **params)
+    best_epoch, best_acc = train(output_dir_path, **params)
 
     # Save best model info
     with open(os.path.join(output_dir_path, "best_model_info.txt"), "w") as f:
-        f.write(f"(Valid Acc) Best Epoch: {best_acc_model_epoch}, Best Accuracy: {best_acc_testacc}")
-        f.write(f"(Valid Loss) Best Epoch: {best_loss_model_epoch}, Best Accuracy: {best_loss_testacc}")
+        f.write(f"(Valid {params['checkpoint']}) Best Epoch: {best_epoch}, Best Accuracy: {best_acc}")
 
     print("Training complete!")
 
@@ -201,6 +218,7 @@ def parse_args():
     parser.add_argument('--lr', type=float, required=True, help='Learning rate')
     parser.add_argument('--seed', type=int, help='Random seed')
     parser.add_argument('--dataset', type=str, help='Dataset name')
+    parser.add_argument('--checkpoint', type=str, help='retrieve the best valid loss checkpoint or valid acc checkpoint')
 
     args = parser.parse_args()
     return vars(args)

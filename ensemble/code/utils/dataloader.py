@@ -36,8 +36,13 @@ class SEMI_SSL_Dataset(Dataset):
 
 
     def add_data(self, new_sent, new_label):
+        #self.sents.append(new_sent)
+        #self.labels.append(new_label)
         if new_sent in self.sents:
             idx = self.sents.index(new_sent)
+            print(new_sent)
+            print(self.sents[idx])
+            print(new_label, self.labels[idx])
             self.labels[idx] = new_label
         else:
             self.sents.append(new_sent)
@@ -192,11 +197,6 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     train_l_df, train_u_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True), train_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
     
     # # check statistics info
-    print('n_labeled_per_class: ', n_labeled_per_class)
-    print('train_df samples: %d' % (train_df.shape[0]))
-    print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
-    print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
-
     
     if load_mode == 'semi_SSL':
         train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
