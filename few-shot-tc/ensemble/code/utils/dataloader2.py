@@ -196,6 +196,11 @@ def get_dataloader(data_path, dataset, n_labeled_per_class, bs, load_mode='semi_
         tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
     elif token == "microsoft/unixcoder-base":
         tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
+    elif token == "microsoft/graphcodebert-base":
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/graphcodebert-base")
+    elif token == "codesage/codesage-base":
+        tokenizer = AutoTokenizer.from_pretrained("codesage/codesage-base")
+
 
     train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
     dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))

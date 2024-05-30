@@ -40,6 +40,27 @@ class CustomModel(nn.Module):
 
         return logits
 
+class CustomModel_2(nn.Module): #graphcodebert 용
+    def __init__(self, transformer_model_name, n_classes=7):
+        super(CustomModel_2, self).__init__()
+
+        # Load the transformer model without the classification head
+        config = AutoConfig.from_pretrained(transformer_model_name,  trust_remote_code=True)
+        self.text_transformer = AutoModel.from_pretrained(transformer_model_name,  trust_remote_code=True)
+
+        # Linear layer for classification
+        self.linear_layer = nn.Linear(config.hidden_size, n_classes)
+        
+    def forward(self, input_ids, attention_mask=None, labels=None):  
+        # Obtain transformer output
+        
+        transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask).last_hidden_state
+
+        # Pass through the linear layer for classification
+        
+        logits = self.linear_layer(transformer_output[:, 0, :])  # Take the first token's hidden state
+
+        return logits
 
 class NetGroup(nn.Module):
     def __init__(self, net_arch, num_nets, n_classes, device, lr, lr_linear=1e-3):
@@ -69,7 +90,11 @@ class NetGroup(nn.Module):
             #net = AutoModel.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True, num_labels = self.n_classes)
         elif net_arch == "microsoft/unixcoder-base":
             net =  AutoModelForSequenceClassification.from_pretrained("microsoft/unixcoder-base", num_labels = self.n_classes)
-        
+        elif net_arch == "microsoft/graphcodebert-base":
+            net = CustomModel_2("microsoft/graphcodebert-base")
+        elif net_arch == "codesage/codesage-base":
+            net = AutoModelForSequenceClassification.from_pretrained(net_arch, trust_remote_code=True,  num_labels = self.n_classes)
+
         net.to(self.device)
         return net
     
@@ -82,6 +107,12 @@ class NetGroup(nn.Module):
             optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
             print('net_arch: ', self.net_arch, 'lr: ', lr)
         elif self.net_arch == "microsoft/unixcoder-base":
+            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
+            print('net_arch: ', self.net_arch, 'lr: ', lr)
+        elif self.net_arch == "microsoft/graphcodebert-base":
+            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
+            print('net_arch: ', self.net_arch, 'lr: ', lr)
+        elif self.net_arch == "codesage/codesage-base":
             optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
             print('net_arch: ', self.net_arch, 'lr: ', lr)
 
@@ -129,10 +160,19 @@ class NetGroup(nn.Module):
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
             outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
-
+        elif self.net_arch == "microsoft/graphcodebert-base":
+            input_ids = x['input_ids'].to(self.device)
+            attention_mask = x['attention_mask'].to(self.device)
+            outs = net(input_ids, attention_mask=attention_mask, labels=y)
+        elif self.net_arch == "codesage/codesage-base":
+            input_ids = x['input_ids'].to(self.device)
+            attention_mask = x['attention_mask'].to(self.device)
+            outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
+   
         return outs
 
 
+            
     # forward the group of networks from the same batch input
     def forward(self, x, y=None):
         outs = []
