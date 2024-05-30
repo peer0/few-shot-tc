@@ -14,9 +14,10 @@ from utils.dataloader import get_dataloader
 from criterions.criterions import ce_loss, consistency_loss
 from utils.helper import freematch_fairness_loss
 from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
+from symbolic import process_code
 
 
-def pseudo_labeling(netgroup, train_dataset_l,train_unlabeled_loader, psl_threshold_h, psl_total, device, pbar):
+def pseudo_labeling(netgroup, train_dataset_l,train_unlabeled_loader, psl_threshold_h, psl_total, device, pbar, language):
     psl_correct = 0
     idx = 0
     train_dataset_u = train_unlabeled_loader.dataset
@@ -41,6 +42,10 @@ def pseudo_labeling(netgroup, train_dataset_l,train_unlabeled_loader, psl_thresh
                 #import pdb; pdb.set_trace()
                 # Update dataset with pseudo-label
                 train_dataset_l.add_data(origin_sent, target_idx + 1)  # Add pseudo-labeled data to the labeled dataset
+            else:
+                symbolic_prediction = process_code(origin_sent, language)
+                if symbolic_prediction != "ERROR":
+                    train_dataset_l.add_data(origin_sent, symbolic_prediction)
         idx+=1
     return train_dataset_l, psl_total, psl_correct
 
@@ -67,6 +72,10 @@ def train_one_epoch(netgroup, train_labeled_loader, device):
     return total_loss / len(train_labeled_loader)
 
 def train(output_dir_path, **params):
+    if params['dataset'] =='python':
+        language = 'python'
+    else:
+        language = 'java'
     torch.manual_seed(params['seed'])
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     psl_total = 0
@@ -116,7 +125,7 @@ def train(output_dir_path, **params):
         acc_train, _ = evaluate(netgroup, train_labeled_loader, device)
         acc_val, _ = evaluate(netgroup, dev_loader, device)
         acc_test, f1_test = evaluate(netgroup, test_loader, device)
-        train_dataset_l, psl_total, psl_correct = pseudo_labeling(netgroup, train_dataset_l, train_unlabeled_loader, params['psl_threshold_h'], psl_total, device, pbar)
+        train_dataset_l, psl_total, psl_correct = pseudo_labeling(netgroup, train_dataset_l, train_unlabeled_loader, params['psl_threshold_h'], psl_total, device, pbar, language)
         
         if acc_val > best_valacc_acc:
             best_acc_testacc = acc_test
