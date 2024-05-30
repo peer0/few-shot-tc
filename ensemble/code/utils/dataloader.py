@@ -40,9 +40,6 @@ class SEMI_SSL_Dataset(Dataset):
         #self.labels.append(new_label)
         if new_sent in self.sents:
             idx = self.sents.index(new_sent)
-            print(new_sent)
-            print(self.sents[idx])
-            print(new_label, self.labels[idx])
             self.labels[idx] = new_label
         else:
             self.sents.append(new_sent)
