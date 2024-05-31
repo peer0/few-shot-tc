@@ -84,51 +84,57 @@ def oneRun(log_dir, output_dir_experiment, **params):
     ## Set output directory: used to store saved model and other outputs
     output_dir_path = output_dir_experiment
 
+    ## Set output directory: used to store saved model and other outputs
+    output_dir_path = output_dir_experiment
+    
+    
+    
     ## Set default hyperparameters
-    n_labeled_per_class = 10        if 'n_labeled_per_class' not in params else params['n_labeled_per_class']
-    bs = 8                          if 'bs' not in params else params['bs']      # original: 32
-    ul_ratio = 10                   if 'ul_ratio' not in params else params['ul_ratio']     
-    lr = 2e-5                       if 'lr' not in params else params['lr']      # original: 1e-4, 2e-5  
-    lr_linear = 1e-3                if 'lr_linear' not in params else params['lr_linear'] # original: 1e-3      
+    n_labeled_per_class = params.get('n_labeled_per_class', 10)  
+    bs = params.get('bs', 8) 
+    ul_ratio = params.get('ul_ratio', 10) 
+    lr = params.get('lr', 2e-5)  
+    lr_linear = params.get('lr_linear', 1e-3)  
 
-    # - semi-supervised 
-    weight_u_loss =0.1              if 'weight_u_loss' not in params else params['weight_u_loss']
-    load_mode = 'semi_SSL'          if 'load_mode' not in params else params['load_mode'] # semi, sup_baseline
+    # Semi-supervised 설정
+    weight_u_loss = params.get('weight_u_loss', 0.1)  
+    load_mode = params.get('load_mode', 'semi_SSL')  
 
-    # - pseudo-labeling
-    psl_threshold_h = 0.98          if 'psl_threshold_h' not in params else params['psl_threshold_h']   # original: 0.75
-    labeling_mode = 'hard'          if 'labeling_mode' not in params else params['labeling_mode'] # hard, soft
-    adaptive_threshold = False      if 'adaptive_threshold' not in params else params['adaptive_threshold'] # True, False
+    # Pseudo-labeling 설정
+    psl_threshold_h = params.get('psl_threshold_h', 0.98) 
+    labeling_mode = params.get('labeling_mode', 'hard')  
+    adaptive_threshold = params.get('adaptive_threshold', False)  
 
-    # - ensemble
-    num_nets = 1                    if 'num_nets' not in params else params['num_nets'] #SSL을 위한 추가
-    cross_labeling = False          if 'cross_labeling' not in params else params['cross_labeling'] # True, False
+    # Ensemble 설정
+    num_nets = params.get('num_nets', 1)  
+    cross_labeling = params.get('cross_labeling', False)  
 
-    # - weight disagreement
-    weight_disagreement = False     if 'weight_disagreement' not in params else params['weight_disagreement'] # True, False
-    disagree_weight = 1             if 'disagree_weight' not in params else params['disagree_weight']
+    # Weight disagreement 설정
+    weight_disagreement = params.get('weight_disagreement', False)  
+    disagree_weight = params.get('disagree_weight', 1)  
 
-    # - ema
-    ema_mode = False                if 'ema_mode' not in params else params['ema_mode']
-    ema_momentum = 0.9              if 'ema_momentum' not in params else params['ema_momentum'] # original: 0.99
+    # EMA (Exponential Moving Average) 설정
+    ema_mode = params.get('ema_mode', False)  
+    ema_momentum = params.get('ema_momentum', 0.9)  
 
-    # - others
-    seed = params['seed']
-    device_idx = 1                  if 'device_idx' not in params else params['device_idx']
-    val_interval = 25               if 'val_interval' not in params else params['val_interval'] # 20, 25
-    #early_stop_tolerance = 10       if 'early_stop_tolerance' not in params else params['early_stop_tolerance'] # 5, 6, 10
-    max_epoch = 10000                if 'max_epoch' not in params else params['max_epoch'] # 100, 200
-    max_step = 100000               if 'max_step' not in params else params['max_step'] # 100000, 200000
+    # 기타 설정
+    seed = params['seed']  
+    device_idx = params.get('device_idx', 1)  
+    val_interval = params.get('val_interval', 25)  
+    # early_stop_tolerance = params.get('early_stop_tolerance', 10)  # 조기 종료 허용치 (현재 주석 처리됨)
+    max_epoch = params.get('max_epoch', 10000)  
+    max_step = params.get('max_step', 100000)  
+
+    # 모델 및 옵티마이저, 학습률 스케줄러 초기화
+    net_arch = params['net_arch'] 
+    pse_cl = params['pse_cl']  
+
+    # 토크나이저 설정
+    token = params.get('token', "microsoft/codebert-base") 
+    # 모델 저장 이름 설정
+    save_name = params.get('save_name', 'pls_save_name')
+       
     
-    # Initialize model & optimizer & lr_scheduler
-    net_arch = params['net_arch']
-    pse_cl = params['pse_cl']
-
-    token = "microsoft/codebert-base" if 'token' not in params else params['token']
-
-    
-    # save name
-    save_name = 'pls_save_name'       if 'save_name' not in params else params['save_name']       
     
     ## Set random seed and device
     # Fix random seed
@@ -165,17 +171,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     
     #train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u = get_dataloader(data_path, n_labeled_per_class, bs, load_mode)
     train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u, tokenizer = get_dataloader(data_path, n_labeled_per_class, bs, load_mode, token)
-  
-    # tokenizer 분석하는 코드 추가함.
-    # num = []
-    # for _ in range(len(iter(train_labeled_loader))): 
-    #     for j in iter(train_labeled_loader).next()['x']['input_ids']:
-    #         num.append(len(j))
-         
-    # for _ in range(len(iter(train_unlabeled_loader))): 
-    #     for j in iter(train_labeled_loader).next()['x']['input_ids']:
-    #         num.append(len(j))   
-    
+
 
     print('n_classes: ', n_classes, '\n')
 
@@ -248,24 +244,14 @@ def oneRun(log_dir, output_dir_experiment, **params):
             #print(f"Batch class counts: {class_counts}")
             
         # Calculate acc and macro-F1
-        # print('preds_all', preds_all)
-        # print('target_all', target_all)
         preds_all = torch.cat(preds_all).detach().cpu()
         target_all = torch.cat(target_all).detach().cpu()
        
         
-
-        
-        
-        
-        # print('preds_all', preds_all)
-        # print('target_all', target_all)
-        
         acc = accuracy_score(target_all, preds_all)
         f1 = f1_score(target_all, preds_all, average='macro')
         f1_micro = f1_score(target_all, preds_all, average='micro')
-        
-        # MICRO 추가~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
         
         # Calculate classwise acc
         accuracy_classwise_ = accuracy_classwise(preds_all, target_all).numpy().round(3)
@@ -353,16 +339,13 @@ def oneRun(log_dir, output_dir_experiment, **params):
         
         
         acc_test, f1_test, acc_test_cw, f1_micro = evaluation(test_loader)
-        acc_val, f1_val, acc_val_cw, _  = evaluation(dev_loader)
-        acc_train, f1_train, acc_train_cw, _ = evaluation(train_labeled_loader)
+        acc_val, f1_val, acc_val_cw, f1_micro = evaluation(dev_loader)
+        acc_train, f1_train, acc_train_cw, f1_micro = evaluation(train_labeled_loader)
 
         if ema_mode:
             netgroup.train_ema()
         netgroup.train()
 
-        #print('>>Epoch %d Step %d acc_test %f f1_test %f acc_val %f f1_val %f acc_train %f f1_train %f psl_cor %d psl_totl %d pslt_global %f '% 
-        #        (epoch, step, acc_test, f1_test,acc_val, f1_val, acc_train, f1_train, psl_correct_eval, psl_total_eval, pslt_global),
-        #        'Tim {:}'.format(format_time(time.time() - t0)))
         
         print('Step %d '%(step),'Tim {:}'.format(format_time(time.time() - t0)))
         
@@ -475,6 +458,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     
                     #decoder_input_ids = x_ulb_s.to(device)
                     #batch_unlabel['label'].to(device)
+                    #pdb.set_trace()
                     
                     outs_x_ulb_w_nets = netgroup.forward(x_ulb_s)
 
@@ -639,7 +623,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
             
             
         pbar.write(f"Epoch {epoch + 1}/{max_epoch}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
-                   f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1(macro): {f1_test:.4f}, "
+                   f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1(macro): {f1_test:.4f}, Test F1(micro) : {f1_micro:.4f}, "
                    f"Total Pseudo-Labels: {psl_total}, Correct Pseudo-Labels: {psl_correct}, "
                    f"Train Data Number: {len(train_dataset_l)}")
         pbar.update(1)

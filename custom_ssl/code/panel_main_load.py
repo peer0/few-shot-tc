@@ -1,4 +1,5 @@
 from main_SSL_load import multiRun
+#from main_SSL_load_gpt import multiRun
 import sys
 import os
 
@@ -114,7 +115,8 @@ pse_cl = sys.argv[7]
         
 
 
-seeds_list = [43]
+#seeds_list = [43]
+seeds_list = [int(sys.argv[8])]
 # JointMatch
 num_runs = 1 # 같은 실험
 
@@ -122,7 +124,7 @@ num_runs = 1 # 같은 실험
 
 print('Data set ->', dataset.split('/')[3])
 #save_name = f"{n_labeled_per_class}_{net_arch.split('/')[1]}_{lr}_{psl_threshold_h}_{early_stop_tolerance}_{dataset.split('/')[3]}"
-save_name = f"{n_labeled_per_class}_{net_arch.split('/')[1]}_{lr}_{psl_threshold_h}_{dataset.split('/')[3]}"
+save_name = f"{n_labeled_per_class}_{net_arch.split('/')[1]}_{lr}_{psl_threshold_h}_{dataset.split('/')[3]}_{max_epoch}_{seeds_list}"
 # .format(n_labeled_per_class,net_arch.split('/')[1],lr,psl_threshold_h,early_stop_tolerance,dataset.split('/')[3])
 
 

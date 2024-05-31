@@ -1,0 +1,47 @@
+current work directory:  /home/imsuhan22/few-shot-tc/custom_ssl/code
+Data set -> corcod_extended_data
+save_name: 10_graphcodebert-base_0.0002_0.7_corcod_extended_data_37_[43]
+
+data_path:  ../data/problem_based_split/corcod_extended_data
+
+There are 2 GPU(s) available.
+We will use the GPU- 0 Quadro RTX 8000
+
+**line 147 모델 =>  microsoft/graphcodebert-base
+**tokenizer type =  microsoft/graphcodebert-base 
+
+pesudo label class개수 기준 -> 5
+n_labeled_per_class:  10
+train_df samples: 739
+train_labeled_df samples: 50
+train_unlabeled_df samples: 689
+n_classes:  5 
+
+
+net_arch:  microsoft/graphcodebert-base 
+lr:  0.0002 
+lr_linear:  0.001 
+
+
+
+
+line 303 => train data수 50
+line 258 => 인스턴스 수 8
+Step 0  Tim 0:00:08
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 0.0, 1.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+***best_acc_model_save --- epoch = 1***
+Save model to ./experiment/corcod_extended_data/output/
+**pseudo_label ->  [0.1453, 0.1405, 0.1674, 0.1117, 0.171, 0.1307, 0.1333] **
+max =  0.171 | max_idx =  4
+**pseudo_label ->  [0.1354, 0.1472, 0.1359, 0.1096, 0.2229, 0.1211, 0.1279] **
+max =  0.2229 | max_idx =  4
+**pseudo_label ->  [0.1429, 0.1148, 0.1722, 0.1232, 0.1907, 0.1294, 0.1267] **
+max =  0.1907 | max_idx =  4
+**pseudo_label ->  [0.132, 0.1096, 0.2222, 0.1297, 0.1628, 0.1508, 0.0929] **
+max =  0.2222 | max_idx =  2
+**pseudo_label ->  [0.1369, 0.1372, 0.1512, 0.1121, 0.1715, 0.1408, 0.1502] **
+max =  0.1715 | max_idx =  4
