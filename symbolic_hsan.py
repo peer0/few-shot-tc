@@ -420,7 +420,7 @@ class CodeComplexityCalculator:
     def classify_time_complexity(self, time_complexity):
         complexity_parts = time_complexity.split('+')
         max_complexity_label = -1
-
+        
         for part in complexity_parts:
             factors = part.split('*')
             char_count = 0
@@ -465,10 +465,20 @@ class CodeComplexityCalculator:
                     complexity_label = 5  # quadratic == 5
                 elif char_count == 3:
                     complexity_label = 6  # cubic == 6
-                else:
+                elif char_count == 4:
                     complexity_label = 7  # np == 7
 
+                else:
+                    complexity_label = -100
+            
+            
+            if complexity_label != -100:
+                valid_complexity = True
             max_complexity_label = max(max_complexity_label, complexity_label)
+
+        if not valid_complexity:
+            raise ValueError("Unable to determine time complexity for the given input!")
+
 
         return int(max_complexity_label)
 
@@ -545,7 +555,7 @@ def save_result(src_csv_path, dest_csv_path, language):
     plt.xlabel('Predicted labels')
     plt.ylabel('True labels')
     plt.title(f'{args.dataset} Confusion Matrix')
-    output_file = 'confusion_matrix_java.png'
+    output_file = 'confusion_matrix_java_temp.png'
     plt.savefig(output_file, bbox_inches='tight')  # Saves the plot as a PNG file
 
     print(f"Accuracy: {accuracy}")
@@ -558,9 +568,9 @@ def save_result(src_csv_path, dest_csv_path, language):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Calculate and save code complexity.")
-    parser.add_argument("--dataset", default=".", help="Path to the source CSV file")
-    parser.add_argument("--result", default=".", help="Path to the destination CSV file to save results")
-    parser.add_argument("--language", default="python", help="Programming language of the source code (python/java)")
+    parser.add_argument("--dataset", default="D:\\workspace\\few-shot-tc\\data\\int_label\\codecomplex_java\\test.csv", help="Path to the source CSV file")
+    parser.add_argument("--result", default="D:\\workspace\\few-shot-tc\\result\\temp_result.csv", help="Path to the destination CSV file to save results")
+    parser.add_argument("--language", default="java", help="Programming language of the source code (python/java)")
 
     args = parser.parse_args()
 
