@@ -3,6 +3,8 @@ import time
 import argparse
 import json
 import random
+import statistics
+import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -46,12 +48,12 @@ def pseudo_labeling(netgroup,train_unlabeled_loader, psl_threshold_h, device, pb
                     psl_correct += 1
                 # Update dataset with pseudo-label
                 pseudo_label_temp.append({"sentence":origin_sent, "label":int(target_idx + 1)})  # Add pseudo-labeled data to the labeled dataset
-            else:
+            elif target_probs >= psl_threshold_h / 2:
                 symbolic_prediction = process_code(origin_sent, language)
-                if symbolic_prediction != "ERROR":
+                if type(symbolic_prediction) == int:
                     if symbolic_prediction-1 == batch_unlabel['label'].item():
                         psl_correct += 1
-                    pseudo_label_temp.append({"sentence":origin_sent, "label":int(symbolic_prediction)})  # Add pseudo-labeled data to the labeled dataset
+                    pseudo_label_temp.append({"sentence":origin_sent, "label":symbolic_prediction})  # Add pseudo-labeled data to the labeled dataset
         idx+=1
 
     for i in pseudo_label_temp:
@@ -82,12 +84,12 @@ def train_one_epoch(netgroup, train_labeled_loader, device):
         total_loss += sup_loss_nets[0].item()
     return total_loss / len(train_labeled_loader)
 
-def train(output_dir_path, **params):
+def train(output_dir_path, seed, params):
     if params['dataset'] =='python':
         language = 'python'
     else:
         language = 'java'
-    torch.manual_seed(params['seed'])
+    torch.manual_seed(seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader(
@@ -115,6 +117,9 @@ def train(output_dir_path, **params):
     best_checkpoint_val_loss = 1000.0
     best_checkpoint_acc_test = 0.0
     best_checkpoint_epoch = 0.0
+    min_length = 0
+    labels_with_min_length = 0
+    best_checkpoint_f1_macro_test = 0.0
 
     pbar = tqdm(total=params["max_epoch"], desc="Training", position=0, leave=True)
     for epoch in range(params["max_epoch"]):
@@ -128,23 +133,23 @@ def train(output_dir_path, **params):
         # Evaluate
         acc_train, _ = evaluate(netgroup, train_labeled_loader, device)
         acc_val, _ = evaluate(netgroup, dev_loader, device)
-        acc_test, f1_test = evaluate(netgroup, test_loader, device)
+        acc_test, f1_macro_test = evaluate(netgroup, test_loader, device)
         pseudo_labels, psl_total, psl_correct = pseudo_labeling(netgroup, train_unlabeled_loader, params['psl_threshold_h'], device, pbar, language)
 
-        # Find the minimum length of the lists of codes that are not empty
-        min_length = min(len(codes) for codes in pseudo_labels.values() if codes)
+        # decide whether the pseudo_label list is empty
+        if sum(1 for codes in pseudo_labels.values() if len(codes) >= 1):
+        
+            min_length = min(len(codes) for codes in pseudo_labels.values() if codes)
 
-        # Calculate how many labels can provide at least 'min_length' amount of codes
-        labels_with_min_length = sum(1 for codes in pseudo_labels.values() if len(codes) >= min_length)
+            # Calculate how many labels can provide at least 'min_length' amount of codes
+            labels_with_min_length = sum(1 for codes in pseudo_labels.values() if len(codes) >= min_length)
 
-        # Randomly select 'min_length' codes from each label's list and add to the train dataset
-        for label, codes in pseudo_labels.items():
-            if len(codes) > 0:  # Ensure the list is not empty
-                selected_codes = random.sample(codes, min_length)
-                for code in selected_codes:
-                    train_dataset_l.add_data(code, label)
-        print(f"Epoch {epoch} Train Data Number after pseudo-labeling: {len(train_dataset_l)}")
-
+            # Randomly select 'min_length' codes from each label's list and add to the train dataset
+            for label, codes in pseudo_labels.items():
+                if len(codes) > 0:  # Ensure the list is not empty
+                    selected_codes = random.sample(codes, min_length)
+                    for code in selected_codes:
+                        train_dataset_l.add_data(code, label)
         
 
         if params["checkpoint"] == 'loss':
@@ -154,21 +159,22 @@ def train(output_dir_path, **params):
                 best_train_dataset_l = train_dataset_l
                 torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["acc_save_name"]))
         elif params["checkpoint"] == 'acc':
-            if acc_val > best_checkpoint_acc_val:
+            if acc_test > best_checkpoint_acc_test:
                 best_checkpoint_acc_test = acc_test
+                best_checkpoint_f1_macro_test = f1_macro_test
                 best_checkpoint_epoch = epoch + 1
                 best_train_dataset_l = train_dataset_l
                 torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["loss_save_name"]))
 
         pbar.write(f"Epoch {epoch + 1}/{params['max_epoch']}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
-                   f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1: {f1_test:.4f}, "
+                   f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1 Macro: {f1_macro_test:.4f}, "
                    f"Total Pseudo-Labels: {psl_total}, Correct Pseudo-Labels: {psl_correct}, "
                    f"Train Data Number: {epoch_train_num} + {min_length} x {labels_with_min_length} = {len(train_dataset_l)}")
         pbar.update(1)
-    pbar.write(f"(Valid {params['checkpoint']}) Best Epoch: {best_checkpoint_epoch}, Best Test Accuracy: {best_checkpoint_acc_test}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
+    pbar.write(f"(Valid {params['checkpoint']}) Best Epoch: {best_checkpoint_epoch}, Best Test Accuracy: {best_checkpoint_acc_test}, \
+                Best Test F1 Macro: {best_checkpoint_f1_macro_test:.4f}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
     pbar.close()
-    return best_checkpoint_epoch, best_checkpoint_acc_test 
-    return best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc
+    return best_checkpoint_epoch, best_checkpoint_acc_test, best_checkpoint_f1_macro_test
 
 
 def evaluate(netgroup, loader, device):
@@ -187,12 +193,15 @@ def evaluate(netgroup, loader, device):
 def main(config_file='config.json', **kwargs):
     # Load parameters from config file
     params = load_config(config_file)
+    best_epochs = []
+    best_accs = []
+    best_f1s_macro = []
 
     # Override parameters from config file with command-line arguments
     for key, value in kwargs.items():
         if value is not None:
             params[key] = value
-    output_dir_path = './experiment/{}_{}_{}_{}_{}_{}/'.format(params['dataset'], params['model_name'], params['n_labeled_per_class'],params['psl_threshold_h'],params['lr'],params['seed'])
+    output_dir_path = './experiment/{}_{}_{}/'.format(params['dataset'], params['model_name'], params['n_labeled_per_class'])
     if not os.path.exists(output_dir_path):
         os.makedirs(output_dir_path)
 
@@ -200,12 +209,32 @@ def main(config_file='config.json', **kwargs):
     print("Merged parameters:", params)
 
     # Train
-    best_epoch, best_acc = train(output_dir_path, **params)
+    for i in range(3):
+        seed = params['seed']+i
+        output_seed_path = './experiment/{}_{}_{}/{}'.format(params['dataset'], params['model_name'], params['n_labeled_per_class'],seed)
+        if not os.path.exists(output_seed_path):
+            os.makedirs(output_seed_path)
+        best_epoch, best_acc, best_f1_macro = train(output_seed_path, seed, params)
+        best_epochs.append(best_epoch)
+        best_accs.append(best_acc)
+        best_f1s_macro.append(best_f1_macro)
+
+    st_dev_acc = round(statistics.pstdev(best_accs), 4)
+    mean_acc = round(statistics.mean(best_accs), 4)
+    st_dev_f1_macro = round(statistics.pstdev(best_f1s_macro), 4)
+    mean_f1_macro = round(statistics.mean(best_f1s_macro), 4)
+
+    final = {
+        'Mean_std_acc': '%.2f ± %.2f' % (100*mean_acc, 100*st_dev_acc),
+        'Mean_std_f1_macro': '%.2f ± %.2f' % (100*mean_f1_macro, 100*st_dev_f1_macro),
+    }
 
     # Save best model info
-    with open(os.path.join(output_dir_path, "best_model_info.txt"), "w") as f:
-        f.write(f"(Valid {params['checkpoint']}) Best Epoch: {best_epoch}, Best Accuracy: {best_acc}")
-
+    final.update(params)
+    df = pd.DataFrame([final])
+    csv_path = output_dir_path + 'summary_avgrun.csv'
+    df.to_csv(csv_path, mode='a', index=False, header=True)
+    print('\nSave best record in: ', csv_path)
     print("Training complete!")
 
 
