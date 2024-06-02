@@ -13,7 +13,7 @@ from javalang import parse
 from sklearn.metrics import confusion_matrix, accuracy_score, f1_score
 import matplotlib.pyplot as plt
 import seaborn as sns
-from calculator import CodeComplexityCalculator
+from symbolic.calculator import CodeComplexityCalculator
 
 
 def process_code(code, language):

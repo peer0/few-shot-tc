@@ -157,14 +157,14 @@ def train(output_dir_path, seed, params):
                 best_checkpoint_acc_test = acc_test
                 best_checkpoint_epoch = epoch + 1
                 best_train_dataset_l = train_dataset_l
-                torch.save(netgroup.state_dict(), os.path.join(output_seed_path, params["acc_save_name"]))
+                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["acc_save_name"]))
         elif params["checkpoint"] == 'acc':
             if acc_test > best_checkpoint_acc_test:
                 best_checkpoint_acc_test = acc_test
                 best_checkpoint_f1_macro_test = f1_macro_test
                 best_checkpoint_epoch = epoch + 1
                 best_train_dataset_l = train_dataset_l
-                torch.save(netgroup.state_dict(), os.path.join(output_seed_path, params["loss_save_name"]))
+                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["loss_save_name"]))
 
         pbar.write(f"Epoch {epoch + 1}/{params['max_epoch']}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
                    f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1 Macro: {f1_macro_test:.4f}, "
