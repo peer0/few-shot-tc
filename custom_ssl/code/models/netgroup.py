@@ -128,11 +128,9 @@ class NetGroup(nn.Module):
         elif net_arch == 'microsoft/codebert-base':
             net =  AutoModelForSequenceClassification.from_pretrained(net_arch, num_labels = self.n_classes)
 
-
-
         #T5, Unicoder 추가
         elif net_arch == "Salesforce/codet5p-110m-embedding":
-            net = CustomModel(net_arch)
+            net = CustomModel(net_arch, self.n_classes)
 
         elif net_arch == "microsoft/unixcoder-base":
             net =  AutoModelForSequenceClassification.from_pretrained(net_arch, num_labels = self.n_classes)
@@ -141,7 +139,7 @@ class NetGroup(nn.Module):
             
         # graphcodebert model 추가 4/17
         elif net_arch == "microsoft/graphcodebert-base":
-            net = CustomModel_2("microsoft/graphcodebert-base")
+            net = CustomModel_2("microsoft/graphcodebert-base", self.n_classes)
         
         
         
@@ -276,6 +274,7 @@ class NetGroup(nn.Module):
 
     # forward one network
     def forward_net(self, net, x, y=None):
+        
         if self.net_arch == 'bert-base-uncased':
             input_ids = x['input_ids'].to(self.device)
             attention_mask = x['attention_mask'].to(self.device)
@@ -321,26 +320,28 @@ class NetGroup(nn.Module):
             outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).logits
              
  
-        elif self.net_arch == "gonglinyuan/ast_t5_base": 
-            input_ids = x['input_ids'].to(self.device)
-            attention_mask = x['attention_mask'].to(self.device)
+        # elif self.net_arch == "gonglinyuan/ast_t5_base": 
+        #     input_ids = x['input_ids'].to(self.device)
+        #     attention_mask = x['attention_mask'].to(self.device)
             
-            #outs = net(input_ids, attention_mask=attention_mask, labels=y)
+        #     #outs = net(input_ids, attention_mask=attention_mask, labels=y)
             
-            #token = AutoTokenizer.from_pretrained("gonglinyuan/ast_t5_base", trust_remote_code = True)
-            #or_label = {1: 'constant', 2: 'logn', 3: 'linear', 4: 'nlogn', 5: 'quadratic', 6: 'cubic', 7: 'np'}
-            #mapped_value = or_label[y.item()]
-            #yy =  token(mapped_value, return_tensors="pt")['input_ids'].to(self.device)
+        #     #token = AutoTokenizer.from_pretrained("gonglinyuan/ast_t5_base", trust_remote_code = True)
+        #     #or_label = {1: 'constant', 2: 'logn', 3: 'linear', 4: 'nlogn', 5: 'quadratic', 6: 'cubic', 7: 'np'}
+        #     #mapped_value = or_label[y.item()]
+        #     #yy =  token(mapped_value, return_tensors="pt")['input_ids'].to(self.device)
             
-            outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).encoder_last_hidden_state
-            input_dim = outs.size(2)
-            output_dim = 7  # 출력 클래스 개수입니다.
-        
+        #     outs = net(input_ids, attention_mask=attention_mask, labels=y, return_dict=True).encoder_last_hidden_state
+        #     input_dim = outs.size(2)
+        #     output_dim = 7  # 출력 클래스 개수입니다.
+        #     #output_dim = 5 #corcod에서는 5로 설정해야합니다.
             
-            if not hasattr(self, 'linear_layer'):
-                self.linear_layer = nn.Linear(input_dim, output_dim).to(self.device)
+            
+            
+        #     if not hasattr(self, 'linear_layer'):
+        #         self.linear_layer = nn.Linear(input_dim, output_dim).to(self.device)
                 
-            outs = self.linear_layer(outs.mean(dim=1))
+        #     outs = self.linear_layer(outs.mean(dim=1))
             
 
             

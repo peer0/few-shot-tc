@@ -165,7 +165,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
     
     #train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u = get_dataloader(data_path, n_labeled_per_class, bs, load_mode)
     train_labeled_loader, train_unlabeled_loader, dev_loader, test_loader, n_classes, train_dataset_l, shuffled_train_dataset_u, tokenizer = get_dataloader(data_path, n_labeled_per_class, bs, load_mode, token)
-  
     # tokenizer 분석하는 코드 추가함.
     # num = []
     # for _ in range(len(iter(train_labeled_loader))): 
@@ -263,19 +262,17 @@ def oneRun(log_dir, output_dir_experiment, **params):
         
         acc = accuracy_score(target_all, preds_all)
         f1 = f1_score(target_all, preds_all, average='macro')
-        f1_micro = f1_score(target_all, preds_all, average='micro')
-        
-        # MICRO 추가~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        #f1_micro = f1_score(target_all, preds_all, average='micro')
         
         # Calculate classwise acc
         accuracy_classwise_ = accuracy_classwise(preds_all, target_all).numpy().round(3)
-
+        
         if final_eval:
             # compute confusion matrix for the final evaluation on the saved model
             confmat_result = confusion_matrix(preds_all, target_all)
-            return acc, f1, list(accuracy_classwise_), confmat_result, f1_micro
+            return acc, f1, list(accuracy_classwise_), confmat_result
         else:
-            return acc, f1,  list(accuracy_classwise_), f1_micro
+            return acc, f1,  list(accuracy_classwise_)
 
 
 
@@ -289,6 +286,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
     t0 = time.time() # Measure how long the training takes.
     step = 0
     best_acc = 0
+    val_test_acc = 0
+    val_test_f1 = 0
     
     best_val_loss = 99
     best_train_loss = 99
@@ -331,7 +330,10 @@ def oneRun(log_dir, output_dir_experiment, **params):
     
     for epoch in range(max_epoch): 
         pse_table = []
-        pse_count = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0}
+        if data_path.split('/')[3] == 'corcode_extended_data':
+            pse_count = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}    
+        else:
+            pse_count = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0}
         
         if step > max_step:
             print("조기종료 step > max step =>", step > max_step)
@@ -351,10 +353,10 @@ def oneRun(log_dir, output_dir_experiment, **params):
         print('line 303 => train data수', len(train_dataset_l))
         print("line 258 => 인스턴스 수" , len(iter(train_labeled_loader)))
         
-        
-        acc_test, f1_test, acc_test_cw, f1_micro = evaluation(test_loader)
-        acc_val, f1_val, acc_val_cw, _  = evaluation(dev_loader)
-        acc_train, f1_train, acc_train_cw, _ = evaluation(train_labeled_loader)
+
+        acc_test, f1_test, acc_test_cw = evaluation(test_loader)
+        acc_val, f1_val, acc_val_cw  = evaluation(dev_loader)
+        acc_train, f1_train, acc_train_cw = evaluation(train_labeled_loader)
 
         if ema_mode:
             netgroup.train_ema()
@@ -380,7 +382,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
                 'cw_acc_val': acc_val_cw, #valid의 class별 acc
                 'acc_test': acc_test,#test의 acc
                 'f1_test': f1_test, #test의 f1 macro
-                'f1_mirco_test' : f1_micro, 
                 'cw_acc_test': acc_test_cw, #test의 class별 acc
                 'psl_correct': psl_correct_eval, # 
                 'psl_total': psl_total_eval,
@@ -418,7 +419,13 @@ def oneRun(log_dir, output_dir_experiment, **params):
         if acc_val > best_acc:
             best_acc = acc_val
             best_model_step = step
+            
             best_epoch = epoch
+            
+            val_test_acc = acc_test
+            val_test_f1 = f1_test
+            
+            
             #early_stop_count = 0
             if best_val_stop == False:
                 print(f"***best_acc_model_save --- epoch = {epoch+1}***")
@@ -661,7 +668,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     ##### Results Summary and Visualization
     # Load the saved best models and evaluate on the test set
     netgroup.load_model(output_dir_path, save_name, ema_mode=ema_mode)
-    acc_test, f1_test, acc_test_cw, confmat_test, f1_micro = evaluation(test_loader, final_eval=True)
+    acc_test, f1_test, acc_test_cw, confmat_test = evaluation(test_loader, final_eval=True)
 
 
     ## Quantatitive Results
@@ -679,7 +686,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     # Save best record in both the training statisitcs and summary file
     cur_time = time.strftime("%Y%m%d-%H%M%S")
     best_data = {'record_time': cur_time,
-                'best_step': best_model_step, 'test_acc':acc_test, 'test_f1': f1_test, 'test_f1(micro)' : f1_micro     
+                'best_step': best_model_step, 'test_acc':acc_test, 'test_f1': f1_test     
                 }
     
     
@@ -708,8 +715,8 @@ def oneRun(log_dir, output_dir_experiment, **params):
     print("pse_epoch => ", pse_epoch)
     print("추가되는 pse_epoch => ", pse_add_epoch,'\n')
     
-    print('total_data: ', len(train_dataset_l),'\nBest_step: ', best_model_step,'\nBest_epoch: ', best_epoch ,
-          '\nbest_val_acc: ',best_acc, '\nbest_test_acc: ', acc_test, '\nbest_test_f1: ', f1_test)
+    print('total_data: ', len(train_dataset_l),'\n\nBest_step: ', best_model_step,'\nBest_val_epoch: ', best_epoch+1 ,
+          '\nbest_val_acc: ',best_acc, '\nbest_val_test_acc: ', val_test_acc, '\nbest_val_test_f1: ', val_test_f1)
     
 
     best_data.update(params) # record tuned hyper-params
