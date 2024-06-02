@@ -180,6 +180,10 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
         tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
     elif token == "microsoft/unixcoder-base":
         tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
+    elif token == "microsoft/graphcodebert-base":
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/graphcodebert-base")
+    elif token == "codesage/codesage-base":
+        tokenizer = AutoTokenizer.from_pretrained("codesage/codesage-base")
 
     train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
     dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
@@ -211,29 +215,3 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     test_loader = DataLoader(dataset=test_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
 
     return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u
-
-
-
-# Unit Test
-if __name__ == '__main__':
-    # go to the directory of data
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    os.chdir('../../data')
-    print('current work directory: ', os.getcwd())
-
-    n_labeled_per_class = 10
-    bs = 32 #batch size
-    data_path_list = ['ag_news', 'yahoo', 'imdb']
-    #load_mode_list = ['semi'] # ['semi', 'baseline']
-    load_mode_list = ['semi_SSL'] # ['semi', 'baseline']
-
-    for data_path in data_path_list:
-        for load_mode in load_mode_list:
-            print('\ndata_path: ', data_path)
-            print('load_mode: ', load_mode)
-            train_loader_l, train_loader_u, dev_loader, test_loader, num_class = get_dataloader(data_path, n_labeled_per_class, bs, load_mode)
-
-            # check if the dataloader can work
-            train_loader_l = iter(train_loader_l)
-            batch = next(train_loader_l)
-            print('batch: ', batch)

@@ -17,7 +17,7 @@ from utils.dataloader import get_dataloader
 from criterions.criterions import ce_loss, consistency_loss
 from utils.helper import freematch_fairness_loss
 from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
-from symbolic import process_code
+from symbolic.symbolic import process_code
 
 
 def pseudo_labeling(netgroup,train_unlabeled_loader, psl_threshold_h, device, pbar, language):
@@ -50,7 +50,7 @@ def pseudo_labeling(netgroup,train_unlabeled_loader, psl_threshold_h, device, pb
                 pseudo_label_temp.append({"sentence":origin_sent, "label":int(target_idx + 1)})  # Add pseudo-labeled data to the labeled dataset
             elif target_probs >= psl_threshold_h / 2:
                 symbolic_prediction = process_code(origin_sent, language)
-                if type(symbolic_prediction) == int:
+                if symbolic_prediction > 0:
                     if symbolic_prediction-1 == batch_unlabel['label'].item():
                         psl_correct += 1
                     pseudo_label_temp.append({"sentence":origin_sent, "label":symbolic_prediction})  # Add pseudo-labeled data to the labeled dataset
@@ -157,14 +157,14 @@ def train(output_dir_path, seed, params):
                 best_checkpoint_acc_test = acc_test
                 best_checkpoint_epoch = epoch + 1
                 best_train_dataset_l = train_dataset_l
-                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["acc_save_name"]))
+                torch.save(netgroup.state_dict(), os.path.join(output_seed_path, params["acc_save_name"]))
         elif params["checkpoint"] == 'acc':
             if acc_test > best_checkpoint_acc_test:
                 best_checkpoint_acc_test = acc_test
                 best_checkpoint_f1_macro_test = f1_macro_test
                 best_checkpoint_epoch = epoch + 1
                 best_train_dataset_l = train_dataset_l
-                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["loss_save_name"]))
+                torch.save(netgroup.state_dict(), os.path.join(output_seed_path, params["loss_save_name"]))
 
         pbar.write(f"Epoch {epoch + 1}/{params['max_epoch']}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
                    f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1 Macro: {f1_macro_test:.4f}, "
@@ -225,12 +225,14 @@ def main(config_file='config.json', **kwargs):
     mean_f1_macro = round(statistics.mean(best_f1s_macro), 4)
 
     final = {
-        'Mean_std_acc': '%.2f ± %.2f' % (100*mean_acc, 100*st_dev_acc),
-        'Mean_std_f1_macro': '%.2f ± %.2f' % (100*mean_f1_macro, 100*st_dev_f1_macro),
+        'dataset': params['dataset'],
+        'shots': params['n_labeled_per_class'],
+        'model name': params['model_name'],
+        'Mean_std_acc': '%.2f \\pm %.2f' % (100*mean_acc, 100*st_dev_acc),
+        'Mean_std_f1_macro': '%.2f \\pm %.2f' % (100*mean_f1_macro, 100*st_dev_f1_macro),
     }
 
     # Save best model info
-    final.update(params)
     df = pd.DataFrame([final])
     csv_path = output_dir_path + 'summary_avgrun.csv'
     df.to_csv(csv_path, mode='a', index=False, header=True)
