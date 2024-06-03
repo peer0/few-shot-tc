@@ -17,6 +17,7 @@ from symbolic.calculator import CodeComplexityCalculator
 
 
 def process_code(code, language):
+    if language == 'corcod': language = 'java'
     calculator = CodeComplexityCalculator(code, language)
     if language == 'java':
         time_complexity = calculator.calculate_time_complexity_with_function_calls()
