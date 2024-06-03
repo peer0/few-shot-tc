@@ -172,7 +172,6 @@ def train_split(labels, n_labeled_per_class, unlabeled_per_class=None): #unlabel
 
     return train_labeled_idxs, train_unlabeled_idxs
 
-
 def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', token = None):
     if token == "microsoft/codebert-base":
         tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
@@ -215,3 +214,65 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     test_loader = DataLoader(dataset=test_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
 
     return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u
+
+def train_split_sup(labels): #unlabeled_per_class를 이용해서 ul_data를 설정 가능 현재는 전체.
+    """Split the dataset into labeled and unlabeled subsets.
+    Args:
+        labels: labels of the training data
+        n_labeled_per_class: number of labeled examples per class
+        unlabeled_per_class: number of unlabeled examples per class
+        Returns:
+            train_labeled_idxs: list of labeled example indices
+            train_unlabeled_idxs: list of unlabeled example indices
+    """
+    labels = np.array(labels)
+    all_classes = set(labels)
+
+    train_labeled_idxs = []
+    train_unlabeled_idxs = []
+
+    for i in all_classes:
+        idxs = np.where(labels == i)[0]
+        np.random.shuffle(idxs)
+        train_labeled_idxs.extend(idxs[:])
+
+    np.random.shuffle(train_labeled_idxs)
+    return train_labeled_idxs
+
+def get_dataloader_sup(data_path, bs, load_mode='semi_SSL', token = None):
+    if token == "microsoft/codebert-base":
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
+    elif token == "Salesforce/codet5p-110m-embedding":
+        tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
+    elif token == "microsoft/unixcoder-base":
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
+    elif token == "microsoft/graphcodebert-base":
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/graphcodebert-base")
+    elif token == "codesage/codesage-base":
+        tokenizer = AutoTokenizer.from_pretrained("codesage/codesage-base")
+
+    train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
+    dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
+    test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
+    
+    
+    labels = list(train_df["label"])
+    num_class = len(set(labels))
+    train_labeled_idxs = train_split_sup(labels)
+
+    
+    train_l_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True)
+    
+    if load_mode == 'semi_SSL':
+        train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
+        
+    train_sampler = BalancedBatchSampler(train_dataset_l,bs)
+    train_loader_l = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=train_sampler,collate_fn=MyCollator_SSL(tokenizer))
+    
+    dev_dataset = SEMINoAugDataset(dev_df['content'].to_list(), labels=dev_df['label'].to_list())
+    test_dataset = SEMINoAugDataset(test_df['content'].to_list(), labels=test_df['label'].to_list())
+
+    dev_loader = DataLoader(dataset=dev_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
+    test_loader = DataLoader(dataset=test_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
+
+    return train_loader_l, dev_loader, test_loader, num_class, train_dataset_l
