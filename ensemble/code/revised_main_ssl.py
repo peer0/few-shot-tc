@@ -8,12 +8,16 @@ import pandas as pd
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from sklearn.metrics import f1_score, accuracy_score
+from sklearn.metrics import confusion_matrix, accuracy_score, f1_score
+import matplotlib.pyplot as plt
+import seaborn as sns
 from transformers import AutoTokenizer
 
 from models.netgroup import NetGroup
 from utils.helper import format_time
 from utils.dataloader import get_dataloader
+from utils.dataloader import get_dataloader_aug_v1
+from utils.dataloader import get_dataloader_aug_v2
 from criterions.criterions import ce_loss, consistency_loss
 from utils.helper import freematch_fairness_loss
 from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
@@ -89,6 +93,9 @@ def train_one_epoch(netgroup, train_labeled_loader, device):
     return total_loss / len(train_labeled_loader)
 
 def train(output_dir_path, seed, params):
+    train_losses = []
+    val_losses = []
+    training_stats = []
     if params['dataset'] =='python':
         language = 'python'
     elif params['dataset'] =='java':
@@ -98,9 +105,20 @@ def train(output_dir_path, seed, params):
     torch.manual_seed(seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader(
-        '../data/' + params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
-        params['net_arch'])
+    if params['aug'] == 'natural':
+        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader_aug_v1(
+            '../data/' + params['dataset'],params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
+            params['net_arch'])
+    elif params['aug'] == 'artificial':
+        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader_aug_v2(
+            '../data/' + params['dataset'],params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
+            params['net_arch'])
+    elif params['aug'] == 'none':
+        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader(
+            '../data/' + params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
+            params['net_arch'])
+
+
     print(n_classes)
     print(f"Complexity Class Number: {n_classes}")
     print(f"Initial Train Data Number: {len(train_dataset_l)}")
@@ -126,6 +144,7 @@ def train(output_dir_path, seed, params):
     min_length = 0
     labels_with_min_length = 0
     best_checkpoint_f1_macro_test = 0.0
+    best_conf_matrix = None
 
     pbar = tqdm(total=params["max_epoch"], desc="Training", position=0, leave=True)
     for epoch in range(params["max_epoch"]):
@@ -136,11 +155,24 @@ def train(output_dir_path, seed, params):
         train_labeled_loader = DataLoader(dataset=train_dataset_l, batch_size=params['bs'], sampler=train_sampler, collate_fn=MyCollator_SSL(tokenizer))
         train_loss = train_one_epoch(netgroup, train_labeled_loader, device)
         val_loss = calculate_loss(netgroup, dev_loader, device)
+        train_losses.append(train_loss)
+        val_losses.append(val_loss)
+
         # Evaluate
-        acc_train, _ = evaluate(netgroup, train_labeled_loader, device)
-        acc_val, _ = evaluate(netgroup, dev_loader, device)
-        acc_test, f1_macro_test = evaluate(netgroup, test_loader, device)
+        acc_train, _, _ = evaluate(netgroup, train_labeled_loader, device)
+        acc_val, _, _ = evaluate(netgroup, dev_loader, device)
+        acc_test, f1_macro_test, conf_matrix = evaluate(netgroup, test_loader, device)
         pseudo_labels, psl_total, psl_correct = pseudo_labeling(netgroup, train_unlabeled_loader, params['psl_threshold_h'], device, pbar, language)
+
+        training_stats.append(
+            {   'epoch': epoch, #배치수
+                'acc_train': acc_train,#train의 acc
+                'acc_val': acc_val,#valid의 acc
+                'acc_test': acc_test,#test의 acc
+                'f1_test': f1_macro_test, #test의 f1 macro
+                'psl_correct': psl_correct, # 
+                'psl_total': psl_total,
+            })
 
         # decide whether the pseudo_label list is empty
         if sum(1 for codes in pseudo_labels.values() if len(codes) >= 1):
@@ -163,6 +195,7 @@ def train(output_dir_path, seed, params):
                 best_checkpoint_acc_test = acc_test
                 best_checkpoint_epoch = epoch + 1
                 best_train_dataset_l = train_dataset_l
+                best_conf_matrix = conf_matrix
                 torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["acc_save_name"]))
         elif params["checkpoint"] == 'acc':
             if acc_test > best_checkpoint_acc_test:
@@ -170,13 +203,81 @@ def train(output_dir_path, seed, params):
                 best_checkpoint_f1_macro_test = f1_macro_test
                 best_checkpoint_epoch = epoch + 1
                 best_train_dataset_l = train_dataset_l
+                best_conf_matrix = conf_matrix
                 torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["acc_save_name"]))
-
+        
         pbar.write(f"Epoch {epoch + 1}/{params['max_epoch']}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
                    f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1 Macro: {f1_macro_test:.4f}, "
                    f"Total Pseudo-Labels: {psl_total}, Correct Pseudo-Labels: {psl_correct}, "
                    f"Train Data Number: {epoch_train_num} + {min_length} x {labels_with_min_length} = {len(train_dataset_l)}")
         pbar.update(1)
+
+    pd.set_option('precision', 4)
+    df_stats= pd.DataFrame(training_stats)
+    df_stats = df_stats.set_index('epoch')
+    training_stats_path = output_dir_path + 'training_statistics.csv'   
+    df_stats.to_csv(training_stats_path)
+    
+    labels = [
+        r'$O(1)$',  # constant 0
+        r'$O(\log N)$',  # logn 1
+        r'$O(N)$',  # linear 2
+        r'$O(N \log N)$',  # nlogn 3
+        r'$O(N^2)$',  # quadratic 4
+        r'$O(N^3)$',  # cubic 5
+        r'$O(2^N)$',  # exponential 6
+    ]
+
+    plot_types = ['f1', 'acc', 'psl']
+
+    for plot_type in plot_types:
+        plt.figure()
+        # Use plot styling from seaborn.
+        sns.set(style='darkgrid')
+
+        # Increase the plot size and font size.
+        sns.set(font_scale=1.5)
+        # plt.rcParams["figure.figsize"] = (12,6)
+
+        # Plot the learning curve.
+        for idx, key in enumerate(df_stats.keys().tolist()):
+            if key.split('_')[0] == plot_type:
+                plt.plot(df_stats[key], '--', label=key)
+        # Label the plot.
+        plt.xlabel("iteration")
+        plt.ylabel("peformance")
+        plt.legend()
+        plt.savefig(os.path.join(output_dir_path, f"{plot_type}.png"), bbox_inches='tight')
+        plt.close()  # Closes the plot
+
+    # loss 값의 변화를 그래프로 시각화합니다.
+    plt.figure(figsize=(20,14))
+    #epochs = range(1, max_epoch + 1)  # epoch 수
+    plt.plot(train_losses, label='Train Loss')
+    plt.plot(val_losses, label='Validation Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Training and Validation Loss')
+    plt.legend()
+    plt.savefig(output_dir_path+'loss_plot.png', bbox_inches='tight')
+    plt.close()  # Closes the plot
+
+    # Plotting the confusion matrix
+    plt.figure(figsize=(11,9))
+    ax = sns.heatmap(best_conf_matrix, annot=True, fmt='.2f', cmap='OrRd',
+            xticklabels=labels, yticklabels=labels, annot_kws={"size":16})
+
+    ax.tick_params(axis='x', labelsize=16)  # Adjust x-axis label size
+    ax.tick_params(axis='y', labelsize=16)  # Adjust y-axis label size
+
+    cbar = ax.collections[0].colorbar
+    cbar.ax.tick_params(labelsize=16)  # Adjust colorbar label size
+
+    plt.xlabel('Predicted labels', fontsize=16)
+    plt.ylabel('True labels', fontsize=16)
+    plt.savefig(os.path.join(output_dir_path, "confmat.png"), bbox_inches='tight')  # Saves the plot as a PNG file
+    plt.close()  # Closes the plot
+
     pbar.write(f"(Valid {params['checkpoint']}) Best Epoch: {best_checkpoint_epoch}, Best Test Accuracy: {best_checkpoint_acc_test}, \
                 Best Test F1 Macro: {best_checkpoint_f1_macro_test:.4f}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
     pbar.close()
@@ -194,7 +295,27 @@ def evaluate(netgroup, loader, device):
             preds = torch.argmax(torch.mean(torch.softmax(torch.stack(outs), dim=2), dim=0), dim=1)
             all_preds.extend(preds.cpu().numpy())
             all_labels.extend(b_labels.cpu().numpy())
-    return accuracy_score(all_labels, all_preds), f1_score(all_labels, all_preds, average='macro')
+    encoded_all_preds = []
+    encoded_all_labels = []
+
+    labels = [
+        r'$O(1)$',  # constant 0
+        r'$O(\log N)$',  # logn 1
+        r'$O(N)$',  # linear 2
+        r'$O(N \log N)$',  # nlogn 3
+        r'$O(N^2)$',  # quadratic 4
+        r'$O(N^3)$',  # cubic 5
+        r'$O(2^N)$',  # exponential 6
+    ]
+    class_complexity_dict = {0: r'$O(1)$', 1: r'$O(N)$', 2: r'$O(\log N)$', 3: r'$O(N^2)$', 4: r'$O(N^3)$', 5: r'$O(N \log N)$', 6: r'$O(2^N)$'}
+    for l,p in zip(all_labels, all_preds):
+        encoded_all_labels.append(class_complexity_dict[l])
+        encoded_all_preds.append(class_complexity_dict[p])
+
+    # Generating the confusion matrix
+    conf_matrix = confusion_matrix(encoded_all_labels, encoded_all_preds, labels=labels, normalize='true')
+
+    return accuracy_score(all_labels, all_preds), f1_score(all_labels, all_preds, average='macro'), conf_matrix
 
 def main(config_file='config.json', **kwargs):
     # Load parameters from config file
@@ -207,7 +328,7 @@ def main(config_file='config.json', **kwargs):
     for key, value in kwargs.items():
         if value is not None:
             params[key] = value
-    output_dir_path = './experiment/{}_{}_{}/'.format(params['dataset'], params['model_name'], params['n_labeled_per_class'])
+    output_dir_path = './experiment/{}_{}_{}_{}/'.format(params['dataset'], params['model_name'], params['aug'], params['n_labeled_per_class'])
     if not os.path.exists(output_dir_path):
         os.makedirs(output_dir_path)
 
@@ -217,7 +338,7 @@ def main(config_file='config.json', **kwargs):
     # Train
     for i in range(3):
         seed = params['seed']+i
-        output_seed_path = './experiment/{}_{}_{}/{}'.format(params['dataset'], params['model_name'], params['n_labeled_per_class'],seed)
+        output_seed_path = './experiment/{}_{}_{}_{}/{}'.format(params['dataset'], params['model_name'], params['aug'], params['n_labeled_per_class'],seed)
         if not os.path.exists(output_seed_path):
             os.makedirs(output_seed_path)
         best_epoch, best_acc, best_f1_macro = train(output_seed_path, seed, params)
@@ -234,6 +355,7 @@ def main(config_file='config.json', **kwargs):
         'dataset': params['dataset'],
         'shots': params['n_labeled_per_class'],
         'model name': params['model_name'],
+        'augmentation': params['aug'],
         'Mean_std_acc': '%.2f \\pm %.2f' % (100*mean_acc, 100*st_dev_acc),
         'Mean_std_f1_macro': '%.2f \\pm %.2f' % (100*mean_f1_macro, 100*st_dev_f1_macro),
     }
@@ -256,6 +378,7 @@ def parse_args():
     parser.add_argument('--seed', type=int, help='Random seed')
     parser.add_argument('--dataset', type=str, help='Dataset name')
     parser.add_argument('--checkpoint', type=str, help='retrieve the best valid loss checkpoint or valid acc checkpoint')
+    parser.add_argument('--aug', type=str, default='none', help='augment setting: natural, artificial, none (no augment)')
 
     args = parser.parse_args()
     return vars(args)
