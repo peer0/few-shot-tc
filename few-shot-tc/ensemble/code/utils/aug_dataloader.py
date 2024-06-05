@@ -1,4 +1,3 @@
-#initial labeled data + forwhile aug (자연스러운셋팅)
 import os
 import sys
 import random
@@ -190,6 +189,23 @@ def manually_train_split(aug_df, train_df, n_labeled_per_class):
 
     return train_labeled_idxs, train_unlabeled_idxs
 
+def manually_train_split2(forwhile_df, backtrans_df, train_df, n_labeled_per_class):
+    train_labeled_idxs = []
+    for label in train_df['label'].unique():
+        # 각 레이블에 해당하는 데이터를 가져옵니다.
+        label_df = train_df[train_df['label'] == label]
+        # forwhile_df와 backtrans_df에 있는 데이터만 선택합니다.
+        common_idx = set(forwhile_df['idx']).intersection(set(backtrans_df['idx']))
+        # common_idx = set(forwhile_df['idx']).union(set(backtrans_df['idx']))
+        label_df = label_df[label_df['idx'].isin(common_idx)]
+        # 각 클래스에서 n_labeled_per_class 만큼의 데이터를 무작위로 선택합니다.
+        label_idxs = label_df.sample(n_labeled_per_class, replace=False).index.tolist()
+        train_labeled_idxs.extend(label_idxs)
+
+    # train_unlabeled_idxs는 train_labeled_idxs에 사용되지 않은 데이터를 포함합니다.
+    train_unlabeled_idxs = [idx for idx in train_df.index if idx not in train_labeled_idxs]
+
+    return train_labeled_idxs, train_unlabeled_idxs
 
 def jsonl_to_csv(jsonl_file, csv_file, aug):
     with open(jsonl_file, 'r') as f:
@@ -198,7 +214,6 @@ def jsonl_to_csv(jsonl_file, csv_file, aug):
     with open(csv_file, 'w', newline='') as csvfile:
         fieldnames = ['src', aug, 'index']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        
         writer.writeheader()
         for line in data:
             json_data = json.loads(line)
@@ -410,3 +425,186 @@ def get_dataloader_v2(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     test_loader = DataLoader(dataset=test_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
 
     return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u
+
+
+#자연스러운 셋팅(loop translation + backtranlation )
+def get_dataloader_v3(data_path, dataset, n_labeled_per_class, bs, load_mode='semi_SSL',aug=None,  token = None):
+
+    if token == "microsoft/codebert-base":
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
+    elif token == "Salesforce/codet5p-110m-embedding":
+        tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
+    elif token == "microsoft/unixcoder-base":
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
+    elif token == "microsoft/graphcodebert-base":
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/graphcodebert-base")
+    elif token == "codesage/codesage-base":
+        tokenizer = AutoTokenizer.from_pretrained("codesage/codesage-base")
+
+
+    train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
+    dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
+    test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
+    aug_path = f'../data/aug/{dataset}' #여기까진 고정
+    
+    for augtype in ('forwhile', 'back-translation'):
+        if augtype == 'forwhile':
+            jsonl_file = f'{aug_path}/cc_{dataset}_{augtype}.jsonl'
+            csv_file = f'{aug_path}/cc_{dataset}_{augtype}.csv'
+            jsonl_to_csv(jsonl_file, csv_file, augtype)
+            forwhile_df = pd.read_csv(f'{aug_path}/cc_{dataset}_forwhile.csv')
+            forwhile_df = forwhile_df.rename(columns={f'forwhile': 'content', 'index': 'idx'})
+            forwhile_df['content'] = forwhile_df['content'].astype(str)
+            forwhile_df = forwhile_df[~forwhile_df['content'].str.contains('ERROR')] 
+            
+        elif augtype == 'back-translation':
+            jsonl_file = f'{aug_path}/cc_{dataset}_{augtype}.jsonl'
+            csv_file = f'{aug_path}/cc_{dataset}_{augtype}.csv'
+            jsonl_to_csv(jsonl_file, csv_file, augtype)
+            backtrans_df = pd.read_csv(f'{aug_path}/cc_{dataset}_back-translation.csv')
+            backtrans_df = backtrans_df.rename(columns={f'back-translation': 'content', 'index': 'idx'})
+            backtrans_df['content'] = backtrans_df['content'].astype(str)
+            backtrans_df = backtrans_df[~backtrans_df['content'].str.contains('ERROR')]
+            
+            
+                
+    labels = list(train_df["label"])
+    num_class = len(set(labels))
+    train_labeled_idxs, train_unlabeled_idxs = train_split(labels, n_labeled_per_class)
+    
+    train_l_df, train_u_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True), train_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
+    print("initial labeled dataset개수:", len(train_l_df))
+    print("initial labeled data index별 개수:",train_l_df['idx'].value_counts().to_dict())
+
+    #train_l_df의 'idx' 값이 forwhile_df에도 있는 행만 선택(forwhile_df에 없으면 for나 while이 없는 코드임)
+    forwhile_df = forwhile_df[forwhile_df['idx'].isin(train_l_df['idx'])]
+    backtrans_df = backtrans_df[backtrans_df['idx'].isin(train_l_df['idx'])]
+    print('len(backtrans_df):', len(backtrans_df))
+    concat_df = pd.concat([train_l_df, forwhile_df], ignore_index=True)
+    concat_df = pd.concat([concat_df, backtrans_df], ignore_index=True)
+
+    # 'idx'가 같은 행에서 'Label' 값을 train_l_df의 값으로 업데이트(aug 데이터엔 label값이 비어있어서 채워줌)
+    for idx in concat_df['idx'].unique():
+        mask = (concat_df['idx'] == idx)
+        concat_df.loc[mask, 'label'] = train_l_df.loc[train_l_df['idx'] == idx, 'label'].values[0]
+
+    print("initial labeled dataset+aug개수:", len(concat_df))
+    print("initial labeled data+aug index별 개수:",concat_df['idx'].value_counts().to_dict())
+    concat_df['label'] = concat_df['label'].astype(int)
+    train_l_df = concat_df 
+    
+    # # check statistics info
+    print('n_labeled_per_class: ', n_labeled_per_class)
+    print('train_df samples: %d' % (train_df.shape[0]))
+    print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
+    print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
+
+    
+    if load_mode == 'semi_SSL':
+        train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
+        train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
+        
+        train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
+    
+    train_sampler = BalancedBatchSampler(train_dataset_l,bs)
+    train_loader_l = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=train_sampler,collate_fn=MyCollator_SSL(tokenizer))
+    
+    dev_dataset = SEMINoAugDataset(dev_df['content'].to_list(), labels=dev_df['label'].to_list())
+    test_dataset = SEMINoAugDataset(test_df['content'].to_list(), labels=test_df['label'].to_list())
+
+    dev_loader = DataLoader(dataset=dev_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
+    test_loader = DataLoader(dataset=test_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
+
+    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u  
+
+
+
+#인위적인 셋팅(loop translation + backtranlation )
+def get_dataloader_v4(data_path, dataset, n_labeled_per_class, bs, load_mode='semi_SSL',aug=None,  token = None):
+
+    if token == "microsoft/codebert-base":
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
+    elif token == "Salesforce/codet5p-110m-embedding":
+        tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
+    elif token == "microsoft/unixcoder-base":
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
+    elif token == "microsoft/graphcodebert-base":
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/graphcodebert-base")
+    elif token == "codesage/codesage-base":
+        tokenizer = AutoTokenizer.from_pretrained("codesage/codesage-base")
+
+
+    train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
+    dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
+    test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
+    
+    aug_path = f'../data/aug/{dataset}'
+    for augtype in ('forwhile', 'back-translation'):
+        if augtype == 'forwhile':
+            jsonl_file = f'{aug_path}/cc_{dataset}_{augtype}.jsonl'
+            csv_file = f'{aug_path}/cc_{dataset}_{augtype}.csv'
+            jsonl_to_csv(jsonl_file, csv_file, augtype)
+            forwhile_df = pd.read_csv(f'{aug_path}/cc_{dataset}_{augtype}.csv')
+            forwhile_df = forwhile_df.rename(columns={augtype: 'content', 'index': 'idx'})
+            forwhile_df['content'] = forwhile_df['content'].astype(str)
+            forwhile_df = forwhile_df[~forwhile_df['content'].str.contains('ERROR')] 
+            
+        elif augtype == 'back-translation':
+            jsonl_file = f'{aug_path}/cc_{dataset}_{augtype}.jsonl'
+            csv_file = f'{aug_path}/cc_{dataset}_{augtype}.csv'
+            jsonl_to_csv(jsonl_file, csv_file, augtype)
+            backtrans_df = pd.read_csv(f'{aug_path}/cc_{dataset}_{augtype}.csv')
+            backtrans_df = backtrans_df.rename(columns={augtype: 'content', 'index': 'idx'})
+            backtrans_df['content'] = backtrans_df['content'].astype(str)
+            backtrans_df = backtrans_df[~backtrans_df['content'].str.contains('ERROR')]
+            
+            
+                
+    labels = list(train_df["label"])
+    num_class = len(set(labels))
+    train_labeled_idxs, train_unlabeled_idxs = manually_train_split2(forwhile_df,backtrans_df, train_df, n_labeled_per_class)
+    
+    train_l_df, train_u_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True), train_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
+    print("initial labeled dataset개수:", len(train_l_df))
+    print("initial labeled data index별 개수:",train_l_df['idx'].value_counts().to_dict())
+
+    #train_l_df의 'idx' 값이 forwhile_df에도 있는 행만 선택(forwhile_df에 없으면 for나 while이 없는 코드임)
+    forwhile_df = forwhile_df[forwhile_df['idx'].isin(train_l_df['idx'])]
+    backtrans_df = backtrans_df[backtrans_df['idx'].isin(train_l_df['idx'])]
+    print("len(backtrans_df):", len(backtrans_df))
+    concat_df = pd.concat([train_l_df, forwhile_df], ignore_index=True)
+    concat_df = pd.concat([concat_df, backtrans_df], ignore_index=True)
+
+    # 'idx'가 같은 행에서 'Label' 값을 train_l_df의 값으로 업데이트(aug 데이터엔 label값이 비어있어서 채워줌)
+    for idx in concat_df['idx'].unique():
+        mask = (concat_df['idx'] == idx)
+        concat_df.loc[mask, 'label'] = train_l_df.loc[train_l_df['idx'] == idx, 'label'].values[0]
+
+    print("initial labeled dataset+aug개수:", len(concat_df))
+    print("initial labeled data+aug index별 개수:",concat_df['idx'].value_counts().to_dict())
+    concat_df['label'] = concat_df['label'].astype(int)
+    train_l_df = concat_df 
+    
+    # # check statistics info
+    print('n_labeled_per_class: ', n_labeled_per_class)
+    print('train_df samples: %d' % (train_df.shape[0]))
+    print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
+    print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
+
+    
+    if load_mode == 'semi_SSL':
+        train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
+        train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())
+        
+        train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
+    
+    train_sampler = BalancedBatchSampler(train_dataset_l,bs)
+    train_loader_l = DataLoader(dataset=train_dataset_l, batch_size=bs, sampler=train_sampler,collate_fn=MyCollator_SSL(tokenizer))
+    
+    dev_dataset = SEMINoAugDataset(dev_df['content'].to_list(), labels=dev_df['label'].to_list())
+    test_dataset = SEMINoAugDataset(test_df['content'].to_list(), labels=test_df['label'].to_list())
+
+    dev_loader = DataLoader(dataset=dev_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
+    test_loader = DataLoader(dataset=test_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
+
+    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u  
