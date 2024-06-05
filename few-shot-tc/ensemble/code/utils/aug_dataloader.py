@@ -437,7 +437,6 @@ def get_dataloader_v3(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     #train_l_df의 'idx' 값이 forwhile_df에도 있는 행만 선택(forwhile_df에 없으면 for나 while이 없는 코드임)
     forwhile_df = forwhile_df[forwhile_df['idx'].isin(train_l_df['idx'])]
     backtrans_df = backtrans_df[backtrans_df['idx'].isin(train_l_df['idx'])]
-    print('len(backtrans_df):', len(backtrans_df))
     concat_df = pd.concat([train_l_df, forwhile_df], ignore_index=True)
     concat_df = pd.concat([concat_df, backtrans_df], ignore_index=True)
 
@@ -526,7 +525,6 @@ def get_dataloader_v4(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     #train_l_df의 'idx' 값이 forwhile_df에도 있는 행만 선택(forwhile_df에 없으면 for나 while이 없는 코드임)
     forwhile_df = forwhile_df[forwhile_df['idx'].isin(train_l_df['idx'])]
     backtrans_df = backtrans_df[backtrans_df['idx'].isin(train_l_df['idx'])]
-    print("len(backtrans_df):", len(backtrans_df))
     concat_df = pd.concat([train_l_df, forwhile_df], ignore_index=True)
     concat_df = pd.concat([concat_df, backtrans_df], ignore_index=True)
 
