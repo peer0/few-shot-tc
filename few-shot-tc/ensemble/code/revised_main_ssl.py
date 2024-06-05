@@ -78,7 +78,7 @@ def train(output_dir_path, **params):
         train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader_v1(
             '../data/' + params['dataset'],params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
             params['aug'],params['net_arch'])
-        print(n_classes)
+        
         print(f"Train Data Number: {len(train_labeled_loader)}")
         print(f"Valid Data Number: {len(dev_loader)}")
         print(f"Test Data Number: {len(test_loader)}")
@@ -152,7 +152,6 @@ def train(output_dir_path, **params):
             '../data/' + params['dataset'],params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
             params['aug'],params['net_arch'])
                 
-        print(n_classes)
         print(f"Train Data Number: {len(train_labeled_loader)}")
         print(f"Valid Data Number: {len(dev_loader)}")
         print(f"Test Data Number: {len(test_loader)}")
@@ -225,7 +224,7 @@ def train(output_dir_path, **params):
         train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader_v3(
             '../data/' + params['dataset'],params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
             params['aug'],params['net_arch'])
-        print(n_classes)
+
         print(f"Train Data Number: {len(train_labeled_loader)}")
         print(f"Valid Data Number: {len(dev_loader)}")
         print(f"Test Data Number: {len(test_loader)}")
@@ -299,7 +298,6 @@ def train(output_dir_path, **params):
             '../data/' + params['dataset'],params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
             params['aug'],params['net_arch'])
                 
-        print(n_classes)
         print(f"Train Data Number: {len(train_labeled_loader)}")
         print(f"Valid Data Number: {len(dev_loader)}")
         print(f"Test Data Number: {len(test_loader)}")
