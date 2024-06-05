@@ -334,10 +334,18 @@ def get_dataloader_v2(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
  
     aug_path = f'../data/aug/{dataset}'
-    jsonl_file = f'{aug_path}/cc_{dataset}_{aug}.jsonl'
-    csv_file = f'{aug_path}/cc_{dataset}_{aug}.csv'
-    jsonl_to_csv(jsonl_file, csv_file, aug)
-    aug_df = pd.read_csv(f'{aug_path}/cc_{dataset}_{aug}.csv')
+    if dataset == 'corcod':
+        jsonl_file = f'{aug_path}/{dataset}_java_{aug}.jsonl'
+        csv_file = f'{aug_path}/{dataset}_java_{aug}.csv'  
+        jsonl_to_csv(jsonl_file, csv_file, aug)
+        aug_df = pd.read_csv(f'{aug_path}/{dataset}_java_{aug}.csv')     
+        #train_df의 'index'를 'idx'로 변경
+        train_df = train_df.rename(columns={'index': 'idx'})
+    else:    
+        jsonl_file = f'{aug_path}/cc_{dataset}_{aug}.jsonl'
+        csv_file = f'{aug_path}/cc_{dataset}_{aug}.csv'
+        jsonl_to_csv(jsonl_file, csv_file, aug)
+        aug_df = pd.read_csv(f'{aug_path}/cc_{dataset}_{aug}.csv')
     # 'forwhile/back-translation' 열을 'content'로, 'index'를 'idx'로 변경
     aug_df = aug_df.rename(columns={f'{aug}': 'content', 'index': 'idx'})
     aug_df['content'] = aug_df['content'].astype(str)
@@ -393,6 +401,24 @@ def get_dataloader_v2(data_path, dataset, n_labeled_per_class, bs, load_mode='se
 
     return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u
 
+def process_augtype(augtype, aug_path, dataset):
+    if dataset == 'corcod':
+        jsonl_file = f'{aug_path}/{dataset}_java_{augtype}.jsonl'
+        csv_file = f'{aug_path}/{dataset}_java_{augtype}.csv'
+        jsonl_to_csv(jsonl_file, csv_file, augtype)
+    else:
+        jsonl_file = f'{aug_path}/cc_{dataset}_{augtype}.jsonl'
+        csv_file = f'{aug_path}/cc_{dataset}_{augtype}.csv'
+        jsonl_to_csv(jsonl_file, csv_file, augtype)
+    
+    df = pd.read_csv(csv_file)
+    df = df.rename(columns={augtype: 'content', 'index': 'idx'})
+    df['content'] = df['content'].astype(str)
+    
+    error_df = df[df['content'].str.contains('ERROR')]
+    df = df[~df['content'].str.contains('ERROR')]
+    
+    return df, error_df
 
 #자연스러운 셋팅(loop translation + backtranlation )
 def get_dataloader_v3(data_path, dataset, n_labeled_per_class, bs, load_mode='semi_SSL',aug=None,  token = None):
@@ -409,30 +435,20 @@ def get_dataloader_v3(data_path, dataset, n_labeled_per_class, bs, load_mode='se
         tokenizer = AutoTokenizer.from_pretrained("codesage/codesage-base")
 
     train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
+    train_df = train_df.rename(columns={'index': 'idx'})
     dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
     test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
     aug_path = f'../data/aug/{dataset}' #여기까진 고정
     
     for augtype in ('forwhile', 'back-translation'):
+        df, error_df = process_augtype(augtype, aug_path, dataset)
+        
         if augtype == 'forwhile':
-            jsonl_file = f'{aug_path}/cc_{dataset}_{augtype}.jsonl'
-            csv_file = f'{aug_path}/cc_{dataset}_{augtype}.csv'
-            jsonl_to_csv(jsonl_file, csv_file, augtype)
-            forwhile_df = pd.read_csv(f'{aug_path}/cc_{dataset}_forwhile.csv')
-            forwhile_df = forwhile_df.rename(columns={f'forwhile': 'content', 'index': 'idx'})
-            forwhile_df['content'] = forwhile_df['content'].astype(str)
-            forwhile_error_df = forwhile_df[forwhile_df['content'].str.contains('ERROR')] 
-            forwhile_df = forwhile_df[~forwhile_df['content'].str.contains('ERROR')] 
-            
+            forwhile_df = df
+            forwhile_error_df = error_df
         elif augtype == 'back-translation':
-            jsonl_file = f'{aug_path}/cc_{dataset}_{augtype}.jsonl'
-            csv_file = f'{aug_path}/cc_{dataset}_{augtype}.csv'
-            jsonl_to_csv(jsonl_file, csv_file, augtype)
-            backtrans_df = pd.read_csv(f'{aug_path}/cc_{dataset}_back-translation.csv')
-            backtrans_df = backtrans_df.rename(columns={f'back-translation': 'content', 'index': 'idx'})
-            backtrans_df['content'] = backtrans_df['content'].astype(str)
-            backtrans_error_df = backtrans_df[backtrans_df['content'].str.contains('ERROR')]
-            backtrans_df = backtrans_df[~backtrans_df['content'].str.contains('ERROR')]
+            backtrans_df = df
+            backtrans_error_df = error_df
                        
     labels = list(train_df["label"])
     num_class = len(set(labels))
@@ -499,28 +515,20 @@ def get_dataloader_v4(data_path, dataset, n_labeled_per_class, bs, load_mode='se
 
 
     train_df = pd.read_csv(os.path.join(data_path,'train.csv'))
+    train_df = train_df.rename(columns={'index': 'idx'})
     dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
     test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
-    
     aug_path = f'../data/aug/{dataset}'
+    
     for augtype in ('forwhile', 'back-translation'):
+        df, error_df = process_augtype(augtype, aug_path, dataset)
+        
         if augtype == 'forwhile':
-            jsonl_file = f'{aug_path}/cc_{dataset}_{augtype}.jsonl'
-            csv_file = f'{aug_path}/cc_{dataset}_{augtype}.csv'
-            jsonl_to_csv(jsonl_file, csv_file, augtype)
-            forwhile_df = pd.read_csv(f'{aug_path}/cc_{dataset}_{augtype}.csv')
-            forwhile_df = forwhile_df.rename(columns={augtype: 'content', 'index': 'idx'})
-            forwhile_df['content'] = forwhile_df['content'].astype(str)
-            forwhile_df = forwhile_df[~forwhile_df['content'].str.contains('ERROR')] 
-            
+            forwhile_df = df
+            forwhile_error_df = error_df
         elif augtype == 'back-translation':
-            jsonl_file = f'{aug_path}/cc_{dataset}_{augtype}.jsonl'
-            csv_file = f'{aug_path}/cc_{dataset}_{augtype}.csv'
-            jsonl_to_csv(jsonl_file, csv_file, augtype)
-            backtrans_df = pd.read_csv(f'{aug_path}/cc_{dataset}_{augtype}.csv')
-            backtrans_df = backtrans_df.rename(columns={augtype: 'content', 'index': 'idx'})
-            backtrans_df['content'] = backtrans_df['content'].astype(str)
-            backtrans_df = backtrans_df[~backtrans_df['content'].str.contains('ERROR')]
+            backtrans_df = df
+            backtrans_error_df = error_df
             
     labels = list(train_df["label"])
     num_class = len(set(labels))
