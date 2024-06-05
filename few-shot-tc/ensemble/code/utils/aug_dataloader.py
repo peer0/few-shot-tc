@@ -251,10 +251,18 @@ def get_dataloader_v1(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
     test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
     aug_path = f'../data/aug/{dataset}'
-    jsonl_file = f'{aug_path}/cc_{dataset}_{aug}.jsonl'
-    csv_file = f'{aug_path}/cc_{dataset}_{aug}.csv'
-    jsonl_to_csv(jsonl_file, csv_file, aug)
-    aug_df = pd.read_csv(f'{aug_path}/cc_{dataset}_{aug}.csv')
+    if dataset == 'corcod':
+        jsonl_file = f'{aug_path}/{dataset}_java_{aug}.jsonl'
+        csv_file = f'{aug_path}/{dataset}_java_{aug}.csv'  
+        jsonl_to_csv(jsonl_file, csv_file, aug)
+        aug_df = pd.read_csv(f'{aug_path}/{dataset}_java_{aug}.csv')     
+        #train_df의 'index'를 'idx'로 변경
+        train_df = train_df.rename(columns={'index': 'idx'})
+    else:    
+        jsonl_file = f'{aug_path}/cc_{dataset}_{aug}.jsonl'
+        csv_file = f'{aug_path}/cc_{dataset}_{aug}.csv'
+        jsonl_to_csv(jsonl_file, csv_file, aug)
+        aug_df = pd.read_csv(f'{aug_path}/cc_{dataset}_{aug}.csv')
     # 'forwhile/back-translation' 열을 'content'로, 'index'를 'idx'로 변경
     aug_df = aug_df.rename(columns={f'{aug}': 'content', 'index': 'idx'})
     aug_df['content'] = aug_df['content'].astype(str)
