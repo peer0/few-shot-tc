@@ -179,7 +179,8 @@ def manually_train_split(backtranslation_df, forwhile_df, train_df, n_labeled_pe
         # 각 레이블에 해당하는 데이터를 가져옵니다.
         label_df = train_df[train_df['label'] == label]
         # aug_df에 있는 데이터만 선택합니다.
-        label_df = label_df[label_df['idx'].isin(backtranslation_df['idx']) and label_df['idx'].isin(forwhile_df['idx'])]
+        label_df = label_df[label_df['idx'].isin(backtranslation_df['idx'])]
+        label_df = label_df[label_df['idx'].isin(forwhile_df['idx'])]
         # 각 클래스에서 n_labeled_per_class 만큼의 데이터를 무작위로 선택합니다.
         label_idxs = label_df.sample(n_labeled_per_class, replace=False).index.tolist()
         train_labeled_idxs.extend(label_idxs)
