@@ -251,13 +251,9 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi_SSL', tok
     labels = list(train_df["label"])
     num_class = len(set(labels))
     train_labeled_idxs, train_unlabeled_idxs = train_split(labels, n_labeled_per_class)
-
     train_l_df, train_u_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True), train_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
 
-    
-    
-
-        
+  
     # # check statistics info
     print('n_labeled_per_class: ', n_labeled_per_class)
     print('train_df samples: %d' % (train_df.shape[0]))

@@ -144,5 +144,6 @@ multiRun(device_idx=device_idx, experiment_home=experiment_home, dataset=dataset
         weight_disagreement=weight_disagreement, disagree_weight=disagree_weight,
         ema_mode=ema_mode, ema_momentum=ema_momentum,
         val_interval=val_interval, max_step=max_step, pse_cl = pse_cl,
+        
         max_epoch = max_epoch, save_name = save_name, token = token, net_arch = net_arch, labeling_mode = labeling_mode
         ,load_mode = load_mode, seeds_list = seeds_list, model_name = model_name, language = language) 

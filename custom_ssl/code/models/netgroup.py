@@ -64,27 +64,27 @@ class CustomModel_2(nn.Module): #graphcodebert 용
 
         return logits
 
-class CustomModel_3(nn.Module): #ast-t5 용
-    def __init__(self, transformer_model_name, n_classes=7):
-        super(CustomModel_3, self).__init__()
+# class CustomModel_3(nn.Module): #ast-t5 용
+#     def __init__(self, transformer_model_name, n_classes=7):
+#         super(CustomModel_3, self).__init__()
 
-        # Load the transformer model without the classification head
-        self.text_transformer = AutoModelForSeq2SeqLM.from_pretrained(transformer_model_name, trust_remote_code = True)
+#         # Load the transformer model without the classification head
+#         self.text_transformer = AutoModelForSeq2SeqLM.from_pretrained(transformer_model_name, trust_remote_code = True)
         
-        # Linear layer for classification
-        self.linear_layer = nn.Linear(768, n_classes)
+#         # Linear layer for classification
+#         self.linear_layer = nn.Linear(768, n_classes)
 
 
-    def forward(self, input_ids, attention_mask=None, labels=None):  # Add 'labels' argument
+#     def forward(self, input_ids, attention_mask=None, labels=None):  # Add 'labels' argument
     
     
-        # Obtain transformer output
-        # transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask, labels=labels).last_hidden_state.mean(dim=1)
-        transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask, labels = labels)
-        # Pass through the linear layer for classification
-        logits = self.linear_layer(transformer_output.encoder_last_hidden_state.mean(dim=1))
+#         # Obtain transformer output
+#         # transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask, labels=labels).last_hidden_state.mean(dim=1)
+#         transformer_output = self.text_transformer(input_ids, attention_mask=attention_mask, labels = labels)
+#         # Pass through the linear layer for classification
+#         logits = self.linear_layer(transformer_output.encoder_last_hidden_state.mean(dim=1))
 
-        return logits
+#         return logits
 
 
 
@@ -147,9 +147,9 @@ class NetGroup(nn.Module):
         elif net_arch == "codesage/codesage-base":
             net = AutoModelForSequenceClassification.from_pretrained(net_arch, trust_remote_code=True,  num_labels = self.n_classes)
             
-        elif net_arch == "gonglinyuan/ast_t5_base":
-            #net = CustomModel_3(net_arch)
-            net = AutoModelForSeq2SeqLM.from_pretrained(net_arch, trust_remote_code = True)
+        # elif net_arch == "gonglinyuan/ast_t5_base":
+        #     #net = CustomModel_3(net_arch)
+        #     net = AutoModelForSeq2SeqLM.from_pretrained(net_arch, trust_remote_code = True)
             
 
 

@@ -251,12 +251,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
         # print('target_all', target_all)
         preds_all = torch.cat(preds_all).detach().cpu()
         target_all = torch.cat(target_all).detach().cpu()
-       
-        
 
-        
-        
-        
         # print('preds_all', preds_all)
         # print('target_all', target_all)
         
@@ -320,7 +315,6 @@ def oneRun(log_dir, output_dir_experiment, **params):
     best_val_stop = False
     pse_epoch = []
     pse_add_epoch = []
-    
     train_losses = []
     val_losses = []
 
@@ -435,6 +429,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
             print(f"***pse_model_save --- epoch = {epoch+1}***")
             netgroup.save_model(output_dir_path, save_name, ema_mode=ema_mode)
             pse_work = False
+            best_val_stop = False
         # else:
         #     early_stop_count+=1
         #     if early_stop_count >= early_stop_tolerance:
