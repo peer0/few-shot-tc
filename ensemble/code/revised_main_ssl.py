@@ -18,6 +18,9 @@ from utils.helper import format_time
 from utils.dataloader import get_dataloader
 from utils.dataloader import get_dataloader_aug_v1
 from utils.dataloader import get_dataloader_aug_v2
+from utils.dataloader import get_dataloader_artificial
+from utils.aug_dataloader import get_dataloader_v3
+from utils.aug_dataloader import get_dataloader_v4
 from criterions.criterions import ce_loss, consistency_loss
 from utils.helper import freematch_fairness_loss
 from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
@@ -106,11 +109,11 @@ def train(output_dir_path, seed, params):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     if params['aug'] == 'natural':
-        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader_aug_v1(
+        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader_v3(
             '../data/' + params['dataset'],params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
             params['net_arch'])
     elif params['aug'] == 'artificial':
-        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader_aug_v2(
+        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader_v4(
             '../data/' + params['dataset'],params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
             params['net_arch'])
     elif params['aug'] == 'none':
