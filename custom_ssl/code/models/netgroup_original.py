@@ -320,21 +320,3 @@ class NetGroup(nn.Module):
                 ema_model[i].load_state_dict(checkpoint['ema_model'])
                 self.emas[i].load(ema_model[i])
             print('Load model from {}'.format(filename))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

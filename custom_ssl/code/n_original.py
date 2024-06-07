@@ -110,12 +110,17 @@ def oneRun(log_dir, output_dir_experiment, **params):
         dev_loaders.append(dev_loader)
         test_loaders.append(test_loader)
     print('n_classes: ', n_classes)
+    
+    
+    
     ##### Model & Optimizer & Learning Rate Scheduler #####
     from models.netgroup_original import NetGroup
 
     # Initialize models & optimizers
-    netgroups = [NetGroup(net_arch, num_nets, n_classes, device, lr, lr_linear) for net_arch in net_archs]
-    optimizers = [torch.optim.Adam(netgroup.parameters(), lr=lr) for netgroup in netgroups]
+    #netgroups = [NetGroup(net_arch, num_nets, n_classes, device, lr, lr_linear) for net_arch in net_archs]
+    netgroup = NetGroup(net_arch, num_nets, n_classes, device, lr, lr_linear)
+    
+    #optimizers = [torch.optim.Adam(netgroup.parameters(), lr=lr) for netgroup in netgroups]
 
     # Initialize EMA
     for netgroup in netgroups:
