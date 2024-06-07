@@ -10,6 +10,7 @@ from sklearn.metrics import f1_score, accuracy_score, confusion_matrix
 from transformers import AutoTokenizer
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
 
 from models.netgroup import NetGroup
 from utils.helper import format_time
@@ -145,7 +146,7 @@ def train(output_dir_path, **params):
         pbar.write(f"(Valid Acc) Best Epoch: {best_acc_model_epoch}, Best Valid Acc: {best_valacc_acc}, Best Test Accuracy: {best_acc_testacc}, Best Test F1(macro): {f1_macro_test}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
         pbar.write(f"(Valid Loss) Best Epoch: {best_loss_model_epoch}, Best Valid Loss: {best_valloss_loss}, Best Test Accuracy: {best_loss_testacc}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
         pbar.close()
-        return best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc
+        return best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc, best_valacc_acc, f1_macro_test, best_train_dataset_l, conf_matrix
         
     elif params['version'] == 'v2':
         train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader_v2(
@@ -291,7 +292,7 @@ def train(output_dir_path, **params):
         pbar.write(f"(Valid Acc) Best Epoch: {best_acc_model_epoch}, Best Valid Acc: {best_valacc_acc}, Best Test Accuracy: {best_acc_testacc}, Best Test F1(macro): {f1_macro_test}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
         pbar.write(f"(Valid Loss) Best Epoch: {best_loss_model_epoch}, Best Valid Loss: {best_valloss_loss}, Best Test Accuracy: {best_loss_testacc}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
         pbar.close()
-        return best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc, conf_matrix
+        return best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc, best_valacc_acc, f1_macro_test, best_train_dataset_l, conf_matrix
 
     elif params['version'] == 'v4':
         train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader_v4(
@@ -399,7 +400,10 @@ def main(config_file='config.json', **kwargs):
     # Train
     best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc, best_valacc_acc,f1_macro_test, best_train_dataset_l, conf_matrix = train(output_dir_path, **params)
 
+    if params['dataset'] == 'corcod':
+        label_dict = {0: 'constant', 1: 'logn', 2: 'linear', 3: 'nlogn', 4: 'quadratic'}
     label_dict = {0: 'constant', 1: 'logn', 2: 'linear', 3: 'nlogn', 4: 'quadratic', 5: 'cubic', 6: 'exponential'}
+    
 
     # conf_matrix를 DataFrame으로 변환합니다.
     conf_matrix_df = pd.DataFrame(conf_matrix)
