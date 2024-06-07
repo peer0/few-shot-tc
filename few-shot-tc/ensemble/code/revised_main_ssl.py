@@ -76,7 +76,7 @@ def train(output_dir_path, **params):
     psl_total = 0
 
     if params['version'] == 'v1':
-        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader_v1(
+        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u, statistics = get_dataloader_v1(
             '../data/' + params['dataset'],params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
             params['aug'],params['net_arch'])
         
@@ -146,10 +146,10 @@ def train(output_dir_path, **params):
         pbar.write(f"(Valid Acc) Best Epoch: {best_acc_model_epoch}, Best Valid Acc: {best_valacc_acc}, Best Test Accuracy: {best_acc_testacc}, Best Test F1(macro): {f1_macro_test}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
         pbar.write(f"(Valid Loss) Best Epoch: {best_loss_model_epoch}, Best Valid Loss: {best_valloss_loss}, Best Test Accuracy: {best_loss_testacc}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
         pbar.close()
-        return best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc, best_valacc_acc, f1_macro_test, best_train_dataset_l, conf_matrix
+        return best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc, best_valacc_acc, f1_macro_test, best_train_dataset_l, conf_matrix ,statistics
         
     elif params['version'] == 'v2':
-        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader_v2(
+        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u, statistics = get_dataloader_v2(
             '../data/' + params['dataset'],params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
             params['aug'],params['net_arch'])
                 
@@ -219,10 +219,10 @@ def train(output_dir_path, **params):
         pbar.write(f"(Valid Acc) Best Epoch: {best_acc_model_epoch}, Best Valid Acc: {best_valacc_acc}, Best Test Accuracy: {best_acc_testacc}, Best Test F1(macro): {f1_macro_test},Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
         pbar.write(f"(Valid Loss) Best Epoch: {best_loss_model_epoch}, Best Valid Loss: {best_valloss_loss}, Best Test Accuracy: {best_loss_testacc}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
         pbar.close()
-        return best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc, best_valacc_acc, f1_macro_test, best_train_dataset_l, conf_matrix
+        return best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc, best_valacc_acc, f1_macro_test, best_train_dataset_l, conf_matrix, statistics
 
     elif params['version'] == 'v3':
-        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader_v3(
+        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u, statistics = get_dataloader_v3(
             '../data/' + params['dataset'],params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
             params['aug'],params['net_arch'])
 
@@ -292,10 +292,10 @@ def train(output_dir_path, **params):
         pbar.write(f"(Valid Acc) Best Epoch: {best_acc_model_epoch}, Best Valid Acc: {best_valacc_acc}, Best Test Accuracy: {best_acc_testacc}, Best Test F1(macro): {f1_macro_test}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
         pbar.write(f"(Valid Loss) Best Epoch: {best_loss_model_epoch}, Best Valid Loss: {best_valloss_loss}, Best Test Accuracy: {best_loss_testacc}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
         pbar.close()
-        return best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc, best_valacc_acc, f1_macro_test, best_train_dataset_l, conf_matrix
+        return best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc, best_valacc_acc, f1_macro_test, best_train_dataset_l, conf_matrix, statistics
 
     elif params['version'] == 'v4':
-        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader_v4(
+        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u, statistics = get_dataloader_v4(
             '../data/' + params['dataset'],params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
             params['aug'],params['net_arch'])
                 
@@ -365,7 +365,7 @@ def train(output_dir_path, **params):
         pbar.write(f"(Valid Acc) Best Epoch: {best_acc_model_epoch}, Best Valid Acc: {best_valacc_acc}, Best Test Accuracy: {best_acc_testacc}, Best Test F1(macro): {f1_macro_test},Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
         pbar.write(f"(Valid Loss) Best Epoch: {best_loss_model_epoch}, Best Valid Loss: {best_valloss_loss}, Best Test Accuracy: {best_loss_testacc}, Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
         pbar.close()
-        return best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc, best_valacc_acc, f1_macro_test, best_train_dataset_l, conf_matrix
+        return best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc, best_valacc_acc, f1_macro_test, best_train_dataset_l, conf_matrix, statistics
 
 
 def evaluate(netgroup, loader, device):
@@ -391,6 +391,7 @@ def main(config_file='config.json', **kwargs):
         if value is not None:
             params[key] = value
     output_dir_path = './experiment/{}/{}/{}/{}/{}_{}_{}_{}_{}_{}_{}/'.format(params['model'],params['seed'],params['aug'],params['version'],params['dataset'], params['model_name'], params['n_labeled_per_class'],params['psl_threshold_h'],params['lr'],params['seed'],params['aug'],params['version'])
+    print('output_dir_path:',output_dir_path)
     if not os.path.exists(output_dir_path):
         os.makedirs(output_dir_path)
 
@@ -398,11 +399,12 @@ def main(config_file='config.json', **kwargs):
     print("Merged parameters:", params)
 
     # Train
-    best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc, best_valacc_acc,f1_macro_test, best_train_dataset_l, conf_matrix = train(output_dir_path, **params)
+    best_acc_model_epoch, best_loss_model_epoch, best_acc_testacc, best_loss_testacc, best_valacc_acc,f1_macro_test, best_train_dataset_l, conf_matrix ,statistics = train(output_dir_path, **params)
 
     if params['dataset'] == 'corcod':
         label_dict = {0: 'constant', 1: 'logn', 2: 'linear', 3: 'nlogn', 4: 'quadratic'}
-    label_dict = {0: 'constant', 1: 'logn', 2: 'linear', 3: 'nlogn', 4: 'quadratic', 5: 'cubic', 6: 'exponential'}
+    else:
+        label_dict = {0: 'constant', 1: 'logn', 2: 'linear', 3: 'nlogn', 4: 'quadratic', 5: 'cubic', 6: 'exponential'}
     
 
     # conf_matrix를 DataFrame으로 변환합니다.
@@ -426,10 +428,17 @@ def main(config_file='config.json', **kwargs):
     
     # Save best model info
     with open(os.path.join(output_dir_path, "best_model_info.txt"), "w") as f:
-        f.write(f"(Valid Acc) Best Epoch: {best_acc_model_epoch}, Best Valid Acc: {best_valacc_acc}, Best Test Accuracy: {best_acc_testacc}, Best Test F1(macro): {f1_macro_test},Best Pseudo-Labeled Number: {len(best_train_dataset_l)}")
-        # f.write(f"(Valid Loss) Best Epoch: {best_loss_model_epoch}, Best Accuracy: {best_loss_testacc}")
-
+        f.write(f"(Valid Acc) Best Epoch: {best_acc_model_epoch}\n")
+        f.write(f"(Valid Acc) Best Valid Acc: {best_valacc_acc}\n")
+        f.write(f"(Valid Acc) Best Test Accuracy: {best_acc_testacc}\n")
+        f.write(f"(Valid Acc) Best Test F1(macro): {f1_macro_test}\n")
+        f.write(f"(Valid Acc) Best Pseudo-Labeled Number: {len(best_train_dataset_l)}\n")
     
+        f.write(f'n_labeled_per_class: {statistics[0]}\n')
+        f.write(f'train_df samples: {statistics[1]:d}\n')
+        f.write(f'train_labeled_df samples: {statistics[2]:d}\n')
+        f.write(f'train_unlabeled_df samples: {statistics[3]:d}\n')
+        
     print("Training complete!")
 
 
