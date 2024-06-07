@@ -1,15 +1,74 @@
 #!/bin/bash
+echo "### START DATE=$(date)" 
+echo "### HOSTNAME=$(hostname)" 
+echo "### CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES" 
 
-for seed in 43; do
+for seed in 43 42 45; do
     for nshot in 5 10; do
-        for language in python; do
+        for language in python java; do
             for thres in 0.7; do
-                for lr in '3e-04' '2.5e-04'; do
-                    echo "python3 revised_main_ssl.py --config configs/codet5p.json --n_labeled_per_class $nshot --psl_threshold_h $thres --lr $lr --seed $seed --dataset $language" 
-                    python3 revised_main_ssl.py --config configs/codet5p.json --n_labeled_per_class $nshot --psl_threshold_h $thres --lr $lr --seed $seed --dataset $language \
-                    > logs/codet5p/${seed}/v1/codet5p_nshot${nshot}_thres${thres}_lr${lr}_seed${seed}_lang${language}_epoch50.log 
+                for model in 'codet5p'; do
+                    for lr in '3e-04' '2.5e-04'; do
+                        for aug in 'forwhile'; do
+                            for version in 'v1' 'v2' 'v3' 'v4'; do
+                                log_path="logs/${model}/${seed}/${aug}/${version}/${model}_nshot${nshot}_thres${thres}_lr${lr}_seed${seed}_lang${language}_epoch50_${version}.log"
+                                log_dir=$(dirname ${log_path})
+                                mkdir -p ${log_dir}
+                                echo "python revised_main_ssl.py --config configs/${model}.json --n_labeled_per_class $nshot --psl_threshold_h $thres --lr $lr --seed $seed --dataset $language" 
+                                python revised_main_ssl.py \
+                                --config configs/${model}.json \
+                                --n_labeled_per_class $nshot \
+                                --psl_threshold_h $thres \
+                                --lr $lr \
+                                --seed $seed \
+                                --dataset $language \
+                                --aug $aug \
+                                --version $version\
+                                --model $model \
+                                --seed $seed 
+                                > ${log_path}
+                            done
+                        done
+                    done
                 done
-			done
-		done
-	done
+            done
+        done
+    done
 done
+
+
+for seed in 43 42 45; do
+    for nshot in 5 10; do
+        for language in python java; do
+            for thres in 0.7; do
+                for model in 'codet5p'; do
+                    for lr in '3e-04' '2.5e-04'; do
+                        for aug in 'back-translation'; do
+                            for version in 'v1' 'v3' 'v4'; do
+                                log_path="logs/${model}/${seed}/${aug}/${version}/${model}_nshot${nshot}_thres${thres}_lr${lr}_seed${seed}_lang${language}_epoch50_${version}.log"
+                                log_dir=$(dirname ${log_path})
+                                mkdir -p ${log_dir}
+                                echo "python revised_main_ssl.py --config configs/${model}.json --n_labeled_per_class $nshot --psl_threshold_h $thres --lr $lr --seed $seed --dataset $language" 
+                                python revised_main_ssl.py \
+                                --config configs/${model}.json \
+                                --n_labeled_per_class $nshot \
+                                --psl_threshold_h $thres \
+                                --lr $lr \
+                                --seed $seed \
+                                --dataset $language \
+                                --aug $aug \
+                                --version $version\
+                                --model $model \
+                                --seed $seed 
+                                > ${log_path}
+                            done
+                        done
+                    done
+                done
+            done
+        done
+    done
+done
+echo "###" 
+echo "### END DATE=$(date)"
+
