@@ -150,7 +150,7 @@ def train_split_v1(aug_error_df, train_df, n_labeled_per_class):
         # 각 레이블에 해당하는 데이터를 가져옵니다.
         label_df = train_df[train_df['label'] == label]
         # aug_error_df에 있는 idx를 제외합니다.
-        label_df = label_df[~label_df['idx'].isin(error_idxs)]
+        label_df = label_df[~label_df.isin(error_idxs)]
         # 각 클래스에서 n_labeled_per_class 만큼의 데이터를 무작위로 선택합니다.
         label_idxs = label_df.sample(n_labeled_per_class, replace=False).index.tolist()
         train_labeled_idxs.extend(label_idxs)
@@ -168,7 +168,7 @@ def train_split_v2(aug_df, train_df, n_labeled_per_class):
         # 각 레이블에 해당하는 데이터를 가져옵니다.
         label_df = train_df[train_df['label'] == label]
         # aug_df에 있는 데이터만 선택합니다.
-        label_df = label_df[label_df['idx'].isin(aug_df['idx'])]
+        label_df = label_df[label_df.isin(aug_df['idx'])]
         # 각 클래스에서 n_labeled_per_class 만큼의 데이터를 무작위로 선택합니다.
         label_idxs = label_df.sample(n_labeled_per_class, replace=False).index.tolist()
         train_labeled_idxs.extend(label_idxs)
@@ -189,7 +189,7 @@ def train_split_v3(forwhile_error_df, backtrans_error_df, train_df, n_labeled_pe
         # 각 레이블에 해당하는 데이터를 가져옵니다.
         label_df = train_df[train_df['label'] == label]
         # error_idxs에 있는 idx를 제외합니다.
-        label_df = label_df[~label_df['idx'].isin(error_idxs)]
+        label_df = label_df[~label_df.isin(error_idxs)]
         # 각 클래스에서 n_labeled_per_class 만큼의 데이터를 무작위로 선택합니다.
         label_idxs = label_df.sample(n_labeled_per_class, replace=False).index.tolist()
         train_labeled_idxs.extend(label_idxs)
@@ -209,7 +209,7 @@ def train_split_v4(forwhile_df, backtrans_df, train_df, n_labeled_per_class):
         # forwhile_df와 backtrans_df에 있는 데이터만 선택합니다.
         common_idx = set(forwhile_df['idx']).intersection(set(backtrans_df['idx']))
         # common_idx = set(forwhile_df['idx']).union(set(backtrans_df['idx']))
-        label_df = label_df[label_df['idx'].isin(common_idx)]
+        label_df = label_df[label_df.isin(common_idx)]
         # 각 클래스에서 n_labeled_per_class 만큼의 데이터를 무작위로 선택합니다.
         label_idxs = label_df.sample(n_labeled_per_class, replace=False).index.tolist()
         train_labeled_idxs.extend(label_idxs)
@@ -297,6 +297,7 @@ def get_dataloader_v1(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     print('train_df samples: %d' % (train_df.shape[0]))
     print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
     print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
+    statistics = [n_labeled_per_class,train_df.shape[0],train_l_df.shape[0],train_u_df.shape[0]]
     
     if load_mode == 'semi_SSL':
         train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
@@ -313,7 +314,7 @@ def get_dataloader_v1(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     dev_loader = DataLoader(dataset=dev_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
     test_loader = DataLoader(dataset=test_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
 
-    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u
+    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u, statistics
 
 
 #인위적인 셋팅
@@ -383,6 +384,7 @@ def get_dataloader_v2(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     print('train_df samples: %d' % (train_df.shape[0]))
     print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
     print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
+    statistics = [n_labeled_per_class,train_df.shape[0],train_l_df.shape[0],train_u_df.shape[0]]
 
     if load_mode == 'semi_SSL':
         train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
@@ -399,7 +401,7 @@ def get_dataloader_v2(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     dev_loader = DataLoader(dataset=dev_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
     test_loader = DataLoader(dataset=test_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
 
-    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u
+    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u, statistics
 
 def process_augtype(augtype, aug_path, dataset):
     if dataset == 'corcod':
@@ -479,7 +481,7 @@ def get_dataloader_v3(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     print('train_df samples: %d' % (train_df.shape[0]))
     print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
     print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
-
+    statistics = [n_labeled_per_class,train_df.shape[0],train_l_df.shape[0],train_u_df.shape[0]]
     
     if load_mode == 'semi_SSL':
         train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
@@ -496,7 +498,7 @@ def get_dataloader_v3(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     dev_loader = DataLoader(dataset=dev_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
     test_loader = DataLoader(dataset=test_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
 
-    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u  
+    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u, statistics 
 
 
 #인위적인 셋팅(loop translation + backtranlation )
@@ -559,6 +561,7 @@ def get_dataloader_v4(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     print('train_df samples: %d' % (train_df.shape[0]))
     print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
     print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
+    statistics = [n_labeled_per_class,train_df.shape[0],train_l_df.shape[0],train_u_df.shape[0]]
 
     if load_mode == 'semi_SSL':
         train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
@@ -575,4 +578,4 @@ def get_dataloader_v4(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     dev_loader = DataLoader(dataset=dev_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
     test_loader = DataLoader(dataset=test_dataset, batch_size= 1, shuffle=False, collate_fn=MyCollator_SSL(tokenizer))
 
-    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u  
+    return train_loader_l, train_loader_u, dev_loader, test_loader, num_class, train_dataset_l, train_dataset_u, statistics
