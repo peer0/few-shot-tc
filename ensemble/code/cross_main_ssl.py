@@ -148,7 +148,8 @@ def train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, n_cl
     return total_sup_loss / len(train_labeled_loader), total_unsup_loss / len(train_unlabeled_loader)
 
 def train(output_dir_path, seed, params):
-    train_losses = []
+    train_sup_losses = []
+    train_unsup_losses = []
     val_losses = []
     training_stats = []
     if params['dataset'] =='python':
@@ -204,9 +205,10 @@ def train(output_dir_path, seed, params):
         # train_labeled_loader.dataset.update_data(train_dataset_u)
         train_sampler = BalancedBatchSampler(train_dataset_l,params['bs'])
         train_labeled_loader = DataLoader(dataset=train_dataset_l, batch_size=params['bs'], sampler=train_sampler, collate_fn=MyCollator_SSL(tokenizer))
-        train_sup_loss, train_unl_loss = train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, n_classes, device, params)
-        val_loss = calculate_loss(netgroup, dev_loader, device)
+        train_sup_loss, train_unsup_loss = train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, n_classes, device, params)
         train_sup_losses.append(train_sup_loss)
+        train_unsup_losses.append(train_unsup_loss)
+        val_loss = calculate_loss(netgroup, dev_loader, device)
         val_losses.append(val_loss)
 
         # Evaluate
@@ -257,7 +259,7 @@ def train(output_dir_path, seed, params):
                 best_conf_matrix = conf_matrix
                 torch.save(netgroup.state_dict(), os.path.join(output_dir_path, "{}.{}".format(params["lr"],params["acc_save_name"])))
         
-        pbar.write(f"Epoch {epoch + 1}/{params['max_epoch']}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
+        pbar.write(f"Epoch {epoch + 1}/{params['max_epoch']}, Train Loss: {train_sup_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
                    f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1 Macro: {f1_macro_test:.4f}, "
                    f"Total Pseudo-Labels: {psl_total}, Correct Pseudo-Labels: {psl_correct}, "
                    f"Train Data Number: {epoch_train_num} + {min_length} x {labels_with_min_length} = {len(train_dataset_l)}")
@@ -304,7 +306,8 @@ def train(output_dir_path, seed, params):
     # loss 값의 변화를 그래프로 시각화합니다.
     plt.figure(figsize=(20,14))
     #epochs = range(1, max_epoch + 1)  # epoch 수
-    plt.plot(train_losses, label='Train Loss')
+    plt.plot(train_sup_losses, label='Train Lab. Loss')
+    plt.plot(train_unsup_losses, label='Train Unlab. Loss')
     plt.plot(val_losses, label='Validation Loss')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
