@@ -218,7 +218,8 @@ def train(output_dir_path, seed, params):
         pseudo_labels, psl_total, psl_correct = pseudo_labeling(netgroup, train_unlabeled_loader, params['psl_threshold_h'], device, pbar, language)
 
         training_stats.append(
-            {   'epoch': epoch, #배치수
+            {   'cross': 'cross',
+                'epoch': epoch, #배치수
                 'acc_train': acc_train,#train의 acc
                 'acc_val': acc_val,#valid의 acc
                 'acc_test': acc_test,#test의 acc
@@ -249,7 +250,7 @@ def train(output_dir_path, seed, params):
                 best_checkpoint_epoch = epoch + 1
                 best_train_dataset_l = train_dataset_l
                 best_conf_matrix = conf_matrix
-                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, "{}.{}".format(params["lr"],params["acc_save_name"])))
+                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, "cross-{}.{}".format(params["lr"],params["acc_save_name"])))
         elif params["checkpoint"] == 'acc':
             if acc_test > best_checkpoint_acc_test:
                 best_checkpoint_acc_test = acc_test
@@ -257,7 +258,7 @@ def train(output_dir_path, seed, params):
                 best_checkpoint_epoch = epoch + 1
                 best_train_dataset_l = train_dataset_l
                 best_conf_matrix = conf_matrix
-                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, "{}.{}".format(params["lr"],params["acc_save_name"])))
+                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, "cross-{}.{}".format(params["lr"],params["acc_save_name"])))
         
         pbar.write(f"Epoch {epoch + 1}/{params['max_epoch']}, Train Loss: {train_sup_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
                    f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1 Macro: {f1_macro_test:.4f}, "
@@ -268,7 +269,7 @@ def train(output_dir_path, seed, params):
     pd.set_option('precision', 4)
     df_stats= pd.DataFrame(training_stats)
     df_stats = df_stats.set_index('epoch')
-    training_stats_path = output_dir_path + 'training_statistics.csv'   
+    training_stats_path = output_dir_path + 'cross-training_statistics.csv'   
     df_stats.to_csv(training_stats_path)
     
     labels = [
@@ -300,7 +301,7 @@ def train(output_dir_path, seed, params):
         plt.xlabel("iteration")
         plt.ylabel("peformance")
         plt.legend()
-        plt.savefig(os.path.join(output_dir_path, "{}.{}.png".format(params['lr'],plot_type)), bbox_inches='tight')
+        plt.savefig(os.path.join(output_dir_path, "cross-{}.{}.png".format(params['lr'],plot_type)), bbox_inches='tight')
         plt.close()  # Closes the plot
 
     # loss 값의 변화를 그래프로 시각화합니다.
@@ -313,7 +314,7 @@ def train(output_dir_path, seed, params):
     plt.ylabel('Loss')
     plt.title('Training and Validation Loss')
     plt.legend()
-    plt.savefig(output_dir_path+'{}.loss_plot.png'.format(params['lr']), bbox_inches='tight')
+    plt.savefig(output_dir_path+'cross-{}.loss_plot.png'.format(params['lr']), bbox_inches='tight')
     plt.close()  # Closes the plot
 
     # Plotting the confusion matrix
@@ -329,7 +330,7 @@ def train(output_dir_path, seed, params):
 
     plt.xlabel('Predicted labels', fontsize=16)
     plt.ylabel('True labels', fontsize=16)
-    plt.savefig(os.path.join(output_dir_path, "{}.confmat.png".format(params['lr'])), bbox_inches='tight')  # Saves the plot as a PNG file
+    plt.savefig(os.path.join(output_dir_path, "cross-{}.confmat.png".format(params['lr'])), bbox_inches='tight')  # Saves the plot as a PNG file
     plt.close()  # Closes the plot
 
     pbar.write(f"(Valid {params['checkpoint']}) Best Epoch: {best_checkpoint_epoch}, Best Test Accuracy: {best_checkpoint_acc_test}, \
@@ -416,7 +417,7 @@ def main(config_file='config.json', **kwargs):
 
     # Save best model info
     df = pd.DataFrame([final])
-    csv_path = output_dir_path + 'summary_avgrun.csv'
+    csv_path = output_dir_path + 'cross-summary_avgrun.csv'
     df.to_csv(csv_path, mode='a', index=False, header=True)
     print('\nSave best record in: ', csv_path)
     print("Training complete!")
