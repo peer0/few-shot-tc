@@ -150,7 +150,7 @@ def train_split_v1(aug_error_df, train_df, n_labeled_per_class):
         # 각 레이블에 해당하는 데이터를 가져옵니다.
         label_df = train_df[train_df['label'] == label]
         # aug_error_df에 있는 idx를 제외합니다.
-        label_df = label_df[~label_df['idx'].isin(error_idxs)]
+        label_df = label_df[~label_df.isin(error_idxs)]
         # 각 클래스에서 n_labeled_per_class 만큼의 데이터를 무작위로 선택합니다.
         label_idxs = label_df.sample(n_labeled_per_class, replace=False).index.tolist()
         train_labeled_idxs.extend(label_idxs)
@@ -168,7 +168,10 @@ def train_split_v2(aug_df, train_df, n_labeled_per_class):
         # 각 레이블에 해당하는 데이터를 가져옵니다.
         label_df = train_df[train_df['label'] == label]
         # aug_df에 있는 데이터만 선택합니다.
-        label_df = label_df[label_df['idx'].isin(aug_df['idx'])]
+        #label_df = label_df[label_df.isin(aug_df['idx'])]
+        print(aug_df)
+        print(label_df)
+        label_df = label_df[(label_df['idx']+1).isin(aug_df['idx'])]
         # 각 클래스에서 n_labeled_per_class 만큼의 데이터를 무작위로 선택합니다.
         label_idxs = label_df.sample(n_labeled_per_class, replace=False).index.tolist()
         train_labeled_idxs.extend(label_idxs)
@@ -207,6 +210,7 @@ def train_split_v4(forwhile_df, backtrans_df, train_df, n_labeled_per_class):
     for label in train_df['label'].unique():
         # 각 레이블에 해당하는 데이터를 가져옵니다.
         label_df = train_df[train_df['label'] == label]
+        #label_df = label_df[(label_df['idx']+1).isin(common_idx)]
         label_df = label_df[label_df.isin(common_idx)]
         # 각 클래스에서 n_labeled_per_class 만큼의 데이터를 무작위로 선택합니다.
         label_idxs = label_df.sample(n_labeled_per_class, replace=False).index.tolist()
@@ -315,7 +319,8 @@ def get_dataloader_v1(data_path, dataset, n_labeled_per_class, bs, load_mode='se
 
 
 #인위적인 셋팅
-def get_dataloader_v2(data_path, dataset, n_labeled_per_class, bs, load_mode='semi_SSL',aug=None,  token = None):
+def get_dataloader_v2(data_path, dataset, n_labeled_per_class, bs, load_mode='semi_SSL',  token = None):
+    aug='forwhile'
     if token == "microsoft/codebert-base":
         tokenizer = AutoTokenizer.from_pretrained("microsoft/codebert-base")
     elif token == "Salesforce/codet5p-110m-embedding":
@@ -336,7 +341,7 @@ def get_dataloader_v2(data_path, dataset, n_labeled_per_class, bs, load_mode='se
         jsonl_file = f'{aug_path}/cc_{dataset}_java_{aug}.jsonl'
         csv_file = f'{aug_path}/cc_{dataset}_java_{aug}.csv'  
         jsonl_to_csv(jsonl_file, csv_file, aug)
-        aug_df = pd.read_csv(f'{aug_path}/{dataset}_java_{aug}.csv')     
+        aug_df = pd.read_csv(f'{aug_path}/cc_{dataset}_java_{aug}.csv')     
         #train_df의 'index'를 'idx'로 변경
         train_df = train_df.rename(columns={'index': 'idx'})
     else:    
@@ -362,14 +367,14 @@ def get_dataloader_v2(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     print("initial labeled data index별 개수:",train_l_df['idx'].value_counts().to_dict())
     
     # train_l_df의 'idx' 값이 aug_df에도 있는 행만 선택(aug_df에 없으면 for나 while이 없는 코드임)
-    aug_df = aug_df[aug_df['idx'].isin(train_l_df['idx'])]
+    aug_df = aug_df[aug_df['idx'].isin(train_l_df['idx']+1)]
     concat_df = pd.concat([train_l_df, aug_df], ignore_index=True)
     
     # 'idx'가 같은 행에서 'Label' 값을 train_l_df의 값으로 업데이트(aug 데이터엔 label값이 비어있어서 채워줌)
     for idx in concat_df['idx'].unique():
-        if idx in train_l_df['idx'].values:
+        if idx in (train_l_df['idx']+1).values:
             mask = (concat_df['idx'] == idx)
-            concat_df.loc[mask, 'label'] = train_l_df.loc[train_l_df['idx'] == idx, 'label'].values[0]
+            concat_df.loc[mask, 'label'] = train_l_df.loc[train_l_df['idx']+1 == idx, 'label'].values[0]
 
     print("initial labeled dataset+aug개수:", len(concat_df))
     print("initial labeled data+aug index별 개수:",concat_df['idx'].value_counts().to_dict())

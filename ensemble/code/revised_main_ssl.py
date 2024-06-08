@@ -199,7 +199,7 @@ def train(output_dir_path, seed, params):
                 best_checkpoint_epoch = epoch + 1
                 best_train_dataset_l = train_dataset_l
                 best_conf_matrix = conf_matrix
-                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["acc_save_name"]))
+                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, "{}.{}".format(params["lr"],params["acc_save_name"])))
         elif params["checkpoint"] == 'acc':
             if acc_test > best_checkpoint_acc_test:
                 best_checkpoint_acc_test = acc_test
@@ -207,7 +207,7 @@ def train(output_dir_path, seed, params):
                 best_checkpoint_epoch = epoch + 1
                 best_train_dataset_l = train_dataset_l
                 best_conf_matrix = conf_matrix
-                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, params["acc_save_name"]))
+                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, "{}.{}".format(params["lr"],params["acc_save_name"])))
         
         pbar.write(f"Epoch {epoch + 1}/{params['max_epoch']}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
                    f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1 Macro: {f1_macro_test:.4f}, "
@@ -250,7 +250,7 @@ def train(output_dir_path, seed, params):
         plt.xlabel("iteration")
         plt.ylabel("peformance")
         plt.legend()
-        plt.savefig(os.path.join(output_dir_path, f"{plot_type}.png"), bbox_inches='tight')
+        plt.savefig(os.path.join(output_dir_path, "{}.{}.png".format(params['lr'],plot_type)), bbox_inches='tight')
         plt.close()  # Closes the plot
 
     # loss 값의 변화를 그래프로 시각화합니다.
@@ -262,7 +262,7 @@ def train(output_dir_path, seed, params):
     plt.ylabel('Loss')
     plt.title('Training and Validation Loss')
     plt.legend()
-    plt.savefig(output_dir_path+'loss_plot.png', bbox_inches='tight')
+    plt.savefig(output_dir_path+'{}.loss_plot.png'.format(params['lr']), bbox_inches='tight')
     plt.close()  # Closes the plot
 
     # Plotting the confusion matrix
@@ -278,7 +278,7 @@ def train(output_dir_path, seed, params):
 
     plt.xlabel('Predicted labels', fontsize=16)
     plt.ylabel('True labels', fontsize=16)
-    plt.savefig(os.path.join(output_dir_path, "confmat.png"), bbox_inches='tight')  # Saves the plot as a PNG file
+    plt.savefig(os.path.join(output_dir_path, "{}.confmat.png".format(params['lr'])), bbox_inches='tight')  # Saves the plot as a PNG file
     plt.close()  # Closes the plot
 
     pbar.write(f"(Valid {params['checkpoint']}) Best Epoch: {best_checkpoint_epoch}, Best Test Accuracy: {best_checkpoint_acc_test}, \
