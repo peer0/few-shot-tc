@@ -83,13 +83,13 @@ class NetGroup(nn.Module):
     # initialize one network
     def init_net(self, net_arch):
         if net_arch == 'microsoft/codebert-base':
-            net =  AutoModelForSequenceClassification.from_pretrained('microsoft/codebert-base', num_labels = self.n_classes)
+            net =  AutoModelForSequenceClassification.from_pretrained(net_arch, num_labels = self.n_classes)
         elif net_arch == "Salesforce/codet5p-110m-embedding":
-            net = CustomModel("Salesforce/codet5p-110m-embedding", self.n_classes)
+            net = CustomModel(net_arch, self.n_classes)
         elif net_arch == "microsoft/unixcoder-base":
-            net =  AutoModelForSequenceClassification.from_pretrained("microsoft/unixcoder-base", num_labels = self.n_classes)
+            net =  AutoModelForSequenceClassification.from_pretrained(net_arch, num_labels = self.n_classes)
         elif net_arch == "microsoft/graphcodebert-base":
-            net = CustomModel_2("microsoft/graphcodebert-base", self.n_classes)
+            net = CustomModel_2(net_arch, self.n_classes)
         elif net_arch == "codesage/codesage-base":
             net = AutoModelForSequenceClassification.from_pretrained(net_arch, trust_remote_code=True,  num_labels = self.n_classes)
         
@@ -98,21 +98,8 @@ class NetGroup(nn.Module):
     
     # initialize one optimizer
     def init_optimizer(self, net, lr, lr_linear):
-        if self.net_arch == 'microsoft/codebert-base':
-            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
-            print('net_arch: ', self.net_arch, 'lr: ', lr)
-        elif self.net_arch =="Salesforce/codet5p-110m-embedding":
-            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
-            print('net_arch: ', self.net_arch, 'lr: ', lr)
-        elif self.net_arch == "microsoft/unixcoder-base":
-            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
-            print('net_arch: ', self.net_arch, 'lr: ', lr)
-        elif self.net_arch == "microsoft/graphcodebert-base":
-            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
-            print('net_arch: ', self.net_arch, 'lr: ', lr)
-        elif self.net_arch == "codesage/codesage-base":
-            optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
-            print('net_arch: ', self.net_arch, 'lr: ', lr)
+        optimizer_net = AdamW(net.parameters(), lr = lr, eps = 1e-8)
+        print('net_arch: ', self.net_arch, 'lr: ', lr)
 
         return optimizer_net
 

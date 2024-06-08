@@ -7,6 +7,7 @@ import statistics
 import pandas as pd
 import torch
 from torch.utils.data import DataLoader
+import torch.nn.functional as F
 from tqdm import tqdm
 from sklearn.metrics import confusion_matrix, accuracy_score, f1_score
 import matplotlib.pyplot as plt
@@ -80,7 +81,7 @@ def calculate_loss(netgroup, data_loader, device):
             total_loss += loss[0].item()
     return total_loss / len(data_loader)
 
-def train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, device, params):
+def train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, n_classes, device, params):
     netgroup.train()
     total_sup_loss = 0.0
     total_unsup_loss = 0.0
@@ -88,11 +89,11 @@ def train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, devi
     num_nets = params['num_nets'] + 1
     for batch_label in train_labeled_loader:
         x_lb, y_lb = batch_label['x'], batch_label['label'].to(device)
-        outs_x_lb = netgroup.forward(x_lb, y_lb)[0]
-        sup_loss_nets = [ce_loss(outs_x_lb, y_lb) for i in range(num_nets)]
+        outs_x_lb = netgroup.forward(x_lb, y_lb)
+        sup_loss_nets = [ce_loss(outs_x_lb[i], y_lb) for i in range(num_nets)]
         netgroup.update(sup_loss_nets)
         for sup_loss_net in sup_loss_nets:
-            total_sup_loss += sup_loss_net[0].item()
+            total_sup_loss += sup_loss_net.item()
         for batch_unlabel in train_unlabeled_loader:
             x_ulb_w, x_ulb_s = batch_unlabel['x_w'], batch_unlabel['x_s']
             outs_x_ulb_s_nets = netgroup.forward(x_ulb_s)
@@ -106,11 +107,9 @@ def train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, devi
             for i in range(num_nets):
                 ## generate pseudo labels
                 logits_x_ulb_w = outs_x_ulb_w_nets[i]
-                if labeling_mode=='soft':
-                    pseudo_labels_nets.append(torch.softmax(logits_x_ulb_w, dim=-1))
-                else:
-                    max_idx = torch.argmax(logits_x_ulb_w, dim=-1)
-                    pseudo_labels_nets.append(F.one_hot(max_idx, num_classes=n_classes).to(device))
+                max_idx = torch.argmax(logits_x_ulb_w, dim=-1)
+                #pseudo_labels_nets.append(torch.softmax(logits_x_ulb_w, dim=-1))
+                pseudo_labels_nets.append(F.one_hot(max_idx, num_classes=n_classes).to(device))
 
                 ## compute mask for pseudo labels
                 probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
@@ -135,7 +134,7 @@ def train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, devi
                 # compute total loss for unlabeled data
                 #total_unsup_loss = weight_u_loss * unsup_loss
                 total_unsup_loss_nets.append(unsup_loss)
-                total_sup_loss += sup_loss_net[0].item()
+                total_unsup_loss += unsup_loss.item()
 
             # update netgorup from loss of unlabeled data
             netgroup.update(total_unsup_loss_nets)
@@ -205,7 +204,7 @@ def train(output_dir_path, seed, params):
         # train_labeled_loader.dataset.update_data(train_dataset_u)
         train_sampler = BalancedBatchSampler(train_dataset_l,params['bs'])
         train_labeled_loader = DataLoader(dataset=train_dataset_l, batch_size=params['bs'], sampler=train_sampler, collate_fn=MyCollator_SSL(tokenizer))
-        train_sup_loss, train_unl_loss = train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, device, params)
+        train_sup_loss, train_unl_loss = train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, n_classes, device, params)
         val_loss = calculate_loss(netgroup, dev_loader, device)
         train_sup_losses.append(train_sup_loss)
         val_losses.append(val_loss)

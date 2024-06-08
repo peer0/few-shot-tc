@@ -120,11 +120,11 @@ class MyCollator_SSL(object): # 추가 SSL
                 labels.append(sample[3])
 
         tokenized = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
-        if sents_aug1 != "ERROR" or type(sents_aug1) != float:
+        if sents_aug1 != "ERROR" and np.nan not in sents_aug1:
             tokenized_aug1 = self.tokenizer(sents_aug1, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
         else:
             tokenized_aug1 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
-        if sents_aug2 != "ERROR" or type(sents_aug1) != float:
+        if sents_aug2 != "ERROR" and np.nan not in sents_aug2:
             tokenized_aug2 = self.tokenizer(sents_aug2, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
         else:
             tokenized_aug2 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
