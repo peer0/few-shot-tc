@@ -1,8 +1,8 @@
 #!/bin/bash
 
 for seed in 42; do
-    for nshot in 5 10 20; do
-        for language in java python corcod; do
+    for nshot in 5 10; do
+        for language in corcod python java; do
             for modelname in codet5p; do
                 for aug in artificial natural; do
                     for thres in 0.8; do

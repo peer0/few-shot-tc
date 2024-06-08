@@ -210,8 +210,8 @@ def train_split_v4(forwhile_df, backtrans_df, train_df, n_labeled_per_class):
     for label in train_df['label'].unique():
         # 각 레이블에 해당하는 데이터를 가져옵니다.
         label_df = train_df[train_df['label'] == label]
-        #label_df = label_df[(label_df['idx']+1).isin(common_idx)]
-        label_df = label_df[label_df.isin(common_idx)]
+        label_df = label_df[(label_df['idx']).isin(common_idx)]
+        #label_df = label_df[label_df.isin(common_idx)]
         # 각 클래스에서 n_labeled_per_class 만큼의 데이터를 무작위로 선택합니다.
         label_idxs = label_df.sample(n_labeled_per_class, replace=False).index.tolist()
         train_labeled_idxs.extend(label_idxs)
@@ -441,6 +441,8 @@ def get_dataloader_v3(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     train_df = train_df.rename(columns={'index': 'idx'})
     dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
     test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
+    if dataset != 'corcod':
+        train_df['idx'] = train_df['idx']+1
     aug_path = f'../data/aug/{dataset}' #여기까진 고정
     
     for augtype in ('forwhile', 'back-translation'):
@@ -521,6 +523,9 @@ def get_dataloader_v4(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     train_df = train_df.rename(columns={'index': 'idx'})
     dev_df = pd.read_csv(os.path.join(data_path,'dev.csv'))
     test_df = pd.read_csv(os.path.join(data_path,'test.csv'))
+    if dataset != 'corcod':
+        train_df['idx'] = train_df['idx']+1
+
     aug_path = f'../data/aug/{dataset}'
     
     for augtype in ('forwhile', 'back-translation'):
