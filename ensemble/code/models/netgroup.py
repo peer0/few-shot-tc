@@ -85,12 +85,11 @@ class NetGroup(nn.Module):
         if net_arch == 'microsoft/codebert-base':
             net =  AutoModelForSequenceClassification.from_pretrained('microsoft/codebert-base', num_labels = self.n_classes)
         elif net_arch == "Salesforce/codet5p-110m-embedding":
-            model = CustomModel("Salesforce/codet5p-110m-embedding")
-            net = model
+            net = CustomModel("Salesforce/codet5p-110m-embedding", self.n_classes)
         elif net_arch == "microsoft/unixcoder-base":
             net =  AutoModelForSequenceClassification.from_pretrained("microsoft/unixcoder-base", num_labels = self.n_classes)
         elif net_arch == "microsoft/graphcodebert-base":
-            net = CustomModel_2("microsoft/graphcodebert-base")
+            net = CustomModel_2("microsoft/graphcodebert-base", self.n_classes)
         elif net_arch == "codesage/codesage-base":
             net = AutoModelForSequenceClassification.from_pretrained(net_arch, trust_remote_code=True,  num_labels = self.n_classes)
         
