@@ -122,17 +122,23 @@ class MyCollator_SSL(object): # 추가 SSL
         tokenized = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
         filtered_sents_aug1 = []
         filtered_sents_aug2 = []
-        for sent1,sent in zip(sents_aug1,sents):
-            if sent1 != "ERROR" and sent1 is not np.nan:
-                filtered_sents_aug1.append(sent1)
-            else:
-                filtered_sents_aug1.append(sent)
-        
-        for sent2,sent in zip(sents_aug2,sents):
-            if sent2 != "ERROR" and sent2 is not np.nan:
-                filtered_sents_aug2.append(sent2)
-            else:
-                filtered_sents_aug2.append(sent)
+        if sents == None: print("Why??????????????????")
+        if sents_aug1 == None:
+            filtered_sents_aug1 = sents
+        else:
+            for sent1,sent in zip(sents_aug1,sents):
+                if sent1 != "ERROR" and sent1 is not np.nan:
+                    filtered_sents_aug1.append(sent1)
+                else:
+                    filtered_sents_aug1.append(sent)
+        if sents_aug2 == None:
+            filtered_sents_aug2 = sents
+        else:
+            for sent2,sent in zip(sents_aug2,sents):
+                if sent2 != "ERROR" and sent2 is not np.nan:
+                    filtered_sents_aug2.append(sent2)
+                else:
+                    filtered_sents_aug2.append(sent)
 
         if filtered_sents_aug1 != None:
             tokenized_aug1 = self.tokenizer(filtered_sents_aug1, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
