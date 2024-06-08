@@ -94,56 +94,56 @@ def train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, n_cl
         netgroup.update(sup_loss_nets)
         for sup_loss_net in sup_loss_nets:
             total_sup_loss += sup_loss_net.item()
-        for batch_unlabel in train_unlabeled_loader:
-            x_ulb_w, x_ulb_s = batch_unlabel['x_w'], batch_unlabel['x_s']
-            outs_x_ulb_s_nets = netgroup.forward(x_ulb_s)
-            with torch.no_grad(): # stop gradient for weak augmentation brach
-                outs_x_ulb_w_nets = netgroup.forward(x_ulb_w)
+    for batch_unlabel in train_unlabeled_loader:
+        x_ulb_w, x_ulb_s = batch_unlabel['x_w'], batch_unlabel['x_s']
+        outs_x_ulb_s_nets = netgroup.forward(x_ulb_s)
+        with torch.no_grad(): # stop gradient for weak augmentation brach
+            outs_x_ulb_w_nets = netgroup.forward(x_ulb_w)
 
-            ## Generate pseudo labels and masks for all nets in one batch of unlabeled data
-            pseudo_labels_nets = []
-            u_psl_masks_nets = []
+        ## Generate pseudo labels and masks for all nets in one batch of unlabeled data
+        pseudo_labels_nets = []
+        u_psl_masks_nets = []
 
-            for i in range(num_nets):
-                ## generate pseudo labels
-                logits_x_ulb_w = outs_x_ulb_w_nets[i]
-                max_idx = torch.argmax(logits_x_ulb_w, dim=-1)
-                #pseudo_labels_nets.append(torch.softmax(logits_x_ulb_w, dim=-1))
-                pseudo_labels_nets.append(F.one_hot(max_idx, num_classes=n_classes).to(device))
+        for i in range(num_nets):
+            ## generate pseudo labels
+            logits_x_ulb_w = outs_x_ulb_w_nets[i]
+            max_idx = torch.argmax(logits_x_ulb_w, dim=-1)
+            #pseudo_labels_nets.append(torch.softmax(logits_x_ulb_w, dim=-1))
+            pseudo_labels_nets.append(F.one_hot(max_idx, num_classes=n_classes).to(device))
 
-                ## compute mask for pseudo labels
-                probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
-                max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
-                u_psl_masks_nets.append(max_probs >= params['psl_threshold_h'])
+            ## compute mask for pseudo labels
+            probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
+            max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
+            u_psl_masks_nets.append(max_probs >= params['psl_threshold_h'])
 
-            ## Compute loss for unlabeled data for all nets
-            total_unsup_loss_nets = []
-            for i in range(num_nets):
-                pseudo_label = pseudo_labels_nets[(i+1)%num_nets]
-                u_psl_mask = u_psl_masks_nets[(i+1)%num_nets]
+        ## Compute loss for unlabeled data for all nets
+        total_unsup_loss_nets = []
+        for i in range(num_nets):
+            pseudo_label = pseudo_labels_nets[(i+1)%num_nets]
+            u_psl_mask = u_psl_masks_nets[(i+1)%num_nets]
 
-                # obtain the mask for disagreement and agreement across nets, note that they are derived from confident pseudo-label mask
-                # disagree_weight, agree_weight can be a specified scalar or a tensor calculated based on disagreement score
-                disagree_mask = torch.logical_xor(u_psl_masks_nets[(i)%num_nets], u_psl_masks_nets[(i+1)%num_nets])
-                agree_mask = torch.logical_and(u_psl_masks_nets[(i)%num_nets], u_psl_masks_nets[(i+1)%num_nets])
-                disagree_weight_masked = disagree_weight * disagree_mask + (1-disagree_weight) * agree_mask
+            # obtain the mask for disagreement and agreement across nets, note that they are derived from confident pseudo-label mask
+            # disagree_weight, agree_weight can be a specified scalar or a tensor calculated based on disagreement score
+            disagree_mask = torch.logical_xor(u_psl_masks_nets[(i)%num_nets], u_psl_masks_nets[(i+1)%num_nets])
+            agree_mask = torch.logical_and(u_psl_masks_nets[(i)%num_nets], u_psl_masks_nets[(i+1)%num_nets])
+            disagree_weight_masked = disagree_weight * disagree_mask + (1-disagree_weight) * agree_mask
 
-                # compute loss for unlabeled data
-                unsup_loss = consistency_loss(outs_x_ulb_s_nets[i], pseudo_label, loss_type='ce', mask=u_psl_mask, disagree_weight_masked=disagree_weight_masked)    # loss_type: 'ce' or 'mse'
+            # compute loss for unlabeled data
+            unsup_loss = consistency_loss(outs_x_ulb_s_nets[i], pseudo_label, loss_type='ce', mask=u_psl_mask, disagree_weight_masked=disagree_weight_masked)    # loss_type: 'ce' or 'mse'
 
-                # compute total loss for unlabeled data
-                #total_unsup_loss = weight_u_loss * unsup_loss
-                total_unsup_loss_nets.append(unsup_loss)
-                total_unsup_loss += unsup_loss.item()
+            # compute total loss for unlabeled data
+            #total_unsup_loss = weight_u_loss * unsup_loss
+            total_unsup_loss_nets.append(unsup_loss)
+            total_unsup_loss += unsup_loss.item()
 
-            # update netgorup from loss of unlabeled data
-            netgroup.update(total_unsup_loss_nets)
+        # update netgorup from loss of unlabeled data
+        netgroup.update(total_unsup_loss_nets)
 
-            #### -Info: for now we the last net in the group for info
-            ## Check the total and correct number of pseudo-labels
-            batch_unlabel['label'] = batch_unlabel['label'].to(device) # assume 'device' is a GPU device
-            gt_labels_u = batch_unlabel['label'][u_psl_mask].to(device)
-            psl_total = torch.sum(u_psl_mask).item()
+        #### -Info: for now we the last net in the group for info
+        ## Check the total and correct number of pseudo-labels
+        batch_unlabel['label'] = batch_unlabel['label'].to(device) # assume 'device' is a GPU device
+        gt_labels_u = batch_unlabel['label'][u_psl_mask].to(device)
+        psl_total = torch.sum(u_psl_mask).item()
 
     return total_sup_loss / len(train_labeled_loader), total_unsup_loss / len(train_unlabeled_loader)
 

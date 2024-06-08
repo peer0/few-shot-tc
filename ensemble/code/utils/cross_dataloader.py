@@ -79,20 +79,20 @@ class MyCollator(object):
                 sents_aug2.append(sample[2])
                 labels.append(sample[3])
     
-        tokenized = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
+        tokenized = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
         labels = torch.LongTensor(labels) - 1
         if sents_aug1 is not None:
             # further add stochastic synoym replacement augmentation
             sents_aug1 = [naw.SynonymAug(aug_src='wordnet', aug_p=0.05).augment(sent)[0] for sent in sents_aug1]
-            tokenized_aug1 = self.tokenizer(sents_aug1, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
+            tokenized_aug1 = self.tokenizer(sents_aug1, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
         else:
             # add stochastic synoym replacement augmentation
             sents_aug1 = [naw.SynonymAug(aug_src='wordnet', aug_p=0.05).augment(sent)[0] for sent in sents]
-            tokenized_aug1 = self.tokenizer(sents_aug1, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')            
+            tokenized_aug1 = self.tokenizer(sents_aug1, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')            
         if sents_aug2 is not None: 
             # further add stochastic synoym replacement augmentation
             sents_aug2 = [naw.SynonymAug(aug_src='wordnet', aug_p=0.05).augment(sent)[0] for sent in sents_aug2]
-            tokenized_aug2 = self.tokenizer(sents_aug2, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
+            tokenized_aug2 = self.tokenizer(sents_aug2, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
         else:
             tokenized_aug2 = None
         # return tokenized, tokenized_aug1, 
@@ -119,15 +119,29 @@ class MyCollator_SSL(object): # 추가 SSL
                 sents_aug2.append(sample[2])
                 labels.append(sample[3])
 
-        tokenized = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
-        if sents_aug1 != "ERROR" and np.nan not in sents_aug1:
-            tokenized_aug1 = self.tokenizer(sents_aug1, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
+        tokenized = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
+        filtered_sents_aug1 = []
+        filtered_sents_aug2 = []
+        for sent1,sent in zip(sents_aug1,sents):
+            if sent1 != "ERROR" and sent1 is not np.nan:
+                filtered_sents_aug1.append(sent1)
+            else:
+                filtered_sents_aug1.append(sent)
+        
+        for sent2,sent in zip(sents_aug2,sents):
+            if sent2 != "ERROR" and sent2 is not np.nan:
+                filtered_sents_aug2.append(sent2)
+            else:
+                filtered_sents_aug2.append(sent)
+
+        if filtered_sents_aug1 != None:
+            tokenized_aug1 = self.tokenizer(filtered_sents_aug1, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
         else:
-            tokenized_aug1 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
-        if sents_aug2 != "ERROR" and np.nan not in sents_aug2:
-            tokenized_aug2 = self.tokenizer(sents_aug2, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
+            tokenized_aug1 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
+        if filtered_sents_aug2 != None:
+            tokenized_aug2 = self.tokenizer(filtered_sents_aug2, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
         else:
-            tokenized_aug2 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
+            tokenized_aug2 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
         labels = torch.LongTensor(labels) - 1
                     
         return {'x': tokenized, 'x_w': tokenized_aug1,'x_s': tokenized_aug2, 'label': labels}
