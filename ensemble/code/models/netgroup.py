@@ -69,7 +69,7 @@ class NetGroup(nn.Module):
         self.num_nets = num_nets
         self.n_classes = n_classes
         self.device = device
-        self.lr = lr
+        self.lr = [1e-5, 2e-6]
 
         # initialize the group of networks
         self.nets = {}
@@ -78,7 +78,7 @@ class NetGroup(nn.Module):
 
         self.optimizers = {}
         for i in range(num_nets):
-            self.optimizers[i] = self.init_optimizer(self.nets[i], lr, lr_linear)#초기화
+            self.optimizers[i] = self.init_optimizer(self.nets[i], self.lr[i], lr_linear)#초기화
 
     # initialize one network
     def init_net(self, net_arch):

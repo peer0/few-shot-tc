@@ -15,12 +15,11 @@ from transformers import AutoTokenizer
 
 from models.netgroup import NetGroup
 from utils.helper import format_time
-from utils.dataloader import get_dataloader
 from utils.cross_dataloader import get_dataloader_v3
 from utils.cross_dataloader import get_dataloader_v4
 from criterions.criterions import ce_loss, consistency_loss
 from utils.helper import freematch_fairness_loss
-from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
+from utils.cross_dataloader import MyCollator_SSL, BalancedBatchSampler
 from symbolic.symbolic import process_code
 
 
@@ -170,10 +169,6 @@ def train(output_dir_path, seed, params):
         train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader_v4(
             '../data/' + params['dataset'],params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
             params['net_arch'])
-    elif params['aug'] == 'none':
-        train_labeled_loader, _, dev_loader, test_loader, n_classes, train_dataset_l, train_dataset_u = get_dataloader(
-            '../data/' + params['dataset'], params['n_labeled_per_class'], params['bs'], params['load_mode'],
-            params['net_arch'])
 
 
     print(n_classes)
@@ -210,9 +205,9 @@ def train(output_dir_path, seed, params):
         # train_labeled_loader.dataset.update_data(train_dataset_u)
         train_sampler = BalancedBatchSampler(train_dataset_l,params['bs'])
         train_labeled_loader = DataLoader(dataset=train_dataset_l, batch_size=params['bs'], sampler=train_sampler, collate_fn=MyCollator_SSL(tokenizer))
-        train_loss = train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, device, params)
+        train_sup_loss, train_unl_loss = train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, device, params)
         val_loss = calculate_loss(netgroup, dev_loader, device)
-        train_losses.append(train_loss)
+        train_sup_losses.append(train_sup_loss)
         val_losses.append(val_loss)
 
         # Evaluate
@@ -435,7 +430,7 @@ def parse_args():
     parser.add_argument('--seed', type=int, help='Random seed')
     parser.add_argument('--dataset', type=str, help='Dataset name')
     parser.add_argument('--checkpoint', type=str, help='retrieve the best valid loss checkpoint or valid acc checkpoint')
-    parser.add_argument('--aug', type=str, default='none', help='augment setting: natural, artificial, none (no augment)')
+    parser.add_argument('--aug', type=str, default='natural', help='augment setting: natural, artificial, none (no augment)')
 
     args = parser.parse_args()
     return vars(args)

@@ -485,7 +485,6 @@ def get_dataloader_v3(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
     print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
 
-    
     if load_mode == 'semi_SSL':
         train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), labels=train_l_df['label'].to_list())
         train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), labels=train_u_df['label'].to_list())

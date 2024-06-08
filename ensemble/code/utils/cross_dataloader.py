@@ -26,7 +26,7 @@ class SEMIDataset(Dataset):
 
 
 class SEMI_SSL_Dataset(Dataset):
-    def __init__(self, sents, labels=None):
+    def __init__(self, sents, sents_aug1, sents_aug2, labels=None):
         self.sents = sents
         self.sents_aug1 = sents_aug1
         self.sents_aug2 = sents_aug2
@@ -120,8 +120,14 @@ class MyCollator_SSL(object): # 추가 SSL
                 labels.append(sample[3])
 
         tokenized = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
-        tokenized_aug1 = self.tokenizer(sents_aug1, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
-        tokenized_aug2 = self.tokenizer(sents_aug2, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
+        if sents_aug1 != "ERROR" or type(sents_aug1) != float:
+            tokenized_aug1 = self.tokenizer(sents_aug1, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
+        else:
+            tokenized_aug1 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
+        if sents_aug2 != "ERROR" or type(sents_aug1) != float:
+            tokenized_aug2 = self.tokenizer(sents_aug2, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
+        else:
+            tokenized_aug2 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=512, return_tensors='pt')
         labels = torch.LongTensor(labels) - 1
                     
         return {'x': tokenized, 'x_w': tokenized_aug1,'x_s': tokenized_aug2, 'label': labels}
@@ -283,7 +289,6 @@ def get_dataloader_v3(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     print('train_df samples: %d' % (train_df.shape[0]))
     print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
     print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
-
     
     if load_mode == 'semi_SSL':
         train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), train_l_df['forwhile'].to_list(), train_l_df['back-translation'].to_list(), labels=train_l_df['label'].to_list())
