@@ -547,7 +547,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     #print('\npse_class -> ', pse_class)
                     if pse_class >= int(pse_cl):
                         pse_add_epoch.append(epoch+1)                                          
-                        train_dataset_l =  get_pseudo_labeled_dataloader(pse_table, pse_count, train_dataset_l)
+                        train_dataset_l =  get_pseudo_labeled_dataloader(pse_table, pse_count, train_dataset_l) #다음 epoch에서의 cw_psl을 보면 됨
                         pse_work = True
                         best_val_stop = True
                     #else :

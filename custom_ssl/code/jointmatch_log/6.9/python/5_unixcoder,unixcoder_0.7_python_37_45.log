@@ -1,0 +1,383 @@
+current work directory:  /home/imsuhan22/few-shot-tc/custom_ssl/code
+Data set -> jointmatch
+save_name: 5_['unixcoder', 'unixcoder']_[0.0004, 0.0002]_0.7_jointmatch_37_[45]_{'python'}
+
+data_path:  ../data/jointmatch/python
+
+There are 2 GPU(s) available.
+We will use the GPU- 0 Quadro RTX 8000
+
+**line 107 모델 =>  ['microsoft/unixcoder-base', 'microsoft/unixcoder-base']
+**tokenizer type =  ['microsoft/unixcoder-base', 'microsoft/unixcoder-base'] 
+
+n_labeled_per_class:  5
+train_df samples: 3974
+train_labeled_df samples: 35
+train_unlabeled_df samples: 3939
+Check n_smaples_per_class in the original training set:  {3: 707, 1: 704, 4: 585, 5: 580, 2: 514, 7: 458, 6: 426}
+Check n_smaples_per_class in the labeled training set:  {6: 5, 1: 5, 4: 5, 2: 5, 3: 5, 5: 5, 7: 5}
+Check n_smaples_per_class in the unlabeled training set:  {3: 702, 1: 699, 4: 580, 5: 575, 2: 509, 7: 453, 6: 421}
+n_classes:  7
+
+net_arch:  microsoft/unixcoder-base 
+lr:  0.0004 
+lr_linear:  0.001 
+
+
+net_arch:  microsoft/unixcoder-base 
+lr:  0.0002 
+lr_linear:  0.001 
+
+
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.2, 0.2, 0.6, 0.0, 0.4, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+Save model to ./experiment/jointmatch/output/
+loss for labeled data =>  tensor(1.9748, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.8939, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 1/37, Train Acc: 0.2000, Val Acc: 0.2248, Test Acc: 0.1148, Test F1(macro): 0.0722, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0
+
+acc_train_cw(현재 train의 class별 acc) [0.0, 1.0, 0.0, 0.0, 0.0, 0.2, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+loss for labeled data =>  tensor(1.8580, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.8383, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 2/37, Train Acc: 0.1714, Val Acc: 0.0065, Test Acc: 0.2889, Test F1(macro): 0.0744, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0
+
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.2, 0.0, 0.0, 1.0, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+loss for labeled data =>  tensor(1.6876, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(2.0757, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 3/37, Train Acc: 0.2000, Val Acc: 0.0261, Test Acc: 0.2951, Test F1(macro): 0.0651, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0
+
+acc_train_cw(현재 train의 class별 acc) [0.8, 0.4, 0.4, 0.2, 0.0, 0.0, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+loss for labeled data =>  tensor(1.2774, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.9732, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 4/37, Train Acc: 0.2857, Val Acc: 0.2085, Test Acc: 0.1414, Test F1(macro): 0.1027, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.6, 0.2, 0.0, 0.8, 0.0, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, nan, nan]
+loss for labeled data =>  tensor(0.7844, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.9357, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 5/37, Train Acc: 0.2857, Val Acc: 0.0912, Test Acc: 0.2561, Test F1(macro): 0.1055, Total Pseudo-Labels: 3, Correct Pseudo-Labels: 2
+
+acc_train_cw(현재 train의 class별 acc) [0.8, 0.4, 0.2, 0.4, 0.2, 0.6, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [3, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [2, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.667 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [0.6666666865348816, nan, nan, nan, nan, nan, nan]
+Save model to ./experiment/jointmatch/output/
+loss for labeled data =>  tensor(0.1749, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.8354, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 6/37, Train Acc: 0.4000, Val Acc: 0.3094, Test Acc: 0.2746, Test F1(macro): 0.1843, Total Pseudo-Labels: 1, Correct Pseudo-Labels: 1
+
+acc_train_cw(현재 train의 class별 acc) [0.8, 0.4, 0.2, 0.4, 0.2, 0.6, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [1, 0, 0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [1, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  1.0 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [1.0, nan, nan, nan, nan, nan, nan]
+loss for labeled data =>  tensor(0.0615, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.7350, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 7/37, Train Acc: 0.4000, Val Acc: 0.2573, Test Acc: 0.3094, Test F1(macro): 0.1992, Total Pseudo-Labels: 1, Correct Pseudo-Labels: 0
+
+acc_train_cw(현재 train의 class별 acc) [0.8, 0.4, 0.2, 0.4, 0.2, 0.4, 0.4]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0, 1, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.0 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan, 0.0, nan]
+Save model to ./experiment/jointmatch/output/
+loss for labeled data =>  tensor(0.0234, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.7075, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 8/37, Train Acc: 0.4000, Val Acc: 0.3355, Test Acc: 0.1742, Test F1(macro): 0.1246, Total Pseudo-Labels: 4, Correct Pseudo-Labels: 1
+
+acc_train_cw(현재 train의 class별 acc) [0.8, 0.4, 0.2, 0.6, 0.2, 0.2, 0.4]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [1, 0, 0, 2, 1, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [1, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.25 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [1.0, nan, nan, 0.0, 0.0, nan, nan]
+Save model to ./experiment/jointmatch/output/
+loss for labeled data =>  tensor(0.0139, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.5605, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 9/37, Train Acc: 0.4000, Val Acc: 0.3550, Test Acc: 0.1066, Test F1(macro): 0.1016, Total Pseudo-Labels: 5, Correct Pseudo-Labels: 1
+
+acc_train_cw(현재 train의 class별 acc) [0.8, 0.4, 0.2, 0.4, 0.6, 0.2, 0.4]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 1, 0, 0, 1, 0, 3]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 1]
+psl_acc(PSL 평가에서의 정확도):  0.2 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, 0.0, nan, nan, 0.0, nan, 0.3333333432674408]
+loss for labeled data =>  tensor(0.0081, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.5011, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 10/37, Train Acc: 0.4286, Val Acc: 0.3290, Test Acc: 0.0676, Test F1(macro): 0.0717, Total Pseudo-Labels: 5, Correct Pseudo-Labels: 2
+
+acc_train_cw(현재 train의 class별 acc) [0.8, 0.4, 0.2, 0.4, 0.6, 0.2, 0.6]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [3, 0, 0, 0, 2, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [2, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.4 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [0.6666666865348816, nan, nan, nan, 0.0, nan, nan]
+loss for labeled data =>  tensor(0.0061, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.3119, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 11/37, Train Acc: 0.4571, Val Acc: 0.2801, Test Acc: 0.0656, Test F1(macro): 0.0785, Total Pseudo-Labels: 6, Correct Pseudo-Labels: 1
+
+acc_train_cw(현재 train의 class별 acc) [1.0, 0.4, 0.2, 0.4, 0.4, 0.2, 0.6]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [2, 0, 1, 0, 1, 1, 1]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 1, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.167 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [0.0, nan, 0.0, nan, 1.0, 0.0, 0.0]
+loss for labeled data =>  tensor(0.0121, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.5604, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 12/37, Train Acc: 0.4571, Val Acc: 0.2052, Test Acc: 0.0717, Test F1(macro): 0.0798, Total Pseudo-Labels: 4, Correct Pseudo-Labels: 0
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.4, 0.4, 0.2, 0.6, 0.2, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [2, 0, 1, 1, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.0 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [0.0, nan, 0.0, 0.0, nan, nan, nan]
+loss for labeled data =>  tensor(0.0049, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.6980, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 13/37, Train Acc: 0.3143, Val Acc: 0.2117, Test Acc: 0.0758, Test F1(macro): 0.0798, Total Pseudo-Labels: 7, Correct Pseudo-Labels: 2
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.4, 0.4, 0.0, 1.0, 0.2, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [1, 0, 2, 0, 3, 0, 1]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [1, 0, 1, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.286 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [1.0, nan, 0.5, nan, 0.0, nan, 0.0]
+loss for labeled data =>  tensor(0.0124, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.6660, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 14/37, Train Acc: 0.3429, Val Acc: 0.1564, Test Acc: 0.0881, Test F1(macro): 0.0713, Total Pseudo-Labels: 7, Correct Pseudo-Labels: 2
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.4, 0.4, 0.2, 0.8, 0.2, 0.4]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [1, 0, 3, 0, 3, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 2, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.286 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [0.0, nan, 0.6666666865348816, nan, 0.0, nan, nan]
+loss for labeled data =>  tensor(0.0039, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.7968, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 15/37, Train Acc: 0.3714, Val Acc: 0.1824, Test Acc: 0.1045, Test F1(macro): 0.0940, Total Pseudo-Labels: 4, Correct Pseudo-Labels: 1
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.4, 0.4, 0.2, 0.4, 0.2, 0.4]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 1, 0, 0, 1, 1, 1]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 1, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.25 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, 1.0, nan, nan, 0.0, 0.0, 0.0]
+loss for labeled data =>  tensor(0.0019, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.8487, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 16/37, Train Acc: 0.3143, Val Acc: 0.2410, Test Acc: 0.1352, Test F1(macro): 0.1300, Total Pseudo-Labels: 7, Correct Pseudo-Labels: 1
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.4, 0.4, 0.2, 0.4, 0.2, 0.4]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [1, 2, 1, 1, 0, 0, 2]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 1, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.143 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [0.0, 0.0, 1.0, 0.0, nan, nan, 0.0]
+loss for labeled data =>  tensor(0.0017, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.7445, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 17/37, Train Acc: 0.3143, Val Acc: 0.2345, Test Acc: 0.1250, Test F1(macro): 0.1069, Total Pseudo-Labels: 5, Correct Pseudo-Labels: 2
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.2, 0.8, 0.2, 0.6, 0.2, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 4, 0, 1, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 2, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.4 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, 0.5, nan, 0.0, nan, nan]
+loss for labeled data =>  tensor(0.0064, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.6889, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 18/37, Train Acc: 0.3429, Val Acc: 0.2573, Test Acc: 0.0984, Test F1(macro): 0.0540, Total Pseudo-Labels: 5, Correct Pseudo-Labels: 1
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.2, 0.8, 0.2, 0.4, 0.2, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 3, 0, 2, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 1, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.2 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, 0.3333333432674408, nan, 0.0, nan, nan]
+loss for labeled data =>  tensor(0.0025, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.6728, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 19/37, Train Acc: 0.3143, Val Acc: 0.2573, Test Acc: 0.1004, Test F1(macro): 0.0485, Total Pseudo-Labels: 6, Correct Pseudo-Labels: 0
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.2, 0.8, 0.2, 0.2, 0.2, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 4, 0, 2, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.0 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, 0.0, nan, 0.0, nan, nan]
+loss for labeled data =>  tensor(0.0024, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.6752, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 20/37, Train Acc: 0.2857, Val Acc: 0.2215, Test Acc: 0.0963, Test F1(macro): 0.0403, Total Pseudo-Labels: 6, Correct Pseudo-Labels: 2
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.2, 0.8, 0.2, 0.2, 0.2, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 4, 0, 2, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 2, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.333 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, 0.5, nan, 0.0, nan, nan]
+loss for labeled data =>  tensor(0.0029, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.9341, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 21/37, Train Acc: 0.2857, Val Acc: 0.2215, Test Acc: 0.1004, Test F1(macro): 0.0393, Total Pseudo-Labels: 6, Correct Pseudo-Labels: 0
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.2, 0.8, 0.2, 0.2, 0.2, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 1, 4, 0, 1, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.0 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, 0.0, 0.0, nan, 0.0, nan, nan]
+loss for labeled data =>  tensor(0.0017, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.8899, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 22/37, Train Acc: 0.2857, Val Acc: 0.2215, Test Acc: 0.0963, Test F1(macro): 0.0346, Total Pseudo-Labels: 4, Correct Pseudo-Labels: 4
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.2, 0.8, 0.2, 0.2, 0.2, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 2, 1, 1, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 2, 1, 1, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  1.0 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, 1.0, 1.0, 1.0, nan, nan]
+loss for labeled data =>  tensor(0.0018, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.7772, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 23/37, Train Acc: 0.2857, Val Acc: 0.2215, Test Acc: 0.0963, Test F1(macro): 0.0405, Total Pseudo-Labels: 4, Correct Pseudo-Labels: 2
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.2, 0.8, 0.2, 0.2, 0.2, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 1, 0, 3, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 2, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.5 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, 0.0, nan, 0.6666666865348816, nan, nan]
+loss for labeled data =>  tensor(0.0014, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.8372, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 24/37, Train Acc: 0.2857, Val Acc: 0.2117, Test Acc: 0.0861, Test F1(macro): 0.0394, Total Pseudo-Labels: 7, Correct Pseudo-Labels: 1
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.2, 0.8, 0.2, 0.2, 0.2, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 4, 0, 3, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 1, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.143 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, 0.0, nan, 0.3333333432674408, nan, nan]
+loss for labeled data =>  tensor(0.0015, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.6105, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 25/37, Train Acc: 0.2857, Val Acc: 0.2345, Test Acc: 0.0799, Test F1(macro): 0.0410, Total Pseudo-Labels: 5, Correct Pseudo-Labels: 1
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.2, 0.8, 0.2, 0.4, 0.2, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 1, 2, 0, 2, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 1, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.2 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, 0.0, 0.0, nan, 0.5, nan, nan]
+loss for labeled data =>  tensor(0.0010, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.7598, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 26/37, Train Acc: 0.3143, Val Acc: 0.2378, Test Acc: 0.0799, Test F1(macro): 0.0445, Total Pseudo-Labels: 6, Correct Pseudo-Labels: 2
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.2, 0.4, 0.0, 1.0, 0.2, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 6, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 2, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.333 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, 0.3333333432674408, nan, nan, nan, nan]
+loss for labeled data =>  tensor(0.0090, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.6809, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 27/37, Train Acc: 0.3143, Val Acc: 0.1531, Test Acc: 0.0471, Test F1(macro): 0.0259, Total Pseudo-Labels: 7, Correct Pseudo-Labels: 2
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.2, 0.0, 0.0, 1.0, 0.2, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 7, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 2, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.286 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, 0.2857142984867096, nan, nan]
+loss for labeled data =>  tensor(0.8263, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.6972, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 28/37, Train Acc: 0.2571, Val Acc: 0.1433, Test Acc: 0.0430, Test F1(macro): 0.0118, Total Pseudo-Labels: 6, Correct Pseudo-Labels: 0
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.2, 0.6, 0.2, 0.8, 0.2, 0.4]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 1, 0, 5, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.0 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, 0.0, nan, 0.0, nan, nan]
+loss for labeled data =>  tensor(0.0086, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.7976, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 29/37, Train Acc: 0.3714, Val Acc: 0.2182, Test Acc: 0.0779, Test F1(macro): 0.0595, Total Pseudo-Labels: 7, Correct Pseudo-Labels: 4
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.2, 0.6, 0.2, 0.2, 0.8, 0.6]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 2, 2, 1, 1, 1]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 1, 1, 1, 1]
+psl_acc(PSL 평가에서의 정확도):  0.571 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, 0.0, 0.5, 1.0, 1.0, 1.0]
+loss for labeled data =>  tensor(0.3185, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.7394, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 30/37, Train Acc: 0.4000, Val Acc: 0.1857, Test Acc: 0.2848, Test F1(macro): 0.1543, Total Pseudo-Labels: 7, Correct Pseudo-Labels: 3
+
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.2, 1.0, 0.0, 0.0, 0.2, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 7, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 3, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.429 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, 0.4285714328289032, nan, nan, nan, nan]
+loss for labeled data =>  tensor(2.6135, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.6894, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 31/37, Train Acc: 0.2000, Val Acc: 0.2280, Test Acc: 0.1230, Test F1(macro): 0.0313, Total Pseudo-Labels: 7, Correct Pseudo-Labels: 3
+
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.2, 0.2, 1.0, 0.2, 0.2, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [1, 0, 6, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [1, 0, 2, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.429 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [1.0, nan, 0.3333333432674408, nan, nan, nan, nan]
+Save model to ./experiment/jointmatch/output/
+loss for labeled data =>  tensor(1.3455, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.6434, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 32/37, Train Acc: 0.2571, Val Acc: 0.4039, Test Acc: 0.1762, Test F1(macro): 0.0898, Total Pseudo-Labels: 6, Correct Pseudo-Labels: 1
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.0, 1.0, 0.0, 0.2, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 1, 5, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 1, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.167 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, 1.0, 0.0, nan, nan]
+loss for labeled data =>  tensor(2.6080, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.7552, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 33/37, Train Acc: 0.2000, Val Acc: 0.2313, Test Acc: 0.1127, Test F1(macro): 0.0402, Total Pseudo-Labels: 3, Correct Pseudo-Labels: 1
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.6, 0.2, 0.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [1, 0, 0, 0, 2, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [1, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.333 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [1.0, nan, nan, nan, 0.0, nan, nan]
+loss for labeled data =>  tensor(1.7741, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.7370, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 34/37, Train Acc: 0.1429, Val Acc: 0.1466, Test Acc: 0.1332, Test F1(macro): 0.0746, Total Pseudo-Labels: 7, Correct Pseudo-Labels: 0
+
+acc_train_cw(현재 train의 class별 acc) [0.8, 0.0, 0.2, 1.0, 0.0, 0.0, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [3, 0, 0, 4, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.0 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [0.0, nan, nan, 0.0, nan, nan, nan]
+loss for labeled data =>  tensor(3.0587, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.6610, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 35/37, Train Acc: 0.3143, Val Acc: 0.3648, Test Acc: 0.1578, Test F1(macro): 0.0911, Total Pseudo-Labels: 6, Correct Pseudo-Labels: 0
+
+acc_train_cw(현재 train의 class별 acc) [0.2, 0.0, 0.8, 0.0, 0.8, 0.2, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 6, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.0 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, 0.0, nan, nan, nan]
+loss for labeled data =>  tensor(1.6135, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.6585, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 36/37, Train Acc: 0.3143, Val Acc: 0.1759, Test Acc: 0.0799, Test F1(macro): 0.0454, Total Pseudo-Labels: 6, Correct Pseudo-Labels: 0
+
+acc_train_cw(현재 train의 class별 acc) [0.6, 0.4, 0.0, 0.2, 0.0, 0.0, 0.2]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [1, 2, 0, 0, 0, 2, 1]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.0 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [0.0, 0.0, nan, nan, nan, 0.0, 0.0]
+loss for labeled data =>  tensor(1.6210, device='cuda:0', grad_fn=<NllLossBackward0>)
+loss for labeled data =>  tensor(1.7151, device='cuda:0', grad_fn=<NllLossBackward0>)
+Epoch 37/37, Train Acc: 0.2000, Val Acc: 0.1498, Test Acc: 0.1230, Test F1(macro): 0.0788, Total Pseudo-Labels: 7, Correct Pseudo-Labels: 3
+
+Training complete!
+Total training took 0:57:27 (h:mm:ss)
+Load model from ./experiment/jointmatch/output/5_['unixcoder', 'unixcoder']_[0.0004, 0.0002]_0.7_jointmatch_37_[45]_{'python'}_net0.pth
+Load model from ./experiment/jointmatch/output/5_['unixcoder', 'unixcoder']_[0.0004, 0.0002]_0.7_jointmatch_37_[45]_{'python'}_net1.pth
+Save training statistics in:  ./experiment/jointmatch/log/unixcoder/joint_match//5_['unixcoder', 'unixcoder']_[0.0004, 0.0002]_0.7_jointmatch_37_[45]_{'python'}/training_statistics.csv
+
+
+Best_step:  31 
+Best_val_epoch:  32 
+best_val_acc:  0.40390879478827363 
+best_val_test_acc:  0.1762295081967213 
+best_val_test_f1:  0.08980655886353331
+Save best record in:  ./experiment/jointmatch/log/unixcoder/joint_match/summary.csv
+Save best record in:  ./experiment/jointmatch/log/summary_avgrun.csv

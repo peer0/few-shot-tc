@@ -52,11 +52,7 @@ elif model_name=="deepseek":
 
 
      
-if model_name == 'ast-t5':
-        bs = 1  # 4, 8 # batch size   
 
-else:
-        bs = 7  
 
 #token = net_arch = "microsoft/codebert-base"
 #token = net_arch = "microsoft/unixcoder-base"
@@ -94,7 +90,7 @@ val_interval = 25  # 몇번째 만큼 검증을 하고 모델이 어떤지 파�
 #early_stop_tolerance = 10
 #early_stop_tolerance = int(sys.argv[5])
 
-p_tolerance = 10
+#stop_tolerance = 10
 max_step = 100000   
 
 device_idx = 0
@@ -109,6 +105,19 @@ dataset = sys.argv[6]
 experiment_home = f"./experiment/{dataset.split('/')[3]}"  #저장소 path
 
 language = {dataset.split('/')[3]}
+
+
+ln_list = list(language) # 이미 실험이 많이 진행되어 변경을 이렇게함.
+#bs = 8  # 4, 8
+#pdb.set_trace()
+if ln_list[0] == 'corcod_extended_data':
+    bs = 5
+else:
+    bs = 7
+    
+print("bs => ", bs)
+
+
 
 pse_cl = sys.argv[7]
         

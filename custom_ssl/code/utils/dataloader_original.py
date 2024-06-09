@@ -6,6 +6,7 @@ import numpy as np
 import nlpaug.augmenter.word as naw
 from transformers import BertTokenizer, AutoTokenizer
 from torch.utils.data import Dataset, DataLoader
+import pdb
 
 class SEMIDataset(Dataset):
     def __init__(self, sents, sents_aug1, sents_aug2, labels=None):
@@ -183,9 +184,17 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi', token =
     print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
     print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
 
-    print('Check n_smaples_per_class in the original training set: ', train_df['label'].value_counts().to_dict())
-    print('Check n_smaples_per_class in the labeled training set: ', train_l_df['label'].value_counts().to_dict())
-    print('Check n_smaples_per_class in the unlabeled training set: ', train_u_df['label'].value_counts().to_dict())
+
+    # print('Check n_smaples_per_class in the original training set: ', train_df['label'].value_counts().to_dict())
+    # print('Check n_smaples_per_class in the labeled training set: ', train_l_df['label'].value_counts().to_dict())
+    # print('Check n_smaples_per_class in the unlabeled training set: ', train_u_df['label'].value_counts().to_dict())
+    
+    # 추가 이부분 너무 더럽게 보여서 정려함.
+    from collections import OrderedDict
+    print('Check n_smaples_per_class in the original training set: ', OrderedDict(sorted((train_df['label'].value_counts().to_dict()).items())))
+    print('Check n_smaples_per_class in the labeled training set: ', OrderedDict(sorted((train_l_df['label'].value_counts().to_dict()).items())))
+    print('Check n_smaples_per_class in the unlabeled training set: ', OrderedDict(sorted((train_u_df['label'].value_counts().to_dict()).items())))
+    
 
 
     if load_mode == 'semi':
@@ -197,6 +206,7 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi', token =
         else:
             train_dataset_l = SEMIDataset(train_l_df['content'].to_list(), train_l_df['synonym_aug'].to_list(), train_l_df['back_translation'], labels=train_l_df['label'].to_list())
             train_dataset_u = SEMIDataset(train_u_df['content'].to_list(), train_u_df['synonym_aug'].to_list(), train_u_df['back_translation'], labels=train_u_df['label'].to_list())
+        #pdb.set_trace()
         train_loader_u = DataLoader(dataset=train_dataset_u, batch_size=bs, shuffle=True, collate_fn=MyCollator(tokenizer))
     
     elif load_mode == 'sup_baseline':
@@ -211,8 +221,8 @@ def get_dataloader(data_path, n_labeled_per_class, bs, load_mode='semi', token =
 
     dev_dataset = SEMINoAugDataset(dev_df['content'].to_list(), labels=dev_df['label'].to_list())
     test_dataset = SEMINoAugDataset(test_df['content'].to_list(), labels=test_df['label'].to_list())
-    dev_loader = DataLoader(dataset=dev_dataset, batch_size=2*bs, shuffle=False, collate_fn=MyCollator(tokenizer))
-    test_loader = DataLoader(dataset=test_dataset, batch_size=2*bs, shuffle=False, collate_fn=MyCollator(tokenizer))
+    dev_loader = DataLoader(dataset=dev_dataset, batch_size=1, shuffle=False, collate_fn=MyCollator(tokenizer))
+    test_loader = DataLoader(dataset=test_dataset, batch_size=1, shuffle=False, collate_fn=MyCollator(tokenizer))
 
     return train_loader_l, train_loader_u, dev_loader, test_loader, num_class
 

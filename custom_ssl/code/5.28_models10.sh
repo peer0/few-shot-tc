@@ -1,9 +1,11 @@
 for nshot in 10; do
-    for language in java ; do
-        for pse_cl in 7 ; do
+    for language in corcod ; do
+        #for pse_cl in 7 ; do
+        for pse_cl in 5 ; do
             for thres in  0.7; do
                 for max_epoch in 37; do             
-                    for model in  'codesage' 'codebert' 'codet5p' 'graphcodebert' 'unixcoder' ; do
+                    #for model in  'codesage' 'codebert' 'codet5p' 'graphcodebert' 'unixcoder' ; do
+                    for model in 'codebert' 'codet5p' 'graphcodebert' 'unixcoder' ; do
                         for seed in 42 43 45; do
                             if [ "${model}" = "codesage" ]; then
                                 lr_values='3e-4'  # Two learning rates for codesage

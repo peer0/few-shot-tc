@@ -1,5 +1,5 @@
 for nshot in 5 10 ; do
-	for language in python ; do
+	for language in corcode ; do
 		for thres in  0.7; do
 			for max_epoch in 20; do 
 				for model_list in 'codet5p,codet5p' 'unixcoder,unixcoder' ; do

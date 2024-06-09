@@ -1,5 +1,5 @@
-for nshot in 5; do
-	for language in java corcod ; do
+for nshot in 5 10; do
+	for language in corcod ; do
 		for pse_cl in 5 6 7 ; do
 			for thres in  0.7; do
 				for max_epoch in 50; do 			

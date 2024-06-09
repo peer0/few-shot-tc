@@ -1,4 +1,4 @@
-from main_original import multiRun
+from main_original2 import multiRun
 import sys
 import os
 import pdb
@@ -34,8 +34,8 @@ for model_name in model_list:
     tokens.append(token)
     net_archs.append(net_arch)
     
-#bs = 8  # 4, 8
-bs = 7
+
+
 
 #lr = 1e-5 
 #lr = float(sys.argv[3]) 
@@ -55,17 +55,30 @@ dataset = sys.argv[6]
 experiment_home = f"./experiment/{dataset.split('/')[2]}"
 
 #추가됨
-language = {dataset.split('/')[2]}
+language = {dataset.split('/')[3]}
+ln_list = list(language) # 이미 실험이 많이 진행되어 변경을 이렇게함.
+#bs = 8  # 4, 8
+#pdb.set_trace()
+if ln_list[0] == 'corcode':
+    bs = 5
+    print('\nbs for corcod => ',bs)
+else:
+    bs = 7
+    print('\nbs => ',bs)
 
+if n_labeled_per_class == 5:
+    val_interval = 5
+else:
+    val_interval = 10
 
 ####################################################
-ul_ratio = 10
+ul_ratio = 1
 weight_u_loss = 1
 disagree_weight = 0.9 
 ema_mode = False 
 ema_momentum = 0.9
-val_interval = 25 
-early_stop_tolerance = 10
+
+early_stop_tolerance = 100000
 max_step = 100000   
 device_idx = 0
 

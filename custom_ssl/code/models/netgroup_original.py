@@ -78,6 +78,7 @@ class NetGroup(nn.Module):
         # initialize optimizers for the group of networks
         self.optimizers = {}
         for i in range(num_nets):
+            # 이부분 수정
             self.optimizers[i] = self.init_optimizer(self.net_arch[i],self.nets[i], lr[i], lr_linear) # 추가 수정
 
     # initialize one network
