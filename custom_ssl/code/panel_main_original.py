@@ -60,7 +60,7 @@ ln_list = list(language) # 이미 실험이 많이 진행되어 변경을 이렇
 #bs = 8  # 4, 8
 #pdb.set_trace()
 if ln_list[0] == 'corcode':
-    bs = 5
+    bs = 7
     print('\nbs for corcod => ',bs)
 else:
     bs = 7

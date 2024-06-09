@@ -1,0 +1,867 @@
+current work directory:  /home/imsuhan22/few-shot-tc/custom_ssl/code
+Data set -> corcod_extended_data
+save_name: 5_codebert-base_0.0004_0.7_corcod_extended_data_37_[42]
+
+data_path:  ../data/problem_based_split/corcod_extended_data
+
+There are 1 GPU(s) available.
+We will use the GPU- 0 Quadro RTX 8000
+
+**line 147 모델 =>  microsoft/codebert-base
+**tokenizer type =  microsoft/codebert-base 
+
+pesudo label class개수 기준 -> 5
+n_labeled_per_class:  5
+train_df samples: 739
+train_labeled_df samples: 25
+train_unlabeled_df samples: 714
+n_classes:  5 
+
+
+net_arch:  microsoft/codebert-base 
+lr:  0.0004 
+lr_linear:  0.001 
+
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 0  Tim 0:00:08
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 1.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+***best_acc_model_save --- epoch = 1***
+Save model to ./experiment/corcod_extended_data/output/
+**pseudo_label ->  [0.1722, 0.1685, 0.2544, 0.2075, 0.1974] **
+max =  0.2544 | max_idx =  2
+**pseudo_label ->  [0.1899, 0.1826, 0.2547, 0.2128, 0.16] **
+max =  0.2547 | max_idx =  2
+**pseudo_label ->  [0.1798, 0.1625, 0.2873, 0.1912, 0.1793] **
+max =  0.2873 | max_idx =  2
+**pseudo_label ->  [0.1607, 0.1577, 0.3396, 0.1661, 0.176] **
+max =  0.3396 | max_idx =  2
+**pseudo_label ->  [0.1663, 0.1592, 0.2847, 0.1942, 0.1956] **
+max =  0.2847 | max_idx =  2
+Epoch 1/37, Train Loss: 1.7986, Valid Loss: 1.8009, Train Acc: 0.2000, Val Acc: 0.4490, Test Acc: 0.3579, Test F1(macro): 0.1054, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 4  Tim 0:00:55
+acc_train_cw(현재 train의 class별 acc) [1.0, 0.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2887, 0.1868, 0.1514, 0.2327, 0.1405] **
+max =  0.2887 | max_idx =  0
+**pseudo_label ->  [0.2901, 0.2077, 0.1449, 0.2195, 0.1378] **
+max =  0.2901 | max_idx =  0
+**pseudo_label ->  [0.3049, 0.2062, 0.148, 0.2028, 0.1382] **
+max =  0.3049 | max_idx =  0
+**pseudo_label ->  [0.3248, 0.1832, 0.147, 0.2037, 0.1413] **
+max =  0.3248 | max_idx =  0
+**pseudo_label ->  [0.2724, 0.1694, 0.1568, 0.2541, 0.1472] **
+max =  0.2724 | max_idx =  0
+Epoch 2/37, Train Loss: 1.7160, Valid Loss: 1.8505, Train Acc: 0.2000, Val Acc: 0.1020, Test Acc: 0.1263, Test F1(macro): 0.0449, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 8  Tim 0:01:38
+acc_train_cw(현재 train의 class별 acc) [1.0, 0.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2568, 0.1715, 0.1174, 0.2528, 0.2016] **
+max =  0.2568 | max_idx =  0
+**pseudo_label ->  [0.2897, 0.1435, 0.0656, 0.3024, 0.1988] **
+max =  0.3024 | max_idx =  3
+**pseudo_label ->  [0.3047, 0.1462, 0.111, 0.2601, 0.1781] **
+max =  0.3047 | max_idx =  0
+**pseudo_label ->  [0.2917, 0.1591, 0.0985, 0.2671, 0.1835] **
+max =  0.2917 | max_idx =  0
+**pseudo_label ->  [0.3023, 0.1587, 0.105, 0.2704, 0.1637] **
+max =  0.3023 | max_idx =  0
+Epoch 3/37, Train Loss: 1.6842, Valid Loss: 1.7951, Train Acc: 0.2000, Val Acc: 0.1020, Test Acc: 0.1263, Test F1(macro): 0.0449, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 12  Tim 0:02:21
+acc_train_cw(현재 train의 class별 acc) [0.0, 1.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.171, 0.3952, 0.212, 0.0656, 0.1562] **
+max =  0.3952 | max_idx =  1
+**pseudo_label ->  [0.155, 0.3824, 0.218, 0.0756, 0.169] **
+max =  0.3824 | max_idx =  1
+**pseudo_label ->  [0.1728, 0.3648, 0.1837, 0.081, 0.1978] **
+max =  0.3648 | max_idx =  1
+**pseudo_label ->  [0.1416, 0.4821, 0.1578, 0.07, 0.1486] **
+max =  0.4821 | max_idx =  1
+**pseudo_label ->  [0.1729, 0.4062, 0.203, 0.0765, 0.1415] **
+max =  0.4062 | max_idx =  1
+Epoch 4/37, Train Loss: 1.8086, Valid Loss: 1.7226, Train Acc: 0.2000, Val Acc: 0.0612, Test Acc: 0.0526, Test F1(macro): 0.0200, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 16  Tim 0:03:07
+acc_train_cw(현재 train의 class별 acc) [0.0, 1.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.1992, 0.2334, 0.2055, 0.2433, 0.1186] **
+max =  0.2433 | max_idx =  3
+**pseudo_label ->  [0.2316, 0.2398, 0.1761, 0.2391, 0.1133] **
+max =  0.2398 | max_idx =  1
+**pseudo_label ->  [0.2143, 0.2134, 0.2175, 0.2334, 0.1215] **
+max =  0.2334 | max_idx =  3
+**pseudo_label ->  [0.2072, 0.2329, 0.1906, 0.2521, 0.1172] **
+max =  0.2521 | max_idx =  3
+**pseudo_label ->  [0.2124, 0.2479, 0.1781, 0.2466, 0.115] **
+max =  0.2479 | max_idx =  1
+Epoch 5/37, Train Loss: 1.6341, Valid Loss: 1.5103, Train Acc: 0.2000, Val Acc: 0.0612, Test Acc: 0.0526, Test F1(macro): 0.0200, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 20  Tim 0:03:52
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 1.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.1625, 0.1978, 0.2434, 0.205, 0.1912] **
+max =  0.2434 | max_idx =  2
+**pseudo_label ->  [0.1288, 0.1765, 0.2648, 0.2289, 0.2011] **
+max =  0.2648 | max_idx =  2
+**pseudo_label ->  [0.1591, 0.1822, 0.248, 0.2002, 0.2105] **
+max =  0.248 | max_idx =  2
+**pseudo_label ->  [0.1495, 0.1751, 0.276, 0.2069, 0.1924] **
+max =  0.276 | max_idx =  2
+**pseudo_label ->  [0.1588, 0.1773, 0.2379, 0.2225, 0.2035] **
+max =  0.2379 | max_idx =  2
+Epoch 6/37, Train Loss: 1.6227, Valid Loss: 1.5724, Train Acc: 0.2000, Val Acc: 0.4490, Test Acc: 0.3579, Test F1(macro): 0.1054, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 24  Tim 0:04:36
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 0.0, 1.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.0894, 0.1734, 0.2273, 0.2167, 0.2932] **
+max =  0.2932 | max_idx =  4
+**pseudo_label ->  [0.1517, 0.1914, 0.2041, 0.2154, 0.2375] **
+max =  0.2375 | max_idx =  4
+**pseudo_label ->  [0.1498, 0.1911, 0.1962, 0.2123, 0.2507] **
+max =  0.2507 | max_idx =  4
+**pseudo_label ->  [0.1461, 0.1902, 0.1907, 0.2284, 0.2446] **
+max =  0.2446 | max_idx =  4
+**pseudo_label ->  [0.1432, 0.1933, 0.2018, 0.2207, 0.241] **
+max =  0.241 | max_idx =  4
+Epoch 7/37, Train Loss: 1.6931, Valid Loss: 1.5743, Train Acc: 0.2000, Val Acc: 0.2449, Test Acc: 0.2316, Test F1(macro): 0.0752, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 28  Tim 0:05:21
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 1.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.1674, 0.1562, 0.1846, 0.249, 0.2428] **
+max =  0.249 | max_idx =  3
+**pseudo_label ->  [0.16, 0.1414, 0.1944, 0.2609, 0.2433] **
+max =  0.2609 | max_idx =  3
+**pseudo_label ->  [0.1763, 0.1549, 0.2008, 0.2355, 0.2325] **
+max =  0.2355 | max_idx =  3
+**pseudo_label ->  [0.1635, 0.1536, 0.1994, 0.2518, 0.2317] **
+max =  0.2518 | max_idx =  3
+**pseudo_label ->  [0.1599, 0.1362, 0.1998, 0.234, 0.27] **
+max =  0.27 | max_idx =  4
+Epoch 8/37, Train Loss: 1.6576, Valid Loss: 1.6618, Train Acc: 0.2000, Val Acc: 0.1429, Test Acc: 0.2316, Test F1(macro): 0.0752, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 32  Tim 0:06:05
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 1.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2408, 0.1759, 0.2025, 0.2375, 0.1433] **
+max =  0.2408 | max_idx =  0
+**pseudo_label ->  [0.1973, 0.1553, 0.1793, 0.3322, 0.1358] **
+max =  0.3322 | max_idx =  3
+**pseudo_label ->  [0.2643, 0.1827, 0.2088, 0.1982, 0.146] **
+max =  0.2643 | max_idx =  0
+**pseudo_label ->  [0.2169, 0.1816, 0.1795, 0.2478, 0.1742] **
+max =  0.2478 | max_idx =  3
+**pseudo_label ->  [0.2249, 0.1575, 0.1807, 0.3542, 0.0827] **
+max =  0.3542 | max_idx =  3
+Epoch 9/37, Train Loss: 1.6240, Valid Loss: 1.7194, Train Acc: 0.2000, Val Acc: 0.1429, Test Acc: 0.2316, Test F1(macro): 0.0752, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 36  Tim 0:06:50
+acc_train_cw(현재 train의 class별 acc) [0.0, 1.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.206, 0.266, 0.1788, 0.169, 0.1803] **
+max =  0.266 | max_idx =  1
+**pseudo_label ->  [0.2239, 0.2846, 0.1984, 0.146, 0.1472] **
+max =  0.2846 | max_idx =  1
+**pseudo_label ->  [0.2104, 0.286, 0.1896, 0.1448, 0.1692] **
+max =  0.286 | max_idx =  1
+**pseudo_label ->  [0.2011, 0.2925, 0.1759, 0.1653, 0.1652] **
+max =  0.2925 | max_idx =  1
+**pseudo_label ->  [0.2345, 0.2834, 0.1745, 0.157, 0.1505] **
+max =  0.2834 | max_idx =  1
+Epoch 10/37, Train Loss: 1.6763, Valid Loss: 1.6979, Train Acc: 0.2000, Val Acc: 0.0612, Test Acc: 0.0526, Test F1(macro): 0.0200, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 40  Tim 0:07:33
+acc_train_cw(현재 train의 class별 acc) [0.0, 1.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2199, 0.264, 0.1987, 0.1388, 0.1786] **
+max =  0.264 | max_idx =  1
+**pseudo_label ->  [0.2746, 0.3468, 0.2002, 0.068, 0.1103] **
+max =  0.3468 | max_idx =  1
+**pseudo_label ->  [0.2408, 0.2688, 0.1951, 0.1328, 0.1625] **
+max =  0.2688 | max_idx =  1
+**pseudo_label ->  [0.2532, 0.2646, 0.1901, 0.1291, 0.1631] **
+max =  0.2646 | max_idx =  1
+**pseudo_label ->  [0.2257, 0.3785, 0.2026, 0.0903, 0.103] **
+max =  0.3785 | max_idx =  1
+Epoch 11/37, Train Loss: 1.6310, Valid Loss: 1.5993, Train Acc: 0.2000, Val Acc: 0.0612, Test Acc: 0.0526, Test F1(macro): 0.0200, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 44  Tim 0:08:19
+acc_train_cw(현재 train의 class별 acc) [1.0, 0.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2623, 0.2251, 0.2247, 0.132, 0.156] **
+max =  0.2623 | max_idx =  0
+**pseudo_label ->  [0.2598, 0.2036, 0.2421, 0.1263, 0.1683] **
+max =  0.2598 | max_idx =  0
+**pseudo_label ->  [0.2293, 0.2114, 0.2197, 0.15, 0.1897] **
+max =  0.2293 | max_idx =  0
+**pseudo_label ->  [0.2565, 0.1852, 0.2392, 0.1366, 0.1824] **
+max =  0.2565 | max_idx =  0
+**pseudo_label ->  [0.2323, 0.2017, 0.2471, 0.1314, 0.1875] **
+max =  0.2471 | max_idx =  2
+Epoch 12/37, Train Loss: 1.6925, Valid Loss: 1.5840, Train Acc: 0.2000, Val Acc: 0.1020, Test Acc: 0.1263, Test F1(macro): 0.0449, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 48  Tim 0:09:02
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 1.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.1527, 0.2108, 0.2287, 0.2352, 0.1727] **
+max =  0.2352 | max_idx =  3
+**pseudo_label ->  [0.1569, 0.1936, 0.2302, 0.2299, 0.1894] **
+max =  0.2302 | max_idx =  2
+**pseudo_label ->  [0.1359, 0.2235, 0.2172, 0.2267, 0.1967] **
+max =  0.2267 | max_idx =  3
+**pseudo_label ->  [0.0526, 0.2039, 0.1394, 0.5208, 0.0833] **
+max =  0.5208 | max_idx =  3
+**pseudo_label ->  [0.1247, 0.1994, 0.1823, 0.325, 0.1685] **
+max =  0.325 | max_idx =  3
+Epoch 13/37, Train Loss: 1.6653, Valid Loss: 1.6650, Train Acc: 0.2000, Val Acc: 0.1429, Test Acc: 0.2316, Test F1(macro): 0.0752, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 52  Tim 0:09:47
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 1.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2119, 0.1522, 0.1393, 0.4057, 0.0909] **
+max =  0.4057 | max_idx =  3
+**pseudo_label ->  [0.1358, 0.2133, 0.1407, 0.3033, 0.2069] **
+max =  0.3033 | max_idx =  3
+**pseudo_label ->  [0.1689, 0.2071, 0.1097, 0.4276, 0.0867] **
+max =  0.4276 | max_idx =  3
+**pseudo_label ->  [0.2259, 0.1997, 0.1732, 0.2189, 0.1823] **
+max =  0.2259 | max_idx =  0
+**pseudo_label ->  [0.2309, 0.1829, 0.1833, 0.2347, 0.1681] **
+max =  0.2347 | max_idx =  3
+Epoch 14/37, Train Loss: 1.6444, Valid Loss: 1.6158, Train Acc: 0.2000, Val Acc: 0.1429, Test Acc: 0.2316, Test F1(macro): 0.0752, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 56  Tim 0:10:31
+acc_train_cw(현재 train의 class별 acc) [1.0, 0.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 1, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도):  0.0 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, 0.0, nan]
+**pseudo_label ->  [0.3283, 0.1579, 0.2082, 0.1933, 0.1122] **
+max =  0.3283 | max_idx =  0
+**pseudo_label ->  [0.2354, 0.1717, 0.215, 0.1845, 0.1933] **
+max =  0.2354 | max_idx =  0
+**pseudo_label ->  [0.2064, 0.1953, 0.1835, 0.218, 0.1968] **
+max =  0.218 | max_idx =  3
+**pseudo_label ->  [0.2379, 0.1898, 0.2014, 0.1812, 0.1898] **
+max =  0.2379 | max_idx =  0
+**pseudo_label ->  [0.2467, 0.176, 0.1882, 0.2034, 0.1856] **
+max =  0.2467 | max_idx =  0
+Epoch 15/37, Train Loss: 1.6606, Valid Loss: 1.5667, Train Acc: 0.2000, Val Acc: 0.1020, Test Acc: 0.1263, Test F1(macro): 0.0449, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 60  Tim 0:11:17
+acc_train_cw(현재 train의 class별 acc) [1.0, 0.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2168, 0.182, 0.2266, 0.1493, 0.2252] **
+max =  0.2266 | max_idx =  2
+**pseudo_label ->  [0.2503, 0.1798, 0.246, 0.1086, 0.2152] **
+max =  0.2503 | max_idx =  0
+**pseudo_label ->  [0.2551, 0.1666, 0.257, 0.1055, 0.2158] **
+max =  0.257 | max_idx =  2
+**pseudo_label ->  [0.2766, 0.1631, 0.2317, 0.1157, 0.2128] **
+max =  0.2766 | max_idx =  0
+**pseudo_label ->  [0.2597, 0.1916, 0.2532, 0.102, 0.1935] **
+max =  0.2597 | max_idx =  0
+Epoch 16/37, Train Loss: 1.6928, Valid Loss: 1.5800, Train Acc: 0.2000, Val Acc: 0.1020, Test Acc: 0.1263, Test F1(macro): 0.0449, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 64  Tim 0:12:01
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 0.0, 1.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2244, 0.2057, 0.2075, 0.1223, 0.2401] **
+max =  0.2401 | max_idx =  4
+**pseudo_label ->  [0.211, 0.1916, 0.2233, 0.1253, 0.2488] **
+max =  0.2488 | max_idx =  4
+**pseudo_label ->  [0.2145, 0.1997, 0.2249, 0.1161, 0.2448] **
+max =  0.2448 | max_idx =  4
+**pseudo_label ->  [0.2082, 0.1909, 0.191, 0.1535, 0.2563] **
+max =  0.2563 | max_idx =  4
+**pseudo_label ->  [0.2299, 0.1991, 0.2161, 0.1217, 0.2332] **
+max =  0.2332 | max_idx =  4
+Epoch 17/37, Train Loss: 1.6262, Valid Loss: 1.5718, Train Acc: 0.2000, Val Acc: 0.2449, Test Acc: 0.2316, Test F1(macro): 0.0752, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 68  Tim 0:12:46
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 0.0, 1.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.1996, 0.1838, 0.1984, 0.1612, 0.257] **
+max =  0.257 | max_idx =  4
+**pseudo_label ->  [0.2165, 0.1916, 0.203, 0.1448, 0.244] **
+max =  0.244 | max_idx =  4
+**pseudo_label ->  [0.1811, 0.1374, 0.2779, 0.0818, 0.3218] **
+max =  0.3218 | max_idx =  4
+**pseudo_label ->  [0.1945, 0.1856, 0.2167, 0.1452, 0.2579] **
+max =  0.2579 | max_idx =  4
+**pseudo_label ->  [0.2106, 0.1785, 0.2331, 0.1344, 0.2434] **
+max =  0.2434 | max_idx =  4
+Epoch 18/37, Train Loss: 1.6461, Valid Loss: 1.6033, Train Acc: 0.2000, Val Acc: 0.2449, Test Acc: 0.2316, Test F1(macro): 0.0752, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 72  Tim 0:13:30
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 0.0, 1.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.1995, 0.1953, 0.2017, 0.2014, 0.2021] **
+max =  0.2021 | max_idx =  4
+**pseudo_label ->  [0.1912, 0.1992, 0.1965, 0.1969, 0.2162] **
+max =  0.2162 | max_idx =  4
+**pseudo_label ->  [0.2037, 0.1919, 0.1977, 0.1976, 0.2091] **
+max =  0.2091 | max_idx =  4
+**pseudo_label ->  [0.1858, 0.1842, 0.2052, 0.2081, 0.2167] **
+max =  0.2167 | max_idx =  4
+**pseudo_label ->  [0.1978, 0.1823, 0.1936, 0.2165, 0.2098] **
+max =  0.2165 | max_idx =  3
+Epoch 19/37, Train Loss: 1.6370, Valid Loss: 1.5761, Train Acc: 0.2000, Val Acc: 0.2449, Test Acc: 0.2316, Test F1(macro): 0.0752, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 76  Tim 0:14:12
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 1.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.194, 0.1619, 0.2201, 0.2375, 0.1865] **
+max =  0.2375 | max_idx =  3
+**pseudo_label ->  [0.1646, 0.1932, 0.2104, 0.2402, 0.1917] **
+max =  0.2402 | max_idx =  3
+**pseudo_label ->  [0.1836, 0.1589, 0.2285, 0.2462, 0.1828] **
+max =  0.2462 | max_idx =  3
+**pseudo_label ->  [0.1988, 0.1691, 0.1991, 0.2427, 0.1904] **
+max =  0.2427 | max_idx =  3
+**pseudo_label ->  [0.1909, 0.1581, 0.2249, 0.2594, 0.1668] **
+max =  0.2594 | max_idx =  3
+Epoch 20/37, Train Loss: 1.6634, Valid Loss: 1.5945, Train Acc: 0.2000, Val Acc: 0.1429, Test Acc: 0.2316, Test F1(macro): 0.0752, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 80  Tim 0:14:55
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 1.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2136, 0.1977, 0.2299, 0.2473, 0.1115] **
+max =  0.2473 | max_idx =  3
+**pseudo_label ->  [0.1942, 0.196, 0.285, 0.1836, 0.1412] **
+max =  0.285 | max_idx =  2
+**pseudo_label ->  [0.2198, 0.1948, 0.2157, 0.197, 0.1726] **
+max =  0.2198 | max_idx =  0
+**pseudo_label ->  [0.2273, 0.1741, 0.2231, 0.2087, 0.1668] **
+max =  0.2273 | max_idx =  0
+**pseudo_label ->  [0.2214, 0.1945, 0.1918, 0.2042, 0.1881] **
+max =  0.2214 | max_idx =  0
+Epoch 21/37, Train Loss: 1.6475, Valid Loss: 1.6583, Train Acc: 0.2000, Val Acc: 0.4490, Test Acc: 0.3579, Test F1(macro): 0.1054, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 84  Tim 0:15:37
+acc_train_cw(현재 train의 class별 acc) [0.0, 1.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.1773, 0.2347, 0.1739, 0.2, 0.2141] **
+max =  0.2347 | max_idx =  1
+**pseudo_label ->  [0.1777, 0.2429, 0.1848, 0.1983, 0.1962] **
+max =  0.2429 | max_idx =  1
+**pseudo_label ->  [0.1665, 0.2284, 0.1793, 0.2239, 0.2019] **
+max =  0.2284 | max_idx =  1
+**pseudo_label ->  [0.1825, 0.2166, 0.1908, 0.1891, 0.2211] **
+max =  0.2211 | max_idx =  4
+**pseudo_label ->  [0.1758, 0.2187, 0.2, 0.2056, 0.1998] **
+max =  0.2187 | max_idx =  1
+Epoch 22/37, Train Loss: 1.6053, Valid Loss: 1.7344, Train Acc: 0.2000, Val Acc: 0.0612, Test Acc: 0.0526, Test F1(macro): 0.0200, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 88  Tim 0:16:20
+acc_train_cw(현재 train의 class별 acc) [0.0, 1.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2056, 0.2543, 0.1621, 0.1713, 0.2067] **
+max =  0.2543 | max_idx =  1
+**pseudo_label ->  [0.1961, 0.2655, 0.1554, 0.1786, 0.2043] **
+max =  0.2655 | max_idx =  1
+**pseudo_label ->  [0.2382, 0.2397, 0.1451, 0.1833, 0.1938] **
+max =  0.2397 | max_idx =  1
+**pseudo_label ->  [0.2047, 0.2601, 0.1452, 0.171, 0.2191] **
+max =  0.2601 | max_idx =  1
+**pseudo_label ->  [0.2107, 0.2819, 0.126, 0.1724, 0.209] **
+max =  0.2819 | max_idx =  1
+Epoch 23/37, Train Loss: 1.7127, Valid Loss: 1.6852, Train Acc: 0.2000, Val Acc: 0.0612, Test Acc: 0.0526, Test F1(macro): 0.0200, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 92  Tim 0:17:04
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 0.0, 1.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2035, 0.1898, 0.1608, 0.2198, 0.2261] **
+max =  0.2261 | max_idx =  4
+**pseudo_label ->  [0.2109, 0.2066, 0.1606, 0.2054, 0.2166] **
+max =  0.2166 | max_idx =  4
+**pseudo_label ->  [0.1821, 0.2261, 0.1558, 0.21, 0.226] **
+max =  0.2261 | max_idx =  1
+**pseudo_label ->  [0.2064, 0.1926, 0.1494, 0.2075, 0.244] **
+max =  0.244 | max_idx =  4
+**pseudo_label ->  [0.1657, 0.2241, 0.1545, 0.2186, 0.2372] **
+max =  0.2372 | max_idx =  4
+Epoch 24/37, Train Loss: 1.6232, Valid Loss: 1.6067, Train Acc: 0.2000, Val Acc: 0.2449, Test Acc: 0.2316, Test F1(macro): 0.0752, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 96  Tim 0:17:45
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 0.0, 1.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2213, 0.1895, 0.1987, 0.1779, 0.2126] **
+max =  0.2213 | max_idx =  0
+**pseudo_label ->  [0.2184, 0.1847, 0.1922, 0.194, 0.2107] **
+max =  0.2184 | max_idx =  0
+**pseudo_label ->  [0.2042, 0.1762, 0.2091, 0.1806, 0.2299] **
+max =  0.2299 | max_idx =  4
+**pseudo_label ->  [0.2169, 0.1805, 0.1997, 0.1858, 0.2171] **
+max =  0.2171 | max_idx =  4
+**pseudo_label ->  [0.1989, 0.1882, 0.1922, 0.2, 0.2207] **
+max =  0.2207 | max_idx =  4
+Epoch 25/37, Train Loss: 1.6319, Valid Loss: 1.5985, Train Acc: 0.2000, Val Acc: 0.2449, Test Acc: 0.2316, Test F1(macro): 0.0752, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 100  Tim 0:18:25
+acc_train_cw(현재 train의 class별 acc) [1.0, 0.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2291, 0.1729, 0.2223, 0.2028, 0.1728] **
+max =  0.2291 | max_idx =  0
+**pseudo_label ->  [0.2271, 0.1626, 0.2137, 0.2067, 0.19] **
+max =  0.2271 | max_idx =  0
+**pseudo_label ->  [0.2497, 0.1755, 0.1935, 0.2048, 0.1765] **
+max =  0.2497 | max_idx =  0
+**pseudo_label ->  [0.225, 0.1708, 0.2209, 0.2106, 0.1728] **
+max =  0.225 | max_idx =  0
+**pseudo_label ->  [0.211, 0.195, 0.208, 0.2011, 0.1848] **
+max =  0.211 | max_idx =  0
+Epoch 26/37, Train Loss: 1.6420, Valid Loss: 1.5783, Train Acc: 0.2000, Val Acc: 0.1020, Test Acc: 0.1263, Test F1(macro): 0.0449, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 104  Tim 0:19:04
+acc_train_cw(현재 train의 class별 acc) [1.0, 0.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2145, 0.222, 0.2272, 0.1771, 0.1592] **
+max =  0.2272 | max_idx =  2
+**pseudo_label ->  [0.2585, 0.1472, 0.2369, 0.1843, 0.1731] **
+max =  0.2585 | max_idx =  0
+**pseudo_label ->  [0.2842, 0.1466, 0.2346, 0.178, 0.1566] **
+max =  0.2842 | max_idx =  0
+**pseudo_label ->  [0.2521, 0.1415, 0.2294, 0.2023, 0.1748] **
+max =  0.2521 | max_idx =  0
+**pseudo_label ->  [0.236, 0.149, 0.2292, 0.1962, 0.1897] **
+max =  0.236 | max_idx =  0
+Epoch 27/37, Train Loss: 1.7488, Valid Loss: 1.5752, Train Acc: 0.2000, Val Acc: 0.1020, Test Acc: 0.1263, Test F1(macro): 0.0449, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 108  Tim 0:19:43
+acc_train_cw(현재 train의 class별 acc) [1.0, 0.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2687, 0.1544, 0.2293, 0.1803, 0.1673] **
+max =  0.2687 | max_idx =  0
+**pseudo_label ->  [0.2366, 0.1586, 0.2353, 0.2125, 0.1569] **
+max =  0.2366 | max_idx =  0
+**pseudo_label ->  [0.2309, 0.1524, 0.2457, 0.1871, 0.184] **
+max =  0.2457 | max_idx =  2
+**pseudo_label ->  [0.2482, 0.1518, 0.2407, 0.2037, 0.1557] **
+max =  0.2482 | max_idx =  0
+**pseudo_label ->  [0.2176, 0.1917, 0.2112, 0.1964, 0.1831] **
+max =  0.2176 | max_idx =  0
+Epoch 28/37, Train Loss: 1.6359, Valid Loss: 1.6440, Train Acc: 0.2000, Val Acc: 0.1020, Test Acc: 0.1263, Test F1(macro): 0.0449, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 112  Tim 0:20:21
+acc_train_cw(현재 train의 class별 acc) [0.0, 1.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.1971, 0.2377, 0.1968, 0.188, 0.1803] **
+max =  0.2377 | max_idx =  1
+**pseudo_label ->  [0.1878, 0.229, 0.1978, 0.2015, 0.1839] **
+max =  0.229 | max_idx =  1
+**pseudo_label ->  [0.2013, 0.2099, 0.1989, 0.2054, 0.1845] **
+max =  0.2099 | max_idx =  1
+**pseudo_label ->  [0.1959, 0.2153, 0.2006, 0.1911, 0.1972] **
+max =  0.2153 | max_idx =  1
+**pseudo_label ->  [0.1894, 0.2411, 0.1816, 0.1977, 0.1903] **
+max =  0.2411 | max_idx =  1
+Epoch 29/37, Train Loss: 1.6219, Valid Loss: 1.6820, Train Acc: 0.2000, Val Acc: 0.0612, Test Acc: 0.0526, Test F1(macro): 0.0200, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 116  Tim 0:21:01
+acc_train_cw(현재 train의 class별 acc) [0.0, 1.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.1986, 0.2115, 0.1692, 0.2131, 0.2076] **
+max =  0.2131 | max_idx =  3
+**pseudo_label ->  [0.1916, 0.2235, 0.1708, 0.2193, 0.1949] **
+max =  0.2235 | max_idx =  1
+**pseudo_label ->  [0.1875, 0.2171, 0.1694, 0.2208, 0.2052] **
+max =  0.2208 | max_idx =  3
+**pseudo_label ->  [0.1781, 0.2454, 0.1566, 0.2183, 0.2016] **
+max =  0.2454 | max_idx =  1
+**pseudo_label ->  [0.1805, 0.2375, 0.1629, 0.2095, 0.2095] **
+max =  0.2375 | max_idx =  1
+Epoch 30/37, Train Loss: 1.6231, Valid Loss: 1.7143, Train Acc: 0.2000, Val Acc: 0.0612, Test Acc: 0.0526, Test F1(macro): 0.0200, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 120  Tim 0:21:40
+acc_train_cw(현재 train의 class별 acc) [0.0, 1.0, 0.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.0992, 0.507, 0.0677, 0.1665, 0.1596] **
+max =  0.507 | max_idx =  1
+**pseudo_label ->  [0.1729, 0.242, 0.1584, 0.214, 0.2126] **
+max =  0.242 | max_idx =  1
+**pseudo_label ->  [0.1688, 0.2393, 0.1617, 0.2321, 0.1982] **
+max =  0.2393 | max_idx =  1
+**pseudo_label ->  [0.1751, 0.2584, 0.154, 0.22, 0.1925] **
+max =  0.2584 | max_idx =  1
+**pseudo_label ->  [0.1721, 0.2407, 0.1511, 0.2295, 0.2065] **
+max =  0.2407 | max_idx =  1
+Epoch 31/37, Train Loss: 1.6932, Valid Loss: 1.6640, Train Acc: 0.2000, Val Acc: 0.0612, Test Acc: 0.0526, Test F1(macro): 0.0200, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 124  Tim 0:22:19
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 0.0, 1.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.1709, 0.2104, 0.164, 0.2344, 0.2203] **
+max =  0.2344 | max_idx =  3
+**pseudo_label ->  [0.1603, 0.2091, 0.1627, 0.2364, 0.2315] **
+max =  0.2364 | max_idx =  3
+**pseudo_label ->  [0.2038, 0.1846, 0.1521, 0.2143, 0.2452] **
+max =  0.2452 | max_idx =  4
+**pseudo_label ->  [0.1843, 0.1941, 0.1666, 0.2275, 0.2274] **
+max =  0.2275 | max_idx =  3
+**pseudo_label ->  [0.1894, 0.1941, 0.1735, 0.2201, 0.2229] **
+max =  0.2229 | max_idx =  4
+Epoch 32/37, Train Loss: 1.7040, Valid Loss: 1.5022, Train Acc: 0.2000, Val Acc: 0.2449, Test Acc: 0.2316, Test F1(macro): 0.0752, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 128  Tim 0:22:57
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 1.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2049, 0.1513, 0.2573, 0.1881, 0.1983] **
+max =  0.2573 | max_idx =  2
+**pseudo_label ->  [0.1803, 0.1537, 0.2623, 0.2094, 0.1944] **
+max =  0.2623 | max_idx =  2
+**pseudo_label ->  [0.1939, 0.154, 0.2528, 0.1993, 0.2] **
+max =  0.2528 | max_idx =  2
+**pseudo_label ->  [0.2037, 0.1466, 0.268, 0.1882, 0.1935] **
+max =  0.268 | max_idx =  2
+**pseudo_label ->  [0.1914, 0.155, 0.2858, 0.1891, 0.1786] **
+max =  0.2858 | max_idx =  2
+Epoch 33/37, Train Loss: 1.6565, Valid Loss: 1.5118, Train Acc: 0.2000, Val Acc: 0.4490, Test Acc: 0.3579, Test F1(macro): 0.1054, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 132  Tim 0:23:36
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 1.0, 0.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.1925, 0.1668, 0.4377, 0.0655, 0.1375] **
+max =  0.4377 | max_idx =  2
+**pseudo_label ->  [0.1882, 0.1615, 0.271, 0.17, 0.2092] **
+max =  0.271 | max_idx =  2
+**pseudo_label ->  [0.2128, 0.1528, 0.2597, 0.1711, 0.2036] **
+max =  0.2597 | max_idx =  2
+**pseudo_label ->  [0.228, 0.1474, 0.2557, 0.1601, 0.2088] **
+max =  0.2557 | max_idx =  2
+**pseudo_label ->  [0.2015, 0.1531, 0.2712, 0.1705, 0.2037] **
+max =  0.2712 | max_idx =  2
+Epoch 34/37, Train Loss: 1.7126, Valid Loss: 1.6018, Train Acc: 0.2000, Val Acc: 0.4490, Test Acc: 0.3579, Test F1(macro): 0.1054, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 136  Tim 0:24:15
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 1.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.1919, 0.1834, 0.2074, 0.2159, 0.2015] **
+max =  0.2159 | max_idx =  3
+**pseudo_label ->  [0.2044, 0.1839, 0.1967, 0.2214, 0.1935] **
+max =  0.2214 | max_idx =  3
+**pseudo_label ->  [0.199, 0.1995, 0.1942, 0.2199, 0.1874] **
+max =  0.2199 | max_idx =  3
+**pseudo_label ->  [0.2033, 0.1709, 0.1967, 0.2351, 0.1939] **
+max =  0.2351 | max_idx =  3
+**pseudo_label ->  [0.1977, 0.1881, 0.2195, 0.2185, 0.1762] **
+max =  0.2195 | max_idx =  2
+Epoch 35/37, Train Loss: 1.6456, Valid Loss: 1.6885, Train Acc: 0.2000, Val Acc: 0.1429, Test Acc: 0.2316, Test F1(macro): 0.0752, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 140  Tim 0:24:54
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 1.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2166, 0.2032, 0.1729, 0.2473, 0.1601] **
+max =  0.2473 | max_idx =  3
+**pseudo_label ->  [0.1634, 0.4142, 0.1543, 0.1742, 0.094] **
+max =  0.4142 | max_idx =  1
+**pseudo_label ->  [0.2109, 0.2003, 0.1886, 0.2321, 0.1681] **
+max =  0.2321 | max_idx =  3
+**pseudo_label ->  [0.196, 0.2077, 0.1762, 0.2303, 0.1898] **
+max =  0.2303 | max_idx =  3
+**pseudo_label ->  [0.2341, 0.2086, 0.1641, 0.2167, 0.1764] **
+max =  0.2341 | max_idx =  0
+Epoch 36/37, Train Loss: 1.6797, Valid Loss: 1.6390, Train Acc: 0.2000, Val Acc: 0.1429, Test Acc: 0.2316, Test F1(macro): 0.0752, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+
+
+line 303 => train data수 25
+line 258 => 인스턴스 수 4
+Step 144  Tim 0:25:33
+acc_train_cw(현재 train의 class별 acc) [0.0, 0.0, 0.0, 1.0, 0.0]
+cw_psl_total_eval(pseudo label 클래스별 총 샘플 수):  [0, 0, 0, 0, 0]
+cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수):  [0, 0, 0, 0, 0]
+psl_acc(PSL 평가에서의 정확도): None 
+cw_psl_acc(클래스별 PSL 평가에서의 정확도):  [nan, nan, nan, nan, nan]
+**pseudo_label ->  [0.2531, 0.1921, 0.1964, 0.2045, 0.1539] **
+max =  0.2531 | max_idx =  0
+**pseudo_label ->  [0.2212, 0.1891, 0.1944, 0.2137, 0.1816] **
+max =  0.2212 | max_idx =  0
+**pseudo_label ->  [0.2171, 0.2104, 0.1983, 0.2125, 0.1618] **
+max =  0.2171 | max_idx =  0
+**pseudo_label ->  [0.2247, 0.1843, 0.201, 0.2213, 0.1687] **
+max =  0.2247 | max_idx =  0
+**pseudo_label ->  [0.2367, 0.1931, 0.1902, 0.2249, 0.155] **
+max =  0.2367 | max_idx =  0
+Epoch 37/37, Train Loss: 1.6190, Valid Loss: 1.5902, Train Acc: 0.2000, Val Acc: 0.1429, Test Acc: 0.2316, Test F1(macro): 0.0752, Total Pseudo-Labels: 0, Correct Pseudo-Labels: 0, Train Data Number: 25
+
+Training complete!
+Total training took 0:26:05 (h:mm:ss)
+Load model from ./experiment/corcod_extended_data/output/5_codebert-base_0.0004_0.7_corcod_extended_data_37_[42]_net0.pth
+Save training statistics in:  ./experiment/corcod_extended_data/log/codebert/class5//5_codebert-base_0.0004_0.7_corcod_extended_data_37_[42]/training_statistics.csv
+
+best_trian_loss, epoch => 1.6052788496017456 22
+Epoch-1_train_loss => 1.7985652089118958
+max_epoch_train_loss => 1.6190321445465088 
+
+
+best_val_loss, epoch =>  1.5022495595776304 32
+Epoch-1_val_loss => 1.8009481211097873
+max_epoch_val_loss => 1.5901590524887552 
+
+pse_epoch =>  [14]
+추가되는 pse_epoch =>  [] 
+
+total_data:  25 
+
+Best_step:  0 
+Best_val_epoch:  1 
+best_val_acc:  0.4489795918367347 
+best_val_test_acc:  0.35789473684210527 
+best_val_test_f1:  0.1054263565891473
+Save best record in:  ./experiment/corcod_extended_data/log/codebert/class5/summary.csv
+Save best record in:  ./experiment/corcod_extended_data/log/summary_avgrun.csv
