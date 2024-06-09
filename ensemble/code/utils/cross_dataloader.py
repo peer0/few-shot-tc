@@ -31,20 +31,42 @@ class SEMI_SSL_Dataset(Dataset):
         self.sents_aug1 = sents_aug1
         self.sents_aug2 = sents_aug2
         self.labels = labels
+        filtered_sents_aug1 = []
+        filtered_sents_aug2 = []
+        if sents == None: print("Why??????????????????")
+        if sents_aug1 == None:
+            filtered_sents_aug1 = sents
+        else:
+            for sent1,sent in zip(sents_aug1,sents):
+                if sent1 != "ERROR" and sent1 is not np.nan:
+                    filtered_sents_aug1.append(sent1)
+                else:
+                    filtered_sents_aug1.append(sent)
+        if sents_aug2 == None:
+            filtered_sents_aug2 = sents
+        else:
+            for sent2,sent in zip(sents_aug2,sents):
+                if sent2 != "ERROR" and sent2 is not np.nan:
+                    filtered_sents_aug2.append(sent2)
+                else:
+                    filtered_sents_aug2.append(sent)
+        self.sents_aug1 = filtered_sents_aug1
+        self.sents_aug2 = filtered_sents_aug2
 
     def __len__(self):
         return len(self.labels)
     
     def __getitem__(self, idx):
-        #return self.sents[idx], self.labels[idx]
         return self.sents[idx], self.sents_aug1[idx], self.sents_aug2[idx], self.labels[idx]
     
-    def add_data(self, new_sent, new_label):
+    def add_data(self, new_sent, new_sent_aug1, new_sent_aug2, new_label):
         if new_sent in self.sents:
             idx = self.sents.index(new_sent)
             self.labels[idx] = new_label
         else:
             self.sents.append(new_sent)
+            self.sents_aug1.append(new_sent_aug1)
+            self.sents_aug2.append(new_sent_aug2)
             self.labels.append(new_label)
             
 
@@ -256,7 +278,7 @@ def get_dataloader_v3(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     elif token == "Salesforce/codet5p-110m-embedding":
         tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
     elif token == "microsoft/unixcoder-base":
-        tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base", trust_remote_code=True)
     elif token == "microsoft/graphcodebert-base":
         tokenizer = AutoTokenizer.from_pretrained("microsoft/graphcodebert-base")
     elif token == "codesage/codesage-base":
@@ -336,7 +358,7 @@ def get_dataloader_v4(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     elif token == "Salesforce/codet5p-110m-embedding":
         tokenizer = AutoTokenizer.from_pretrained("Salesforce/codet5p-110m-embedding", trust_remote_code=True)
     elif token == "microsoft/unixcoder-base":
-        tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base")
+        tokenizer = AutoTokenizer.from_pretrained("microsoft/unixcoder-base", trust_remote_code=True)
     elif token == "microsoft/graphcodebert-base":
         tokenizer = AutoTokenizer.from_pretrained("microsoft/graphcodebert-base")
     elif token == "codesage/codesage-base":

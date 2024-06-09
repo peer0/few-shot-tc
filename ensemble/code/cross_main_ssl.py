@@ -24,7 +24,7 @@ from utils.cross_dataloader import MyCollator_SSL, BalancedBatchSampler
 from symbolic.symbolic import process_code
 
 
-def pseudo_labeling(netgroup,train_unlabeled_loader, psl_threshold_h, device, pbar, language):
+def pseudo_labeling(netgroup,num_nets,train_unlabeled_loader, psl_threshold_h, device, pbar, language):
     psl_correct = 0
     psl_total = 0
     idx = 0
@@ -38,34 +38,37 @@ def pseudo_labeling(netgroup,train_unlabeled_loader, psl_threshold_h, device, pb
         # in the loader, the range of labels are from 0 to 6
         # in the dataset, the range of labels are from 1 to 7
         origin_sent = train_dataset_u.sents[idx]
+        origin_sent_aug1 = train_dataset_u.sents_aug1[idx]
+        origin_sent_aug2 = train_dataset_u.sents_aug2[idx]
         answer_label = train_dataset_u.labels[idx]-1
         x_ulb_s = batch_unlabel['x']
         with torch.no_grad():
             outs_x_ulb_w_nets = netgroup.forward(x_ulb_s)
-        logits_x_ulb_w = outs_x_ulb_w_nets[0]
-        probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
-        max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
-        assert batch_unlabel['label'].item() == answer_label
-        #if max_probs > 0.6:
-        #    pbar.write(f"Model confidence: {max_probs}, Predict label: {max_idx}, Reference label: {batch_unlabel['label'].item()}")
-        for target_idx, target_probs in zip(max_idx, max_probs):
-            target_idx = int(target_idx)
-            if target_probs >= psl_threshold_h:
-                if target_idx == batch_unlabel['label'].item():
-                    psl_correct += 1
-                # Update dataset with pseudo-label
-                pseudo_label_temp.append({"sentence":origin_sent, "label":int(target_idx + 1)})  # Add pseudo-labeled data to the labeled dataset
-            elif target_probs >= psl_threshold_h / 2:
-                symbolic_prediction = process_code(origin_sent, language)
-                if symbolic_prediction > 0:
-                    if symbolic_prediction-1 == batch_unlabel['label'].item():
+        for i in range(num_nets):
+            logits_x_ulb_w = outs_x_ulb_w_nets[i]
+            probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
+            max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
+            assert batch_unlabel['label'].item() == answer_label
+            #if max_probs > 0.6:
+            #    pbar.write(f"Model confidence: {max_probs}, Predict label: {max_idx}, Reference label: {batch_unlabel['label'].item()}")
+            for target_idx, target_probs in zip(max_idx, max_probs):
+                target_idx = int(target_idx)
+                if target_probs >= psl_threshold_h:
+                    if target_idx == batch_unlabel['label'].item():
                         psl_correct += 1
-                    pseudo_label_temp.append({"sentence":origin_sent, "label":symbolic_prediction})  # Add pseudo-labeled data to the labeled dataset
+                    # Update dataset with pseudo-label
+                    pseudo_label_temp.append({"codes":{"original":origin_sent, "backtrans":origin_sent_aug1, "forwhile": origin_sent_aug2}, "label":int(target_idx + 1)})  # Add pseudo-labeled data to the labeled dataset
+                elif target_probs < psl_threshold_h:
+                    symbolic_prediction = process_code(origin_sent, language)
+                    if symbolic_prediction > 0:
+                        if symbolic_prediction-1 == batch_unlabel['label'].item():
+                            psl_correct += 1
+                        pseudo_label_temp.append({"codes":{"original":origin_sent, "backtrans":origin_sent_aug1, "forwhile": origin_sent_aug2}, "label":symbolic_prediction})  # Add pseudo-labeled data to the labeled dataset
         idx+=1
 
     for i in pseudo_label_temp:
         if i['label'] not in pseudo_labels: continue
-        pseudo_labels[i['label']].append(i['sentence'])
+        pseudo_labels[i['label']].append(i['codes'])
 
 
     return pseudo_labels, len(pseudo_label_temp), psl_correct
@@ -85,35 +88,38 @@ def train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, n_cl
     netgroup.train()
     total_sup_loss = 0.0
     total_unsup_loss = 0.0
-    disagree_weight = 0.9
+    disagree_weight = 0.5
     num_nets = params['num_nets'] + 1
     for batch_label in train_labeled_loader:
         x_lb, y_lb = batch_label['x'], batch_label['label'].to(device)
+        x_lb_w, x_lb_s = batch_label['x_w'], batch_label['x_s']
         outs_x_lb = netgroup.forward(x_lb, y_lb)
+        outs_x_lb_w = netgroup.forward(x_lb_w, y_lb)
+        outs_x_lb_w = netgroup.forward(x_lb_w, y_lb)
         sup_loss_nets = [ce_loss(outs_x_lb[i], y_lb) for i in range(num_nets)]
         netgroup.update(sup_loss_nets)
         for sup_loss_net in sup_loss_nets:
             total_sup_loss += sup_loss_net.item()
-    for batch_unlabel in train_unlabeled_loader:
-        x_ulb_w, x_ulb_s = batch_unlabel['x_w'], batch_unlabel['x_s']
-        outs_x_ulb_s_nets = netgroup.forward(x_ulb_s)
-        with torch.no_grad(): # stop gradient for weak augmentation brach
-            outs_x_ulb_w_nets = netgroup.forward(x_ulb_w)
 
-        ## Generate pseudo labels and masks for all nets in one batch of unlabeled data
+
         pseudo_labels_nets = []
         u_psl_masks_nets = []
 
+        x_lb_w, x_lb_s = batch_label['x_w'], batch_label['x_s']
+        outs_x_ulb_w_nets = netgroup.forward(x_lb_w, y_lb)
+        with torch.no_grad(): # stop gradient for weak augmentation brach
+            outs_x_ulb_s_nets = netgroup.forward(x_lb_s, y_lb)
+
         for i in range(num_nets):
             ## generate pseudo labels
-            logits_x_ulb_w = outs_x_ulb_w_nets[i]
-            max_idx = torch.argmax(logits_x_ulb_w, dim=-1)
-            #pseudo_labels_nets.append(torch.softmax(logits_x_ulb_w, dim=-1))
-            pseudo_labels_nets.append(F.one_hot(max_idx, num_classes=n_classes).to(device))
+            logits_x_ulb_s = outs_x_ulb_s_nets[i]
+            max_idx = torch.argmax(logits_x_ulb_s, dim=-1)
+            pseudo_labels_nets.append(torch.softmax(logits_x_ulb_s, dim=-1))
+            #pseudo_labels_nets.append(F.one_hot(max_idx, num_classes=n_classes).to(device))
 
             ## compute mask for pseudo labels
-            probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
-            max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
+            probs_x_ulb_s = torch.softmax(logits_x_ulb_s, dim=-1)
+            max_probs, max_idx = torch.max(probs_x_ulb_s, dim=-1)
             u_psl_masks_nets.append(max_probs >= params['psl_threshold_h'])
 
         ## Compute loss for unlabeled data for all nets
@@ -129,7 +135,7 @@ def train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, n_cl
             disagree_weight_masked = disagree_weight * disagree_mask + (1-disagree_weight) * agree_mask
 
             # compute loss for unlabeled data
-            unsup_loss = consistency_loss(outs_x_ulb_s_nets[i], pseudo_label, loss_type='ce', mask=u_psl_mask, disagree_weight_masked=disagree_weight_masked)    # loss_type: 'ce' or 'mse'
+            unsup_loss = consistency_loss(outs_x_ulb_w_nets[i], pseudo_label, loss_type='ce', mask=u_psl_mask, disagree_weight_masked=disagree_weight_masked)    # loss_type: 'ce' or 'mse'
 
             # compute total loss for unlabeled data
             #total_unsup_loss = weight_u_loss * unsup_loss
@@ -139,11 +145,6 @@ def train_one_epoch(netgroup, train_labeled_loader, train_unlabeled_loader, n_cl
         # update netgorup from loss of unlabeled data
         netgroup.update(total_unsup_loss_nets)
 
-        #### -Info: for now we the last net in the group for info
-        ## Check the total and correct number of pseudo-labels
-        batch_unlabel['label'] = batch_unlabel['label'].to(device) # assume 'device' is a GPU device
-        gt_labels_u = batch_unlabel['label'][u_psl_mask].to(device)
-        psl_total = torch.sum(u_psl_mask).item()
 
     return total_sup_loss / len(train_labeled_loader), total_unsup_loss / len(train_unlabeled_loader)
 
@@ -215,7 +216,7 @@ def train(output_dir_path, seed, params):
         acc_train, _, _ = evaluate(netgroup, train_labeled_loader, device)
         acc_val, _, _ = evaluate(netgroup, dev_loader, device)
         acc_test, f1_macro_test, conf_matrix = evaluate(netgroup, test_loader, device)
-        pseudo_labels, psl_total, psl_correct = pseudo_labeling(netgroup, train_unlabeled_loader, params['psl_threshold_h'], device, pbar, language)
+        pseudo_labels, psl_total, psl_correct = pseudo_labeling(netgroup, params['num_nets']+1, train_unlabeled_loader, params['psl_threshold_h'], device, pbar, language)
 
         training_stats.append(
             {   'cross': 'cross',
@@ -241,7 +242,7 @@ def train(output_dir_path, seed, params):
                 if len(codes) > 0:  # Ensure the list is not empty
                     selected_codes = random.sample(codes, min_length)
                     for code in selected_codes:
-                        train_dataset_l.add_data(code, label)
+                        train_dataset_l.add_data(code['original'], code['backtrans'], code['forwhile'], label)
         
 
         if params["checkpoint"] == 'loss':
@@ -260,7 +261,7 @@ def train(output_dir_path, seed, params):
                 best_conf_matrix = conf_matrix
                 torch.save(netgroup.state_dict(), os.path.join(output_dir_path, "cross-{}.{}".format(params["lr"],params["acc_save_name"])))
         
-        pbar.write(f"Epoch {epoch + 1}/{params['max_epoch']}, Train Loss: {train_sup_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
+        pbar.write(f"Epoch {epoch + 1}/{params['max_epoch']}, Train Sup Loss: {train_sup_loss:.4f}, Train Unsup Loss: {train_unsup_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
                    f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1 Macro: {f1_macro_test:.4f}, "
                    f"Total Pseudo-Labels: {psl_total}, Correct Pseudo-Labels: {psl_correct}, "
                    f"Train Data Number: {epoch_train_num} + {min_length} x {labels_with_min_length} = {len(train_dataset_l)}")

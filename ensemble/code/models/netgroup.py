@@ -69,7 +69,7 @@ class NetGroup(nn.Module):
         self.num_nets = num_nets
         self.n_classes = n_classes
         self.device = device
-        self.lr = [1e-5, 2e-6]
+        self.lr = [1e-5, 2e-5]
 
         # initialize the group of networks
         self.nets = {}
