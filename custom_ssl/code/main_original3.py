@@ -237,6 +237,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
             break
 
         for batch_label in train_labeled_loader:
+                
             step += 1
             x_lb, y_lb = batch_label['x_w'], batch_label['label']
             outs_x_lb = netgroup.forward(x_lb, y_lb.to(device))
@@ -337,77 +338,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
                     cw_psl_total_accum += cw_psl_total
                     cw_psl_correct_accum += cw_psl_correct
 
-        acc_test, f1_test, acc_test_cw = evaluation(test_loader)
-        acc_val, f1_val, acc_val_cw = evaluation(dev_loader)
-        acc_train, f1_train, acc_train_cw = evaluation(train_labeled_loader)
 
-        if ema_mode:
-            netgroup.train_ema()
-        netgroup.train()
-
-        #print(f'Epoch {epoch + 1}/{max_epoch} Evaluation:')
-        #print(f'Step {step}, Time: {format_time(time.time() - t0)}')
-        #print(f'Train Acc: {acc_train:.4f}, Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}')
-        #print(f'Train F1: {f1_train:.4f}, Val F1: {f1_val:.4f}, Test F1: {f1_test:.4f}')
-
-        acc_psl = (psl_correct_eval / psl_total_eval) if psl_total_eval > 0 else None
-
-        training_stats.append(
-            {
-                'epoch': epoch,
-                'step': step,
-                'acc_val': acc_val,
-                'f1_val': f1_val,
-                'acc_train': acc_train,
-                'f1_train': f1_train,
-                'acc_test': acc_test,
-                'f1_test': f1_test,
-                'psl_correct': psl_correct_eval,
-                'psl_total': psl_total_eval,
-                'acc_psl': acc_psl,
-                'pslt_global': pslt_global,
-                'cw_acc_train': acc_train_cw,
-                'cw_acc_val': acc_val_cw,
-                'cw_avg_prob': cw_avg_prob.tolist(),
-                'local_threshold': local_threshold.tolist(),
-                'cw_psl_total_eval': cw_psl_total_eval.tolist(),
-                'cw_psl_correct_eval': cw_psl_correct_eval.tolist(),
-                'cw_psl_acc_eval': (cw_psl_correct_eval / cw_psl_total_eval).tolist(),
-                'cw_psl_total_accum': cw_psl_total_accum.tolist(),
-                'cw_psl_correct_accum': cw_psl_correct_accum.tolist(),
-                'cw_psl_acc_accum': (cw_psl_correct_accum / cw_psl_total_accum).tolist(),
-            }
-        )
-
-        print('acc_train_cw(현재 train의 class별 acc)', acc_train_cw)
-        print('cw_psl_total_eval(pseudo label 클래스별 총 샘플 수): ', cw_psl_total_eval.tolist())
-        print('cw_psl_correct_eval(pseudo label 클래스별 맞은 샘플 수): ', cw_psl_correct_eval.tolist())
-        print('psl_acc(PSL 평가에서의 정확도): ', round((psl_correct_eval / psl_total_eval), 3), end=' ') if psl_total_eval > 0 else print('psl_acc(PSL 평가에서의 정확도): None', end=' ')
-        print('\ncw_psl_acc(클래스별 PSL 평가에서의 정확도): ', (cw_psl_correct_eval / cw_psl_total_eval).tolist())
-
-        #print("cw_psl_total_accum => ", cw_psl_total_accum)
-        #print("cw_psl_correct_accum => ", cw_psl_correct_accum)
-        print('loss for labeled data => ', sup_loss_nets[0])
-        print('loss for labeled data => ', sup_loss_nets[1])
-        
-        if acc_val > best_acc:
-            best_epoch = epoch
-            
-            val_test_acc = acc_test
-            val_test_f1 = f1_test
-            
-            best_acc = acc_val
-            best_model_step = step
-            #early_stop_count = 0
-            netgroup.save_model(output_dir_path, save_name, ema_mode=ema_mode)
-        #else:
-            #early_stop_count += 1
-            #if early_stop_count >= early_stop_tolerance:
-            #    early_stop_flag = False
-
-        psl_total_eval, psl_correct_eval = 0, 0
-        #pdb.set_trace()
-        cw_psl_total_eval, cw_psl_correct_eval = torch.zeros(n_classes, dtype=int), torch.zeros(n_classes, dtype=int)
 
 
         print(f'Step {step}, Time: {format_time(time.time() - t0)}')

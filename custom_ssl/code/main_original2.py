@@ -230,6 +230,7 @@ def oneRun(log_dir, output_dir_experiment, **params):
     
 #Code Check
     for epoch in range(max_epoch):
+        cf_check = True
         if step > max_step:
             print("조기종료 step > max step =>", step > max_step)
             break
@@ -280,6 +281,14 @@ def oneRun(log_dir, output_dir_experiment, **params):
 
                     probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
                     max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
+                    
+                    if cf_check == True:
+                        for cf in range(len(probs_x_ulb_w.squeeze().tolist())):
+                            print('**pseudo_label -> ', [round(prob, 4) for prob in probs_x_ulb_w.squeeze().tolist()[cf]], "**")
+                            print("max = ", round(max_probs.squeeze().tolist()[cf],4), "| max_idx = ", max_idx.squeeze().tolist()[cf])
+                            cf_check = False
+                    
+                    
                     if adaptive_threshold:
                         u_psl_masks_nets.append(max_probs >= psl_threshold_h)
                     else:
