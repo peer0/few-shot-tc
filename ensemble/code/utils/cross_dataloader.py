@@ -163,13 +163,13 @@ class MyCollator_SSL(object): # 추가 SSL
                     filtered_sents_aug2.append(sent)
 
         if filtered_sents_aug1 != None:
-            tokenized_aug1 = self.tokenizer(filtered_sents_aug1, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
+            tokenized_aug1 = self.tokenizer(filtered_sents_aug1, padding=True, truncation='longest_first', max_length=128, return_tensors='pt')
         else:
-            tokenized_aug1 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
+            tokenized_aug1 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=128, return_tensors='pt')
         if filtered_sents_aug2 != None:
-            tokenized_aug2 = self.tokenizer(filtered_sents_aug2, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
+            tokenized_aug2 = self.tokenizer(filtered_sents_aug2, padding=True, truncation='longest_first', max_length=128, return_tensors='pt')
         else:
-            tokenized_aug2 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
+            tokenized_aug2 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=128, return_tensors='pt')
         labels = torch.LongTensor(labels) - 1
                     
         return {'x': tokenized, 'x_w': tokenized_aug1,'x_s': tokenized_aug2, 'label': labels}

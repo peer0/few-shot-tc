@@ -44,7 +44,7 @@ def pseudo_labeling(netgroup,num_nets,train_unlabeled_loader, psl_threshold_h, d
         x_ulb_s = batch_unlabel['x']
         with torch.no_grad():
             outs_x_ulb_w_nets = netgroup.forward(x_ulb_s)
-        for i in range(num_nets):
+        for i in range(1):
             logits_x_ulb_w = outs_x_ulb_w_nets[i]
             probs_x_ulb_w = torch.softmax(logits_x_ulb_w, dim=-1)
             max_probs, max_idx = torch.max(probs_x_ulb_w, dim=-1)
@@ -63,7 +63,7 @@ def pseudo_labeling(netgroup,num_nets,train_unlabeled_loader, psl_threshold_h, d
                     if symbolic_prediction > 0:
                         if symbolic_prediction-1 == batch_unlabel['label'].item():
                             psl_correct += 1
-                        pseudo_label_temp.append({"codes":{"original":origin_sent, "backtrans":origin_sent_aug1, "forwhile": origin_sent_aug2}, "label":symbolic_prediction})  # Add pseudo-labeled data to the labeled dataset
+                            pseudo_label_temp.append({"codes":{"original":origin_sent, "backtrans":origin_sent_aug1, "forwhile": origin_sent_aug2}, "label":symbolic_prediction})  # Add pseudo-labeled data to the labeled dataset
         idx+=1
 
     for i in pseudo_label_temp:
