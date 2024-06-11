@@ -268,7 +268,7 @@ def train(output_dir_path, seed, params):
     pd.set_option('precision', 4)
     df_stats= pd.DataFrame(training_stats)
     df_stats = df_stats.set_index('epoch')
-    training_stats_path = output_dir_path + 'cross-training_statistics.csv'   
+    training_stats_path = os.path.join(output_dir_path,'cross-training_statistics.csv')
     df_stats.to_csv(training_stats_path)
     
     labels = [
@@ -313,7 +313,7 @@ def train(output_dir_path, seed, params):
     plt.ylabel('Loss')
     plt.title('Training and Validation Loss')
     plt.legend()
-    plt.savefig(output_dir_path+'cross-{}.loss_plot.png'.format(params['lr']), bbox_inches='tight')
+    plt.savefig(os.path.join(output_dir_path+,'cross-{}.loss_plot.png'.format(params['lr'])), bbox_inches='tight')
     plt.close()  # Closes the plot
 
     # Plotting the confusion matrix
@@ -392,7 +392,7 @@ def main(config_file='config.json', **kwargs):
 
     # Train
     for i in range(3):
-        seed = params['seed']
+        seed = params['seed']+i
         output_seed_path = './experiment/{}_{}_{}_{}/{}'.format(params['dataset'], params['model_name'], params['aug'], params['n_labeled_per_class'],seed)
         if not os.path.exists(output_seed_path):
             os.makedirs(output_seed_path)
