@@ -391,6 +391,7 @@ class CodeComplexityCalculator:
     def classify_time_complexity(self, time_complexity):
         complexity_parts = time_complexity.split('+')
         max_complexity_label = -1
+        complexity_label = -1
         valid_complexity = False  # Initialize valid_complexity
         
         for part in complexity_parts:
@@ -428,6 +429,13 @@ class CodeComplexityCalculator:
                 # logn == 2, nlogn == 4
                 if 'log' in part:
                     complexity_label = 2 if 'n' not in part else 4  
+                elif '>>' in part:
+                    for f in part.split('>>')[1]:
+                        if any(char.isalpha() for char in f):
+                            if char_count == 0:
+                                complexity_label = 2
+                            elif char_count == 1:
+                                complexity_label = 4  
                 # 복잡도 판별
                 elif char_count == 0:
                     complexity_label = 1  # constant == 1
@@ -437,14 +445,15 @@ class CodeComplexityCalculator:
                     complexity_label = 5  # quadratic == 5
                 elif char_count == 3:
                     complexity_label = 6  # cubic == 6
-                elif char_count == 4:
-                    complexity_label = 7  # np == 7
-
+                elif "<<" in part:
+                    for f in part.split('<<')[1]:
+                        if any(char.isalpha() for char in f):
+                            complexity_label = 7  # np
                 else:
                     complexity_label = -100
             
             
-            if complexity_label != -100:
+            if complexity_label > 0:
                 valid_complexity = True
             max_complexity_label = max(max_complexity_label, complexity_label)
 

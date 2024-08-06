@@ -16,14 +16,11 @@ from transformers import AutoTokenizer
 from models.netgroup import NetGroup
 from utils.helper import format_time
 from utils.dataloader import get_dataloader
-from utils.dataloader import get_dataloader_aug_v1
-from utils.dataloader import get_dataloader_aug_v2
-from utils.dataloader import get_dataloader_artificial
 from utils.aug_dataloader import get_dataloader_v3
 from utils.aug_dataloader import get_dataloader_v4
 from criterions.criterions import ce_loss, consistency_loss
 from utils.helper import freematch_fairness_loss
-from utils.dataloader import MyCollator_SSL, BalancedBatchSampler
+from utils.aug_dataloader import MyCollator_SSL, BalancedBatchSampler
 from symbolic.symbolic import process_code
 
 
@@ -58,7 +55,7 @@ def pseudo_labeling(netgroup,train_unlabeled_loader, psl_threshold_h, device, pb
                     psl_correct += 1
                 # Update dataset with pseudo-label
                 pseudo_label_temp.append({"sentence":origin_sent, "label":int(target_idx + 1)})  # Add pseudo-labeled data to the labeled dataset
-            elif target_probs >= psl_threshold_h / 2:
+            elif target_probs < psl_threshold_h:
                 symbolic_prediction = process_code(origin_sent, language)
                 if symbolic_prediction > 0:
                     if symbolic_prediction-1 == batch_unlabel['label'].item():
@@ -173,6 +170,7 @@ def train(output_dir_path, seed, params):
                 'acc_val': acc_val,#valid의 acc
                 'acc_test': acc_test,#test의 acc
                 'f1_test': f1_macro_test, #test의 f1 macro
+                'acc_psl': psl_correct / psl_total, # 
                 'psl_correct': psl_correct, # 
                 'psl_total': psl_total,
             })
@@ -199,15 +197,16 @@ def train(output_dir_path, seed, params):
                 best_checkpoint_epoch = epoch + 1
                 best_train_dataset_l = train_dataset_l
                 best_conf_matrix = conf_matrix
-                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, "{}.{}".format(params["lr"],params["acc_save_name"])))
+                netgroup.save_model(output_dir_path, "{}.{}".format(params["lr"],params["acc_save_name"]))
         elif params["checkpoint"] == 'acc':
-            if acc_test > best_checkpoint_acc_test:
+            if acc_val > best_checkpoint_acc_val:
+                best_checkpoint_val = acc_val
                 best_checkpoint_acc_test = acc_test
                 best_checkpoint_f1_macro_test = f1_macro_test
                 best_checkpoint_epoch = epoch + 1
                 best_train_dataset_l = train_dataset_l
                 best_conf_matrix = conf_matrix
-                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, "{}.{}".format(params["lr"],params["acc_save_name"])))
+                netgroup.save_model(output_dir_path, "{}.{}".format(params["lr"],params["acc_save_name"]))
         
         pbar.write(f"Epoch {epoch + 1}/{params['max_epoch']}, Train Loss: {train_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
                    f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1 Macro: {f1_macro_test:.4f}, "
@@ -310,7 +309,7 @@ def evaluate(netgroup, loader, device):
         r'$O(N^3)$',  # cubic 5
         r'$O(2^N)$',  # exponential 6
     ]
-    class_complexity_dict = {0: r'$O(1)$', 1: r'$O(N)$', 2: r'$O(\log N)$', 3: r'$O(N^2)$', 4: r'$O(N^3)$', 5: r'$O(N \log N)$', 6: r'$O(2^N)$'}
+    class_complexity_dict = {0: r'$O(1)$', 1: r'$O(\log N)$', 2: r'$O(N)$', 3: r'$O(N \log N)$', 4: r'$O(N^2)$', 5: r'$O(N^3)$', 6: r'$O(2^N)$'}
     for l,p in zip(all_labels, all_preds):
         encoded_all_labels.append(class_complexity_dict[l])
         encoded_all_preds.append(class_complexity_dict[p])
@@ -341,7 +340,7 @@ def main(config_file='config.json', **kwargs):
     # Train
     for i in range(3):
         seed = params['seed']+i
-        output_seed_path = './experiment/{}_{}_{}_{}/{}'.format(params['dataset'], params['model_name'], params['aug'], params['n_labeled_per_class'],seed)
+        output_seed_path = './experiment/{}_{}_{}_{}/{}/'.format(params['dataset'], params['model_name'], params['aug'], params['n_labeled_per_class'],seed)
         if not os.path.exists(output_seed_path):
             os.makedirs(output_seed_path)
         best_epoch, best_acc, best_f1_macro = train(output_seed_path, seed, params)

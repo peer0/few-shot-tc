@@ -313,7 +313,7 @@ def train(output_dir_path, seed, params):
     plt.ylabel('Loss')
     plt.title('Training and Validation Loss')
     plt.legend()
-    plt.savefig(os.path.join(output_dir_path+,'cross-{}.loss_plot.png'.format(params['lr'])), bbox_inches='tight')
+    plt.savefig(os.path.join(output_dir_path,'cross-{}.loss_plot.png'.format(params['lr'])), bbox_inches='tight')
     plt.close()  # Closes the plot
 
     # Plotting the confusion matrix
