@@ -69,7 +69,10 @@ class NetGroup(nn.Module):
         self.num_nets = num_nets
         self.n_classes = n_classes
         self.device = device
-        self.lr = [1e-5, 2e-6]
+        if self.num_nets ==2:
+            self.lr = [2e-6, 1e-5]
+        else:
+            self.lr = [lr]
 
         # initialize the group of networks
         self.nets = {}
@@ -206,7 +209,6 @@ class NetGroup(nn.Module):
                        'optimizer': self.optimizers[i].state_dict(),
                        'ema_model': ema_model[i]},
                        filename)
-        print('Save model to {}'.format(path))
 
     # load the group of models
     def load_model(self, path, name, ema_mode=False):

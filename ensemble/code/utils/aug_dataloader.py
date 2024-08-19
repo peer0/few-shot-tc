@@ -188,6 +188,7 @@ def train_split_v3(forwhile_error_df, backtrans_error_df, train_df, n_labeled_pe
     error_idxs = set(forwhile_error_df['idx'].tolist()).union(set(backtrans_error_df['idx'].tolist()))
 
     train_labeled_idxs = []
+    
     for label in train_df['label'].unique():
         # 각 레이블에 해당하는 데이터를 가져옵니다.
         label_df = train_df[train_df['label'] == label]

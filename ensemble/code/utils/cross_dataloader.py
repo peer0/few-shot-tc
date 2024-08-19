@@ -33,7 +33,6 @@ class SEMI_SSL_Dataset(Dataset):
         self.labels = labels
         filtered_sents_aug1 = []
         filtered_sents_aug2 = []
-        if sents == None: print("Why??????????????????")
         if sents_aug1 == None:
             filtered_sents_aug1 = sents
         else:
@@ -144,7 +143,6 @@ class MyCollator_SSL(object): # 추가 SSL
         tokenized = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
         filtered_sents_aug1 = []
         filtered_sents_aug2 = []
-        if sents == None: print("Why??????????????????")
         if sents_aug1 == None:
             filtered_sents_aug1 = sents
         else:
@@ -163,13 +161,13 @@ class MyCollator_SSL(object): # 추가 SSL
                     filtered_sents_aug2.append(sent)
 
         if filtered_sents_aug1 != None:
-            tokenized_aug1 = self.tokenizer(filtered_sents_aug1, padding=True, truncation='longest_first', max_length=128, return_tensors='pt')
+            tokenized_aug1 = self.tokenizer(filtered_sents_aug1, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
         else:
-            tokenized_aug1 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=128, return_tensors='pt')
+            tokenized_aug1 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
         if filtered_sents_aug2 != None:
-            tokenized_aug2 = self.tokenizer(filtered_sents_aug2, padding=True, truncation='longest_first', max_length=128, return_tensors='pt')
+            tokenized_aug2 = self.tokenizer(filtered_sents_aug2, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
         else:
-            tokenized_aug2 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=128, return_tensors='pt')
+            tokenized_aug2 = self.tokenizer(sents, padding=True, truncation='longest_first', max_length=256, return_tensors='pt')
         labels = torch.LongTensor(labels) - 1
                     
         return {'x': tokenized, 'x_w': tokenized_aug1,'x_s': tokenized_aug2, 'label': labels}
@@ -307,8 +305,6 @@ def get_dataloader_v3(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     train_labeled_idxs, train_unlabeled_idxs = train_split_v3(forwhile_error_df,backtrans_error_df, train_df, n_labeled_per_class)
     
     train_l_df, train_u_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True), train_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
-    print("initial labeled dataset개수:", len(train_l_df))
-    print("initial labeled data index별 개수:",train_l_df['idx'].value_counts().to_dict())
 
     #train_l_df의 'idx' 값이 forwhile_df에도 있는 행만 선택(forwhile_df에 없으면 for나 while이 없는 코드임)
     forwhile_df = forwhile_df[forwhile_df['idx'].isin(train_l_df['idx'])]
@@ -321,16 +317,10 @@ def get_dataloader_v3(data_path, dataset, n_labeled_per_class, bs, load_mode='se
         mask = (concat_df['idx'] == idx)
         concat_df.loc[mask, 'label'] = train_l_df.loc[train_l_df['idx'] == idx, 'label'].values[0]
 
-    print("initial labeled dataset+aug개수:", len(concat_df))
-    print("initial labeled data+aug index별 개수:",concat_df['idx'].value_counts().to_dict())
     concat_df['label'] = concat_df['label'].astype(int)
     train_l_df = concat_df 
     
     # check statistics info
-    print('n_labeled_per_class: ', n_labeled_per_class)
-    print('train_df samples: %d' % (train_df.shape[0]))
-    print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
-    print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
     
     if load_mode == 'semi_SSL':
         train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), train_l_df['forwhile'].to_list(), train_l_df['back-translation'].to_list(), labels=train_l_df['label'].to_list())
@@ -389,8 +379,6 @@ def get_dataloader_v4(data_path, dataset, n_labeled_per_class, bs, load_mode='se
     train_labeled_idxs, train_unlabeled_idxs = train_split_v4(forwhile_df,backtrans_df, train_df, n_labeled_per_class)
     
     train_l_df, train_u_df = train_df.iloc[train_labeled_idxs].reset_index(drop=True), train_df.iloc[train_unlabeled_idxs].reset_index(drop=True)
-    print("initial labeled dataset개수:", len(train_l_df))
-    print("initial labeled data index별 개수:",train_l_df['idx'].value_counts().to_dict())
 
     #train_l_df의 'idx' 값이 forwhile_df에도 있는 행만 선택(forwhile_df에 없으면 for나 while이 없는 코드임)
     forwhile_df = forwhile_df[forwhile_df['idx'].isin(train_l_df['idx'])]
@@ -403,17 +391,9 @@ def get_dataloader_v4(data_path, dataset, n_labeled_per_class, bs, load_mode='se
         mask = (concat_df['idx'] == idx)
         concat_df.loc[mask, 'label'] = train_l_df.loc[train_l_df['idx'] == idx, 'label'].values[0]
 
-    print("initial labeled dataset+aug개수:", len(concat_df))
-    print("initial labeled data+aug index별 개수:",concat_df['idx'].value_counts().to_dict())
     concat_df['label'] = concat_df['label'].astype(int)
     train_l_df = concat_df 
     
-    # check statistics info
-    print('n_labeled_per_class: ', n_labeled_per_class)
-    print('train_df samples: %d' % (train_df.shape[0]))
-    print('train_labeled_df samples: %d' % (train_l_df.shape[0]))
-    print('train_unlabeled_df samples: %d' % (train_u_df.shape[0]))
-
     if load_mode == 'semi_SSL':
         train_dataset_l = SEMI_SSL_Dataset(train_l_df['content'].to_list(), train_l_df['forwhile'].to_list(), train_l_df['back-translation'].to_list(), labels=train_l_df['label'].to_list())
         train_dataset_u = SEMI_SSL_Dataset(train_u_df['content'].to_list(), train_u_df['forwhile'].to_list(), train_u_df['back-translation'].to_list(), labels=train_u_df['label'].to_list())

@@ -2,7 +2,7 @@
 
 for seed in 42; do
     for aug in natural artificial; do
-        for language in corcod python java; do
+        for language in java; do
             for nshot in 5 10; do
                 for modelname in unixcoder; do
                     for thres in 0.8; do

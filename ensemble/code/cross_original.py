@@ -223,6 +223,7 @@ def train(output_dir_path, seed, params):
                 'acc_val': acc_val,#valid의 acc
                 'acc_test': acc_test,#test의 acc
                 'f1_test': f1_macro_test, #test의 f1 macro
+                'acc_psl': psl_correct / psl_total, # 
                 'psl_correct': psl_correct, # 
                 'psl_total': psl_total,
             })
@@ -249,7 +250,7 @@ def train(output_dir_path, seed, params):
                 best_checkpoint_epoch = epoch + 1
                 best_train_dataset_l = train_dataset_l
                 best_conf_matrix = conf_matrix
-                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, "cross-{}.{}".format(params["lr"],params["acc_save_name"])))
+                netgroup.save_model(output_dir_path, "cross-{}.{}".format(params["lr"],params["acc_save_name"]))
         elif params["checkpoint"] == 'acc':
             if acc_test > best_checkpoint_acc_test:
                 best_checkpoint_acc_test = acc_test
@@ -257,7 +258,7 @@ def train(output_dir_path, seed, params):
                 best_checkpoint_epoch = epoch + 1
                 best_train_dataset_l = train_dataset_l
                 best_conf_matrix = conf_matrix
-                torch.save(netgroup.state_dict(), os.path.join(output_dir_path, "cross-{}.{}".format(params["lr"],params["acc_save_name"])))
+                netgroup.save_model(output_dir_path, "cross-{}.{}".format(params["lr"],params["acc_save_name"]))
         
         pbar.write(f"Epoch {epoch + 1}/{params['max_epoch']}, Train Sup Loss: {train_sup_loss:.4f}, Train Unsup Loss: {train_unsup_loss:.4f}, Valid Loss: {val_loss:.4f}, Train Acc: {acc_train:.4f}, "
                    f"Val Acc: {acc_val:.4f}, Test Acc: {acc_test:.4f}, Test F1 Macro: {f1_macro_test:.4f}, "
@@ -362,7 +363,7 @@ def evaluate(netgroup, loader, device):
         r'$O(N^3)$',  # cubic 5
         r'$O(2^N)$',  # exponential 6
     ]
-    class_complexity_dict = {0: r'$O(1)$', 1: r'$O(N)$', 2: r'$O(\log N)$', 3: r'$O(N^2)$', 4: r'$O(N^3)$', 5: r'$O(N \log N)$', 6: r'$O(2^N)$'}
+    class_complexity_dict = {0: r'$O(1)$', 1: r'$O(\log N)$', 2: r'$O(N)$', 3: r'$O(N \log N)$', 4: r'$O(N^2)$', 5: r'$O(N^3)$', 6: r'$O(2^N)$'}
     for l,p in zip(all_labels, all_preds):
         encoded_all_labels.append(class_complexity_dict[l])
         encoded_all_preds.append(class_complexity_dict[p])
