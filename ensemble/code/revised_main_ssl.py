@@ -199,7 +199,8 @@ def train(output_dir_path, seed, params):
                 best_conf_matrix = conf_matrix
                 netgroup.save_model(output_dir_path, "{}.{}".format(params["lr"],params["acc_save_name"]))
         elif params["checkpoint"] == 'acc':
-            if acc_test > best_checkpoint_acc_test:
+            if acc_val > best_checkpoint_acc_val:
+                best_checkpoint_val = acc_val
                 best_checkpoint_acc_test = acc_test
                 best_checkpoint_f1_macro_test = f1_macro_test
                 best_checkpoint_epoch = epoch + 1

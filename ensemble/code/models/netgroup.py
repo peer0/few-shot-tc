@@ -70,7 +70,7 @@ class NetGroup(nn.Module):
         self.n_classes = n_classes
         self.device = device
         if self.num_nets ==2:
-            self.lr = [2e-6, 1e-5]
+            self.lr = [1e-5, 2e-6]
         else:
             self.lr = [lr]
 
