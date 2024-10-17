@@ -285,9 +285,9 @@ class CodeComplexityCalculator:
         analyzer = LoopAndRecursiveAnalysis(self.code, self.language)
         # analyzer.visit(tree)
         results, contains_sort = analyzer.analyze()
-        if analyzer.contains_sort:
+        if contains_sort:
             return 'nlogn'
-        elif analyzer.results:
+        elif results:
             return 'logn'
         else:
             return ""
@@ -469,7 +469,7 @@ class LoopAndRecursiveAnalysis(ast.NodeVisitor):
             tree = javalang.parse.parse(self.code)
             self.visit_java(tree)
         else:
-            raise NotImplementedError(f"We do not support {self.language}, sorry :( )")
+            raise NotImplementedError
         return self.results, self.contains_sort
 
 

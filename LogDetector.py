@@ -1,3 +1,5 @@
+# For debugging! :)
+
 import ast
 
 class LoopAndRecursiveAnalysis(ast.NodeVisitor):
@@ -41,22 +43,28 @@ def analyze_code(source_code):
 
 # Example code
 source_code = """
-#!/usr/bin/python
+def solve(a):
+    aa = sorted(a)
+    maxr = aa[0]
+    for ai in aa:
+        if ai[2] != maxr[2]:
+            if ai[1] <= maxr[1] and ai[0] >= maxr[0]:
+                return(ai[2], maxr[2])
+            if ai[1] >= maxr[1] and ai[0] <= maxr[0]:
+                return(maxr[2], ai[2])
+        if ai[1] > maxr[1]:
+            maxr = ai
+    return(-1, -1)
 
-x,k = map(int, input().strip().split())
-
-MOD = 1000000007
-
-if x > 0:
-	r = (pow(2, k+1, MOD) * x - pow(2, k, MOD) + 1 + MOD * 10) % MOD
-else:
-	r = 0
-
-print(r)
+n = int(input())
+a = []
+for i in range(n):
+    l,r = [int(s) for s in input().split()]
+    a.append((l, r, i+1))
+i,j = solve(a)
+print(i,j)
 """
 
 # Run analysis
 result = analyze_code(source_code)
-
-# Print result
 print("Complexity:", result)

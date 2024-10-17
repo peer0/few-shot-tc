@@ -101,7 +101,7 @@ def save_result(src_csv_path, dest_csv_path, language):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Calculate and save code complexity.")
-    parser.add_argument("--dataset", default=".\\data\\int_label\\corcod\\test.csv", help="Path to the source CSV file")
+    parser.add_argument("--dataset", default=".\\int_label\\codecomplex_java\\test.csv", help="Path to the source CSV file")
     parser.add_argument("--result", default=".\\result\\temp_result.csv", help="Path to the destination CSV file to save results")
     parser.add_argument("--language", default="java", help="Programming language of the source code (python/java)")
 
