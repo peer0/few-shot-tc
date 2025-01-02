@@ -13,23 +13,24 @@ from javalang import parse
 from sklearn.metrics import confusion_matrix, accuracy_score, f1_score, precision_score
 import matplotlib.pyplot as plt
 import seaborn as sns
-from symbolic.calculator import CodeComplexityCalculator
-
+from symbolic.java_calculator import JavaComplexityCalculator
+from symbolic.python_calculator import TimeComplexityCalculator
 
 def process_code(code, language):
     if language == 'corcod': language = 'java'
-    calculator = CodeComplexityCalculator(code, language)
     if language == 'java':
-        time_complexity = calculator.calculate_time_complexity_with_function_calls()
+        calculator = JavaComplexityCalculator(code)
+        time_complexity = calculator.calculate_time_complexity()
         prediction = calculator.classify_time_complexity(time_complexity)
-
     elif language == 'python':
+        calculator = TimeComplexityCalculator(code)
         if "def " in code:
             time_complexity = calculator.calculate_time_complexity_with_function_calls()
         else:
             time_complexity = calculator.calculate_time_complexity()
         prediction = calculator.classify_time_complexity(time_complexity)
-    return time_complexity, prediction, calculator.error_method, calculator.success_method
+    # return time_complexity, prediction, calculator.error_method, calculator.success_method
+    return prediction
 
 
 def save_result(src_csv_path, dest_csv_path, language):
@@ -47,17 +48,17 @@ def save_result(src_csv_path, dest_csv_path, language):
             for row in reader:
                 src_code = row['content']
                 ground_truth_label = int(row['label'])
-                #predicted_label = process_code(src_code, language, ground_truth_label)
-                complexity_prediction, prediction, error_method, success_method = process_code(src_code, language)
-                if len(complexity_prediction) > 0: success_code += 1
-                else: error_code += 1
-                error_methods += error_method
-                success_methods += success_method
+                prediction = process_code(src_code, language)
+                # complexity_prediction, prediction, error_method, success_method = process_code(src_code, language)
+                # if len(complexity_prediction) > 0: success_code += 1
+                # else: error_code += 1
+                # error_methods += error_method
+                # success_methods += success_method
                 writer.writerow([src_code, ground_truth_label, prediction])
                 y_true.append(ground_truth_label)
                 y_pred.append(prediction)
-    print(f"code success: {success_code}, code error: {error_code}, method success: {success_methods}, method error: {error_methods}")
-    
+    #print(f"code success: {success_code}, code error: {error_code}, method success: {success_methods}, method error: {error_methods}")
+
     accuracy = accuracy_score(y_true, y_pred)
     precision = precision_score(y_true, y_pred, labels=[1,2,3,4,5,6,7],average='micro')
 
