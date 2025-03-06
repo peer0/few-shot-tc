@@ -23,22 +23,8 @@ TCProF tackles this problem through **three key components**:
 2. **Co-Training Mechanism**: Simultaneous training of two models (original and augmented) to prevent error propagation.
 3. **Symbolic Module (SYM)**: Utilizing **Abstract Syntax Trees (ASTs) and Regex-based analysis** to improve pseudo-labeling accuracy.
 
-> ![Framework Overview](figures/framework_overview.png)  
+> ![Framework Overview](figures/overview.png)  
 > _Overview of TCProF framework_
-
----
-
-## 📊 Experimental Results  
-
-TCProF is evaluated on **CodeComplex** and **CorCoD** datasets, demonstrating superior performance compared to self-training and JointMatch.
-
-### ✅ Key Findings:
-- **60%+ accuracy improvement over self-training methods**.
-- **Outperforms ChatGPT-4** in Python code time complexity prediction.
-- **Effective in low-resource (few-shot) environments**.
-
-> ![Experimental Results](figures/overview.png)  
-> _Comparison of TCProF against baselines_
 
 ---
 
@@ -66,6 +52,13 @@ To enhance **pseudo-labeling accuracy**, we analyze code complexity using:
 ---
 
 ## 🏆 Performance Comparison  
+
+### ✅ Key Findings:
+- **60%+ accuracy improvement over self-training methods**.
+- **Outperforms ChatGPT-4** in Python code time complexity prediction.
+- **Effective in low-resource (few-shot) environments**.
+
+---
 
 ### 📌 Accuracy on Benchmark Datasets  
 
