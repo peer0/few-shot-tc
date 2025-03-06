@@ -70,7 +70,7 @@ To enhance **pseudo-labeling accuracy**, we analyze code complexity using:
 ### 📌 Accuracy on Benchmark Datasets  
 
 | Method | Java (10-shot) | Python (10-shot) | CorCoD (10-shot) |
-|--------|--------------|---------------|----------------|----------------|
+|--------|----------------|------------------|------------------|
 | **Self-Training (ST)** | 31.77% | 40.98% | 45.61% |
 | **JointMatch (SSL)** | 24.68% | 21.04% | 42.11% |
 | **TCProF (Ours)** | **53.85%** | **70.29%** | **63.16%** |
