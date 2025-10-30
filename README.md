@@ -151,10 +151,10 @@ If you use TCProF in your research, please cite:
 
 ```bibtex
 @article{HahnAKLH25,
-  title={TCProF: Time-Complexity Prediction SSL Framework},
+  title={{TCProF}: Time-Complexity Prediction SSL Framework},
   author={Joonghyuk Hahn and Hyeseon Ahn and Jungin Kim and Soohan Lim and Yo-Sub Han},
-  journal={ArXiv},
+  booktitle={Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics, {NAACL}},
   year={2025},
-  url={https://arxiv.org/abs/2502.15749}
+  url={https://doi.org/10.18653/v1/2025.naacl-long.482}
 }
 ```
